@@ -109,6 +109,26 @@ export default class App extends React.Component {
 
   L() { return labelsFor(this.state.lang) }
 
+  // English/Russian descriptions are optional translations; fall back to the
+  // original Armenian text when a translation is absent.
+  pickDescription(lm) {
+    if (this.state.lang === 'en' && lm.descriptionEn) return lm.descriptionEn
+    if (this.state.lang === 'ru' && lm.descriptionRu) return lm.descriptionRu
+    return lm.description || ''
+  }
+
+  // Edit access is derived from where the page is served, not a client button —
+  // anyone can click a UI toggle, so real gating needs a signal outside the page.
+  // Locally-run (localhost / 127.0.0.1 / file:) = owner; anywhere else (e.g. the
+  // GitHub Pages deployment) = view-only. This isn't server-enforced security — a
+  // determined visitor could still edit the page's JS in devtools — but it stops
+  // accidental edits by guests and matches "I run it locally to edit, I publish a
+  // static copy for others to view."
+  isOwner() {
+    const h = window.location.hostname
+    return h === 'localhost' || h === '127.0.0.1' || window.location.protocol === 'file:'
+  }
+
   city() {
     const c = (this.state.data ? this.state.data.countries : []).find((x) => x.id === this.state.countryId)
     if (!c) return null
@@ -139,7 +159,7 @@ export default class App extends React.Component {
   buildCard(lm, index, listMode) {
     const l = this.L(), p = this.pal()
     return {
-      id: lm.id, name: lm.name, image: lm.image || '', description: lm.description || '',
+      id: lm.id, name: lm.name, image: lm.image || '', description: this.pickDescription(lm),
       index: String(index + 1).padStart(2, '0'), day: lm.day ? String(lm.day) : '',
       dayOptions: this.dayOptions(),
       cardStyle: 'display:flex; flex-direction:' + (listMode ? 'row' : 'column') +
@@ -150,7 +170,7 @@ export default class App extends React.Component {
       imgStyle: 'width:100%; height:100%; object-fit:cover; display:block; cursor:zoom-in',
       bodyStyle: 'display:flex; flex-direction:column; gap:8px; padding:' + (listMode ? '16px 20px' : '14px 16px 16px') + '; flex:1 1 auto; min-width:0',
       onPreview: () => lm.image && this.setState({ lightbox: { src: lm.image, alt: lm.name } }),
-      onEdit: () => this.setState({ dialog: { kind: 'edit-landmark', id: lm.id, title: lm.name, name: lm.name, image: lm.image || '', description: lm.description || '' } }),
+      onEdit: () => this.setState({ dialog: { kind: 'edit-landmark', id: lm.id, title: lm.name, name: lm.name, image: lm.image || '', description: lm.description || '', descriptionEn: lm.descriptionEn || '', descriptionRu: lm.descriptionRu || '' } }),
       onDelete: () => this.askDelete(lm.name, () => this.mutate((d) => {
         const ci = this.findCity(d); ci.landmarks = ci.landmarks.filter((x) => x.id !== lm.id)
       })),
@@ -185,6 +205,7 @@ export default class App extends React.Component {
     const d0 = this.state.dialog
     if (!d0 || !d0.name || !d0.name.trim()) return
     const name = d0.name.trim(), image = (d0.image || '').trim(), description = (d0.description || '').trim()
+    const descriptionEn = (d0.descriptionEn || '').trim(), descriptionRu = (d0.descriptionRu || '').trim()
     if (d0.kind === 'country') {
       this.mutate((d) => { d.countries.push({ id: this.slug(name, d.countries), name, flag: image, cities: [] }) })
     } else if (d0.kind === 'edit-country') {
@@ -197,10 +218,10 @@ export default class App extends React.Component {
         const ci = c.cities.find((x) => x.id === d0.id); ci.name = name; ci.image = image })
     } else if (d0.kind === 'landmark') {
       this.mutate((d) => { const ci = this.findCity(d)
-        ci.landmarks.push({ id: this.slug(name, ci.landmarks), name, image, description, day: null }) })
+        ci.landmarks.push({ id: this.slug(name, ci.landmarks), name, image, description, descriptionEn, descriptionRu, day: null }) })
     } else if (d0.kind === 'edit-landmark') {
       this.mutate((d) => { const t = this.findCity(d).landmarks.find((x) => x.id === d0.id)
-        t.name = name; t.image = image; t.description = description })
+        t.name = name; t.image = image; t.description = description; t.descriptionEn = descriptionEn; t.descriptionRu = descriptionRu })
     }
     this.setState({ dialog: null })
   }
@@ -235,7 +256,7 @@ export default class App extends React.Component {
             <h3 style="margin:0;font-family:'Work Sans',sans-serif;font-weight:600;font-size:19px;color:#1B1D18">${esc(lm.name)}</h3>
             <span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#9C9488">${String(i + 1).padStart(2, '0')}</span>
           </div>
-          <p style="margin:0;font-size:13.5px;line-height:1.6;color:#7C8474">${esc(lm.description || '')}</p>
+          <p style="margin:0;font-size:13.5px;line-height:1.6;color:#7C8474">${esc(this.pickDescription(lm))}</p>
         </div>
       </article>`).join('')
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(sel.city.name)}</title>
@@ -310,12 +331,12 @@ export default class App extends React.Component {
     let results = []
     if (isSearching) {
       countries.forEach((c) => c.cities.forEach((ci) => ci.landmarks.forEach((lm) => {
-        const hay = (lm.name + ' ' + (lm.description || '')).toLowerCase()
+        const hay = (lm.name + ' ' + (lm.description || '') + ' ' + (lm.descriptionEn || '') + ' ' + (lm.descriptionRu || '')).toLowerCase()
         if (hay.indexOf(q) === -1) return
         results.push({
           id: c.id + ci.id + lm.id, name: lm.name, image: lm.image || '',
           where: ci.name + ' · ' + c.name,
-          snippet: (lm.description || '').slice(0, 150),
+          snippet: this.pickDescription(lm).slice(0, 150),
           onClick: () => this.setState({ countryId: c.id, cityId: ci.id, openCountry: c.id, query: '' }),
         })
       })))
@@ -359,6 +380,7 @@ export default class App extends React.Component {
       showOverview: !isSearching && !sel,
       showCity: !isSearching && !!sel,
       showSidePanels: true,
+      isOwner: this.isOwner(), notOwner: !this.isOwner(),
       city: cityVals || { name: '', image: '', crumb: '', meta: '', notes: '', checklist: [], checklistEmpty: true },
       mapCity: sel ? sel.city : null,
       groups, cityEmpty: !!sel && groups.every((g) => g.items.length === 0),
@@ -398,13 +420,13 @@ export default class App extends React.Component {
       // places flow across pages.
       printCity: () => window.print(),
       addCountry: () => this.setState({ dialog: { kind: 'country', title: l.addCountry, name: '', image: '' } }),
-      addLandmark: () => this.setState({ dialog: { kind: 'landmark', title: l.addPlace, name: '', image: '', description: '' } }),
+      addLandmark: () => this.setState({ dialog: { kind: 'landmark', title: l.addPlace, name: '', image: '', description: '', descriptionEn: '', descriptionRu: '' } }),
       onNotes: (e) => { const v = e.target.value; this.mutate((d) => { this.findCity(d).notes = v }) },
       dialogOpen: !!s.dialog,
       dialog: s.dialog ? {
         title: s.dialog.title, name: s.dialog.name || '', image: s.dialog.image || '',
         description: s.dialog.description || '',
-        fileName: s.dialog.fileLabel || l.noFile,
+        descriptionEn: s.dialog.descriptionEn || '', descriptionRu: s.dialog.descriptionRu || '',
         nameLabel: s.dialog.kind.indexOf('country') > -1 ? l.countryName
           : s.dialog.kind.indexOf('city') > -1 ? l.cityName : l.placeName,
         namePlaceholder: s.dialog.kind.indexOf('country') > -1 ? 'France'
@@ -413,11 +435,13 @@ export default class App extends React.Component {
         withDescription: s.dialog.kind.indexOf('landmark') > -1,
         hasPreview: !!(s.dialog.image && /^https?:|^data:/.test(s.dialog.image)),
         submitLabel: s.dialog.kind.indexOf('edit') === 0 ? l.save : l.addBtn,
-      } : { title: '', name: '', image: '', description: '', fileName: l.noFile, nameLabel: '', namePlaceholder: '', imageLabel: '', withDescription: false, hasPreview: false, submitLabel: '' },
+      } : { title: '', name: '', image: '', description: '', descriptionEn: '', descriptionRu: '', nameLabel: '', namePlaceholder: '', imageLabel: '', withDescription: false, hasPreview: false, submitLabel: '' },
       onDialogName: (e) => this.setState({ dialog: { ...s.dialog, name: e.target.value } }),
       // Image is a plain URL typed/pasted by the user — stored as a string, no upload.
       onDialogImage: (e) => this.setState({ dialog: { ...s.dialog, image: e.target.value } }),
       onDialogDescription: (e) => this.setState({ dialog: { ...s.dialog, description: e.target.value } }),
+      onDialogDescriptionEn: (e) => this.setState({ dialog: { ...s.dialog, descriptionEn: e.target.value } }),
+      onDialogDescriptionRu: (e) => this.setState({ dialog: { ...s.dialog, descriptionRu: e.target.value } }),
       submitDialog: () => this.submit(),
       closeDialog: () => this.setState({ dialog: null }),
       confirmOpen: !!s.confirm,
@@ -473,7 +497,9 @@ export default class App extends React.Component {
             <aside data-t="sidebar" className="trips-noprint" style={css('flex:0 0 288px; border-right:1px solid #C7D0BC; box-shadow:1px 0 0 rgba(0,0,0,0.03); background:#EBEEE6; overflow-y:auto; padding:22px 18px 40px')}>
               <div style={css('display:flex; align-items:baseline; justify-content:space-between; margin-bottom:16px')}>
                 <span style={css('font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:#7C8474')}>{V.L.countries}</span>
-                <button data-t="accent" type="button" onClick={V.addCountry} style={css('border:none; background:none; color:#5FA05F; font-size:12px; cursor:pointer; padding:0')}>{V.L.add}</button>
+                {V.isOwner && (
+                  <button data-t="accent" type="button" onClick={V.addCountry} style={css('border:none; background:none; color:#5FA05F; font-size:12px; cursor:pointer; padding:0')}>{V.L.add}</button>
+                )}
               </div>
 
               <div style={css('display:flex; flex-direction:column; gap:4px')}>
@@ -485,11 +511,13 @@ export default class App extends React.Component {
                         <span data-t="ink" style={css("flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:'Work Sans',sans-serif; font-weight:600; font-size:17px; color:#26291F")}>{c.name}</span>
                         <span style={css('font-size:11px; color:#7C8474; flex:0 0 auto')}>{c.count}</span>
                       </button>
-                      <span data-t="edge" style={css('display:inline-flex; align-items:center; border:1px solid #E4EBDD; border-radius:999px; overflow:hidden')}>
-                        <El as="button" type="button" onClick={c.onEdit} title="Edit" base="display:inline-flex; align-items:center; justify-content:center; width:24px; height:22px; border:none; background:none; color:#7C8474; cursor:pointer; font-size:11px" hover="background:#478047; color:#FFFFFF">✎</El>
-                        <span data-t="edge" style={css('width:1px; align-self:stretch; background:#E4EBDD')}></span>
-                        <El as="button" type="button" onClick={c.onDelete} title="Delete" base="display:inline-flex; align-items:center; justify-content:center; width:24px; height:22px; border:none; background:none; color:#7C8474; cursor:pointer; font-size:11px" hover="background:#B3543E; color:#FFFFFF">✕</El>
-                      </span>
+                      {V.isOwner && (
+                        <span data-t="edge" style={css('display:inline-flex; align-items:center; border:1px solid #E4EBDD; border-radius:999px; overflow:hidden')}>
+                          <El as="button" type="button" onClick={c.onEdit} title="Edit" base="display:inline-flex; align-items:center; justify-content:center; width:24px; height:22px; border:none; background:none; color:#7C8474; cursor:pointer; font-size:11px" hover="background:#478047; color:#FFFFFF">✎</El>
+                          <span data-t="edge" style={css('width:1px; align-self:stretch; background:#E4EBDD')}></span>
+                          <El as="button" type="button" onClick={c.onDelete} title="Delete" base="display:inline-flex; align-items:center; justify-content:center; width:24px; height:22px; border:none; background:none; color:#7C8474; cursor:pointer; font-size:11px" hover="background:#B3543E; color:#FFFFFF">✕</El>
+                        </span>
+                      )}
                     </El>
 
                     {c.open && (
@@ -503,17 +531,21 @@ export default class App extends React.Component {
                                 <span style={css('font-size:10.5px; color:#8C9384')}>{ci.meta}</span>
                               </span>
                             </button>
-                            <span data-t="edge" style={css('display:inline-flex; align-items:center; border:1px solid #E4EBDD; border-radius:999px; overflow:hidden')}>
-                              <El as="button" type="button" onClick={ci.onEdit} title="Edit" base="display:inline-flex; align-items:center; justify-content:center; width:21px; height:20px; border:none; background:none; color:#7C8474; cursor:pointer; font-size:10px" hover="background:#478047; color:#FFFFFF">✎</El>
-                              <span data-t="edge" style={css('width:1px; align-self:stretch; background:#E4EBDD')}></span>
-                              <El as="button" type="button" onClick={ci.onDelete} title="Delete" base="display:inline-flex; align-items:center; justify-content:center; width:21px; height:20px; border:none; background:none; color:#7C8474; cursor:pointer; font-size:10px" hover="background:#B3543E; color:#FFFFFF">✕</El>
-                            </span>
+                            {V.isOwner && (
+                              <span data-t="edge" style={css('display:inline-flex; align-items:center; border:1px solid #E4EBDD; border-radius:999px; overflow:hidden')}>
+                                <El as="button" type="button" onClick={ci.onEdit} title="Edit" base="display:inline-flex; align-items:center; justify-content:center; width:21px; height:20px; border:none; background:none; color:#7C8474; cursor:pointer; font-size:10px" hover="background:#478047; color:#FFFFFF">✎</El>
+                                <span data-t="edge" style={css('width:1px; align-self:stretch; background:#E4EBDD')}></span>
+                                <El as="button" type="button" onClick={ci.onDelete} title="Delete" base="display:inline-flex; align-items:center; justify-content:center; width:21px; height:20px; border:none; background:none; color:#7C8474; cursor:pointer; font-size:10px" hover="background:#B3543E; color:#FFFFFF">✕</El>
+                              </span>
+                            )}
                           </El>
                         ))}
-                        <El as="button" type="button" onClick={c.onAddCity} base="margin-top:6px; display:flex; align-items:center; gap:8px; border:1px solid transparent; background:#E4EBDD; color:#478047; border-radius:11px; padding:7px 10px; font-size:12.5px; font-weight:500; text-align:left; cursor:pointer" hover="background:#DCE3D6; border-color:#B7DAB7">
-                          <span style={css('display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:999px; background:#5FA05F; color:#FFFFFF; font-size:12px; flex:0 0 auto')}>+</span>
-                          {V.L.addCity}
-                        </El>
+                        {V.isOwner && (
+                          <El as="button" type="button" onClick={c.onAddCity} base="margin-top:6px; display:flex; align-items:center; gap:8px; border:1px solid transparent; background:#E4EBDD; color:#478047; border-radius:11px; padding:7px 10px; font-size:12.5px; font-weight:500; text-align:left; cursor:pointer" hover="background:#DCE3D6; border-color:#B7DAB7">
+                            <span style={css('display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:999px; background:#5FA05F; color:#FFFFFF; font-size:12px; flex:0 0 auto')}>+</span>
+                            {V.L.addCity}
+                          </El>
+                        )}
                       </div>
                     )}
                   </div>
@@ -560,7 +592,9 @@ export default class App extends React.Component {
                       <h2 data-t="ink" style={css("margin:0; font-family:'Work Sans',sans-serif; font-weight:400; font-size:26px; color:#26291F")}>{ch.name}</h2>
                       <span style={css('font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#7C8474')}>{ch.meta}</span>
                       <span style={css('flex:1 1 auto')}></span>
-                      <El as="button" data-t="ghost" type="button" onClick={ch.onAddCity} className="trips-noprint" base="border:1px solid #DCE3D6; background:#FFFFFF; border-radius:999px; padding:6px 14px; font-size:12.5px; color:#7C8474; cursor:pointer" hover="border-color:#5FA05F; color:#5FA05F">{V.L.addCity}</El>
+                      {V.isOwner && (
+                        <El as="button" data-t="ghost" type="button" onClick={ch.onAddCity} className="trips-noprint" base="border:1px solid #DCE3D6; background:#FFFFFF; border-radius:999px; padding:6px 14px; font-size:12.5px; color:#7C8474; cursor:pointer" hover="border-color:#5FA05F; color:#5FA05F">{V.L.addCity}</El>
+                      )}
                     </div>
                     <div style={css('display:grid; grid-template-columns:repeat(auto-fill, minmax(268px, 1fr)); gap:22px')}>
                       {ch.cities.map((ci) => (
@@ -581,9 +615,11 @@ export default class App extends React.Component {
                   </section>
                 ))}
 
-                <div style={css('padding:4px 40px')}>
-                  <El as="button" data-t="dashed" type="button" onClick={V.addCountry} className="trips-noprint" base="border:1px dashed #DCE3D6; background:none; border-radius:14px; padding:16px 22px; font-size:13.5px; color:#7C8474; cursor:pointer" hover="border-color:#5FA05F; color:#5FA05F">{V.L.addCountry}</El>
-                </div>
+                {V.isOwner && (
+                  <div style={css('padding:4px 40px')}>
+                    <El as="button" data-t="dashed" type="button" onClick={V.addCountry} className="trips-noprint" base="border:1px dashed #DCE3D6; background:none; border-radius:14px; padding:16px 22px; font-size:13.5px; color:#7C8474; cursor:pointer" hover="border-color:#5FA05F; color:#5FA05F">{V.L.addCountry}</El>
+                  </div>
+                )}
               </div>
             )}
 
@@ -612,7 +648,9 @@ export default class App extends React.Component {
                   <span style={css('flex:1 1 auto')}></span>
                   <El as="button" data-t="ghost" type="button" onClick={V.shareCity} className="trips-noprint" base="border:1px solid #DCE3D6; background:#FFFFFF; border-radius:999px; padding:8px 16px; font-size:13px; color:#7C8474; cursor:pointer" hover="border-color:#5FA05F; color:#5FA05F">{V.L.share}</El>
                   <El as="button" data-t="ghost" type="button" onClick={V.printCity} className="trips-noprint" base="border:1px solid #DCE3D6; background:#FFFFFF; border-radius:999px; padding:8px 16px; font-size:13px; color:#7C8474; cursor:pointer" hover="border-color:#5FA05F; color:#5FA05F">{V.L.pdf}</El>
-                  <button data-t="accentbtn" type="button" onClick={V.addLandmark} className="trips-noprint" style={css('border:1px solid #5FA05F; background:#5FA05F; color:#FFFFFF; border-radius:999px; padding:8px 18px; font-size:13px; font-weight:500; cursor:pointer')}>{V.L.addPlace}</button>
+                  {V.isOwner && (
+                    <button data-t="accentbtn" type="button" onClick={V.addLandmark} className="trips-noprint" style={css('border:1px solid #5FA05F; background:#5FA05F; color:#FFFFFF; border-radius:999px; padding:8px 18px; font-size:13px; font-weight:500; cursor:pointer')}>{V.L.addPlace}</button>
+                  )}
                 </div>
 
                 <div style={css('display:flex; align-items:flex-start; gap:32px; padding:28px 40px 70px')}>
@@ -635,13 +673,15 @@ export default class App extends React.Component {
 
                             <div style={css('display:' + g.display + '; grid-template-columns:repeat(auto-fill, minmax(290px, 1fr)); flex-direction:column; gap:' + g.gap)}>
                               {g.items.map((lm) => (
-                                <article key={lm.id} data-t="card" draggable onDragStart={lm.onDragStart} onDragOver={lm.onDragOver} onDragEnd={lm.onDragEnd} style={css(lm.cardStyle)}>
+                                <article key={lm.id} data-t="card" draggable={V.isOwner} onDragStart={V.isOwner ? lm.onDragStart : undefined} onDragOver={V.isOwner ? lm.onDragOver : undefined} onDragEnd={V.isOwner ? lm.onDragEnd : undefined} style={css(lm.cardStyle)}>
                                   <div data-t="media" style={css(lm.mediaStyle)}>
                                     <img src={lm.image} alt={lm.name} onClick={lm.onPreview} style={css(lm.imgStyle)} />
-                                    <div className="trips-noprint" style={css('position:absolute; top:9px; right:9px; display:flex; gap:5px')}>
-                                      <El as="button" type="button" onClick={lm.onEdit} title="Edit" base="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border:none; border-radius:999px; background:#FFFFFF; color:#26291F; font-size:12px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.18); transition:transform .12s ease, color .12s ease" hover="color:#478047; transform:scale(1.08)">✎</El>
-                                      <El as="button" type="button" onClick={lm.onDelete} title="Delete" base="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border:none; border-radius:999px; background:#FFFFFF; color:#26291F; font-size:12px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.18); transition:transform .12s ease, color .12s ease" hover="color:#B3543E; transform:scale(1.08)">✕</El>
-                                    </div>
+                                    {V.isOwner && (
+                                      <div className="trips-noprint" style={css('position:absolute; top:9px; right:9px; display:flex; gap:5px')}>
+                                        <El as="button" type="button" onClick={lm.onEdit} title="Edit" base="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border:none; border-radius:999px; background:#FFFFFF; color:#26291F; font-size:12px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.18); transition:transform .12s ease, color .12s ease" hover="color:#478047; transform:scale(1.08)">✎</El>
+                                        <El as="button" type="button" onClick={lm.onDelete} title="Delete" base="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border:none; border-radius:999px; background:#FFFFFF; color:#26291F; font-size:12px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.18); transition:transform .12s ease, color .12s ease" hover="color:#B3543E; transform:scale(1.08)">✕</El>
+                                      </div>
+                                    )}
                                   </div>
                                   <div style={css(lm.bodyStyle)}>
                                     <div style={css('display:flex; align-items:baseline; gap:10px')}>
@@ -649,14 +689,16 @@ export default class App extends React.Component {
                                       <span style={css('font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:#8C9384; flex:0 0 auto')}>{lm.index}</span>
                                     </div>
                                     <p style={css('margin:0; font-size:13.5px; line-height:1.6; color:#7C8474; text-wrap:pretty')}>{lm.description}</p>
-                                    <div className="trips-noprint" style={css('display:flex; align-items:center; gap:8px; margin-top:2px')}>
-                                      <select data-t="input" value={lm.day} onChange={lm.onDay} style={css('border:1px solid #E4EBDD; background:#FFFFFF; color:#7C8474; border-radius:999px; padding:4px 10px; font-size:11.5px; cursor:pointer; outline:none')}>
-                                        {lm.dayOptions.map((d) => (
-                                          <option key={d.value} value={d.value}>{d.label}</option>
-                                        ))}
-                                      </select>
-                                      <span style={css('font-size:11px; color:#8C9384; cursor:grab')}>⠿ {V.L.drag}</span>
-                                    </div>
+                                    {V.isOwner && (
+                                      <div className="trips-noprint" style={css('display:flex; align-items:center; gap:8px; margin-top:2px')}>
+                                        <select data-t="input" value={lm.day} onChange={lm.onDay} style={css('border:1px solid #E4EBDD; background:#FFFFFF; color:#7C8474; border-radius:999px; padding:4px 10px; font-size:11.5px; cursor:pointer; outline:none')}>
+                                          {lm.dayOptions.map((d) => (
+                                            <option key={d.value} value={d.value}>{d.label}</option>
+                                          ))}
+                                        </select>
+                                        <span style={css('font-size:11px; color:#8C9384; cursor:grab')}>⠿ {V.L.drag}</span>
+                                      </div>
+                                    )}
                                   </div>
                                 </article>
                               ))}
@@ -673,29 +715,33 @@ export default class App extends React.Component {
                     <aside className="trips-noprint" style={css('flex:0 0 268px; position:sticky; top:96px; display:flex; flex-direction:column; gap:14px')}>
                       <div data-t="card" style={css('border:1px solid #E4EBDD; background:#FFFFFF; border-radius:16px; padding:16px 18px; display:flex; flex-direction:column; gap:10px')}>
                         <p style={css('margin:0; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:#7C8474')}>{V.L.notes}</p>
-                        <El as="textarea" data-t="input" value={V.city.notes} onChange={V.onNotes} placeholder={V.L.notesPlaceholder} rows={8}
+                        <El as="textarea" data-t="input" value={V.city.notes} onChange={V.onNotes} readOnly={V.notOwner} placeholder={V.L.notesPlaceholder} rows={8}
                           base="width:100%; box-sizing:border-box; border:1px solid #E4EBDD; border-radius:11px; background:#FFFFFF; color:#26291F; padding:10px 12px; font-size:13.5px; line-height:1.55; resize:vertical; outline:none"
                           focus="border-color:#5FA05F" />
-                        <span style={css('font-size:11px; color:#8C9384')}>{V.L.autosaved}</span>
+                        {V.isOwner && <span style={css('font-size:11px; color:#8C9384')}>{V.L.autosaved}</span>}
                       </div>
                       <div data-t="card" style={css('border:1px solid #E4EBDD; background:#FFFFFF; border-radius:16px; padding:16px 18px; display:flex; flex-direction:column; gap:10px')}>
                         <p style={css('margin:0; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:#7C8474')}>{V.L.checklist}</p>
                         <div style={css('display:flex; flex-direction:column; gap:7px')}>
                           {V.city.checklist.map((item) => (
                             <div key={item.id} style={css('display:flex; align-items:center; gap:8px')}>
-                              <input type="checkbox" checked={item.done} onChange={item.onToggle} style={css('width:15px; height:15px; accent-color:#5FA05F; cursor:pointer; flex:0 0 auto')} />
+                              <input type="checkbox" checked={item.done} onChange={item.onToggle} disabled={V.notOwner} style={css('width:15px; height:15px; accent-color:#5FA05F; cursor:pointer; flex:0 0 auto')} />
                               <span style={css('flex:1 1 auto; min-width:0; font-size:13.5px; color:' + item.color + '; text-decoration:' + item.strike + '; overflow-wrap:break-word')}>{item.text}</span>
-                              <El as="button" type="button" onClick={item.onRemove} title="Remove" className="trips-noprint" base="border:none; background:none; color:#A9AC9E; cursor:pointer; font-size:11px; padding:2px; flex:0 0 auto" hover="color:#B3543E">✕</El>
+                              {V.isOwner && (
+                                <El as="button" type="button" onClick={item.onRemove} title="Remove" className="trips-noprint" base="border:none; background:none; color:#A9AC9E; cursor:pointer; font-size:11px; padding:2px; flex:0 0 auto" hover="color:#B3543E">✕</El>
+                              )}
                             </div>
                           ))}
                         </div>
                         {V.city.checklistEmpty && <p style={css('margin:0; font-size:12.5px; color:#8C9384; font-style:italic')}>{V.L.checklistEmpty}</p>}
-                        <div style={css('display:flex; gap:6px')} className="trips-noprint">
-                          <El as="input" data-t="input" type="text" value={V.checklistDraft} onChange={V.onChecklistDraft} onKeyDown={V.onChecklistKeyDown} placeholder={V.L.checklistPlaceholder}
-                            base="flex:1 1 auto; min-width:0; box-sizing:border-box; border:1px solid #E4EBDD; border-radius:9px; background:#FFFFFF; color:#26291F; padding:7px 10px; font-size:13px; outline:none"
-                            focus="border-color:#5FA05F" />
-                          <button type="button" onClick={V.addChecklistItem} style={css('border:1px solid #5FA05F; background:#5FA05F; color:#FFFFFF; border-radius:9px; padding:0 12px; font-size:13px; cursor:pointer; flex:0 0 auto')}>{V.L.addBtn}</button>
-                        </div>
+                        {V.isOwner && (
+                          <div style={css('display:flex; gap:6px')} className="trips-noprint">
+                            <El as="input" data-t="input" type="text" value={V.checklistDraft} onChange={V.onChecklistDraft} onKeyDown={V.onChecklistKeyDown} placeholder={V.L.checklistPlaceholder}
+                              base="flex:1 1 auto; min-width:0; box-sizing:border-box; border:1px solid #E4EBDD; border-radius:9px; background:#FFFFFF; color:#26291F; padding:7px 10px; font-size:13px; outline:none"
+                              focus="border-color:#5FA05F" />
+                            <button type="button" onClick={V.addChecklistItem} style={css('border:1px solid #5FA05F; background:#5FA05F; color:#FFFFFF; border-radius:9px; padding:0 12px; font-size:13px; cursor:pointer; flex:0 0 auto')}>{V.L.addBtn}</button>
+                          </div>
+                        )}
                       </div>
                     </aside>
                   )}
@@ -718,10 +764,20 @@ export default class App extends React.Component {
                 <El as="input" data-t="input" type="url" value={V.dialog.image} onChange={V.onDialogImage} placeholder="https://…" base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #E4EBDD; border-radius:11px; background:#FFFFFF; color:#26291F; font-size:14px; outline:none" focus="border-color:#5FA05F" />
               </label>
               {V.dialog.withDescription && (
-                <label style={css('display:block; margin-bottom:14px')}>
-                  <span style={css('display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#7C8474')}>{V.L.description}</span>
-                  <El as="textarea" data-t="input" value={V.dialog.description} onChange={V.onDialogDescription} rows={4} base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #E4EBDD; border-radius:11px; background:#FFFFFF; color:#26291F; font-size:14px; line-height:1.55; resize:vertical; outline:none" focus="border-color:#5FA05F" />
-                </label>
+                <>
+                  <label style={css('display:block; margin-bottom:14px')}>
+                    <span style={css('display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#7C8474')}>{V.L.descriptionHy}</span>
+                    <El as="textarea" data-t="input" value={V.dialog.description} onChange={V.onDialogDescription} rows={3} base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #E4EBDD; border-radius:11px; background:#FFFFFF; color:#26291F; font-size:14px; line-height:1.55; resize:vertical; outline:none" focus="border-color:#5FA05F" />
+                  </label>
+                  <label style={css('display:block; margin-bottom:14px')}>
+                    <span style={css('display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#7C8474')}>{V.L.descriptionEn}</span>
+                    <El as="textarea" data-t="input" value={V.dialog.descriptionEn} onChange={V.onDialogDescriptionEn} rows={3} base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #E4EBDD; border-radius:11px; background:#FFFFFF; color:#26291F; font-size:14px; line-height:1.55; resize:vertical; outline:none" focus="border-color:#5FA05F" />
+                  </label>
+                  <label style={css('display:block; margin-bottom:14px')}>
+                    <span style={css('display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#7C8474')}>{V.L.descriptionRu}</span>
+                    <El as="textarea" data-t="input" value={V.dialog.descriptionRu} onChange={V.onDialogDescriptionRu} rows={3} base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #E4EBDD; border-radius:11px; background:#FFFFFF; color:#26291F; font-size:14px; line-height:1.55; resize:vertical; outline:none" focus="border-color:#5FA05F" />
+                  </label>
+                </>
               )}
               {V.dialog.hasPreview && (
                 <div data-t="media" style={css('margin-bottom:16px; border:1px solid #E4EBDD; border-radius:12px; overflow:hidden; background:#E4EBDD')}>
