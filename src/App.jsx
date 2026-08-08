@@ -415,14 +415,8 @@ export default class App extends React.Component {
         submitLabel: s.dialog.kind.indexOf('edit') === 0 ? l.save : l.addBtn,
       } : { title: '', name: '', image: '', description: '', fileName: l.noFile, nameLabel: '', namePlaceholder: '', imageLabel: '', withDescription: false, hasPreview: false, submitLabel: '' },
       onDialogName: (e) => this.setState({ dialog: { ...s.dialog, name: e.target.value } }),
-      onDialogFile: (e) => {
-        const file = e.target.files && e.target.files[0]
-        if (!file) return
-        const reader = new FileReader()
-        // Reads locally and stores the image inline as a data URL — swap this for an S3 upload later without touching the rest of the app.
-        reader.onload = () => this.setState({ dialog: { ...this.state.dialog, image: reader.result, fileLabel: file.name } })
-        reader.readAsDataURL(file)
-      },
+      // Image is a plain URL typed/pasted by the user — stored as a string, no upload.
+      onDialogImage: (e) => this.setState({ dialog: { ...s.dialog, image: e.target.value } }),
       onDialogDescription: (e) => this.setState({ dialog: { ...s.dialog, description: e.target.value } }),
       submitDialog: () => this.submit(),
       closeDialog: () => this.setState({ dialog: null }),
@@ -721,13 +715,7 @@ export default class App extends React.Component {
               </label>
               <label style={css('display:block; margin-bottom:14px')}>
                 <span style={css('display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#7C8474')}>{V.dialog.imageLabel}</span>
-                <span style={css('display:flex; align-items:center; gap:10px')}>
-                  <span style={css('position:relative; display:inline-flex')}>
-                    <input type="file" accept="image/*" onChange={V.onDialogFile} style={css('position:absolute; inset:0; opacity:0; cursor:pointer')} />
-                    <span data-t="ghost" style={css('display:inline-flex; align-items:center; gap:8px; border:1px dashed #E4EBDD; background:#F5F6F4; color:#478047; border-radius:11px; padding:10px 16px; font-size:13.5px; font-weight:500; cursor:pointer')}>⤒ {V.L.upload}</span>
-                  </span>
-                  <span style={css('font-size:12.5px; color:#8A8577; overflow:hidden; text-overflow:ellipsis; white-space:nowrap')}>{V.dialog.fileName}</span>
-                </span>
+                <El as="input" data-t="input" type="url" value={V.dialog.image} onChange={V.onDialogImage} placeholder="https://…" base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #E4EBDD; border-radius:11px; background:#FFFFFF; color:#26291F; font-size:14px; outline:none" focus="border-color:#5FA05F" />
               </label>
               {V.dialog.withDescription && (
                 <label style={css('display:block; margin-bottom:14px')}>
