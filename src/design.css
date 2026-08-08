@@ -1,0 +1,76 @@
+/* Verbatim from the Trips.dc.html design helmet: role-tagged dark-mode
+   overrides. The template styles elements with light hex values inline and
+   tags each with data-t="<role>"; these rules flip the roles in dark mode.
+   Applied because <html> carries data-theme (set from App). Hover/focus for
+   light mode is handled inline per-element by the <El> wrapper. */
+
+[data-theme='dark'] {
+  color: #f5f6f4;
+}
+[data-theme='dark'] [data-t='app'] {
+  background: #1b1d18 !important;
+}
+[data-theme='dark'] [data-t='panel'] {
+  background: #20221c !important;
+  border-color: #3a3e33 !important;
+}
+[data-theme='dark'] [data-t='panel2'] {
+  background: #1d1f1a !important;
+  border-color: #3a3e33 !important;
+}
+[data-theme='dark'] [data-t='sidebar'] {
+  background: #17190f !important;
+  border-color: #33372c !important;
+}
+[data-theme='dark'] [data-t='card'] {
+  background: #26291f !important;
+  border-color: #3a3e33 !important;
+}
+[data-theme='dark'] [data-t='input'] {
+  background: #292c25 !important;
+  border-color: #3a3e33 !important;
+  color: #f5f6f4 !important;
+}
+[data-theme='dark'] [data-t='ink'] {
+  color: #f5f6f4 !important;
+}
+[data-theme='dark'] [data-t='rule'] {
+  background: #3a3e33 !important;
+}
+[data-theme='dark'] [data-t='edge'] {
+  border-color: #3a3e33 !important;
+}
+[data-theme='dark'] [data-t='ghost'] {
+  background: #292c25 !important;
+  border-color: #3a3e33 !important;
+  color: #a9ac9e !important;
+}
+[data-theme='dark'] [data-t='ghost']:hover {
+  border-color: #93c193 !important;
+  color: #93c193 !important;
+}
+[data-theme='dark'] [data-t='accent'] {
+  color: #93c193 !important;
+}
+[data-theme='dark'] [data-t='accentbtn'] {
+  background: #93c193 !important;
+  border-color: #93c193 !important;
+  color: #1b1d18 !important;
+}
+[data-theme='dark'] [data-t='dashed'] {
+  border-color: #3a3e33 !important;
+  color: #96998a !important;
+}
+[data-theme='dark'] [data-t='dashed']:hover {
+  border-color: #93c193 !important;
+  color: #93c193 !important;
+}
+[data-theme='dark'] [data-t='row']:hover {
+  background: #2b2e26 !important;
+}
+[data-theme='dark'] [data-t='row'] span[style*='8C9384'] {
+  color: #96998a !important;
+}
+[data-theme='dark'] [data-t='media'] {
+  background: #2b2e26 !important;
+}
