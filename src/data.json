@@ -15,7 +15,14 @@
               "name": "Plaza de Colón",
               "image": "https://images.trvl-media.com/place/508453/e140c50b-b934-4f9b-95be-c549c65cd5e5.jpg",
               "description": "Կառուցվել է 19-րդ դարում և նվիրված է Քրիստափոր Կոլումբոս-ին։ Այստեղ կա բարձր սյուն (1885թ.) Կոլումբոսի արձանով, ինչպես նաև «Հայտնագործության այգիները»՝ ժամանակակից քանդակներով։",
-              "day": null
+              "day": null,
+              "descriptionEn": "Built in the 19th century and dedicated to Christopher Columbus. It features a tall column (1885) topped with a statue of Columbus, as well as the “Gardens of Discovery” with modern sculptures.",
+              "descriptionRu": "Построена в XIX веке и посвящена Христофору Колумбу. Здесь находится высокая колонна (1885 год) со статуей Колумба, а также «Сады Открытий» с современными скульптурами.",
+              "coords": [
+                40.42488888888889,
+                -3.6906111111111115
+              ],
+              "coordsText": "40°25'29.6\"N 3°41'26.2\"W"
             },
             {
               "id": "paseo-de-recoletos",
@@ -416,6 +423,18 @@
           ]
         }
       ]
+    },
+    {
+      "id": "poland",
+      "name": "Poland",
+      "flag": "https://flagcdn.com/w320/pl.png",
+      "cities": []
+    },
+    {
+      "id": "greece",
+      "name": "Greece",
+      "flag": "https://flagcdn.com/w320/gr.png",
+      "cities": []
     }
   ]
 }

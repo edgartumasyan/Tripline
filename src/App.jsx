@@ -73,6 +73,8 @@ export default class App extends React.Component {
     countryId: null, cityId: null, openCountry: 'spain',
     query: '', view: 'grid',
     dialog: null, confirm: null, lightbox: null, dragIndex: null,
+    // Viewer-only reorder for Print/PDF, keyed by cityId — never persisted, resets on refresh.
+    viewerOrder: {},
   }
 
   componentDidMount() {
@@ -162,8 +164,8 @@ export default class App extends React.Component {
     return [toDec(m[1], m[2], m[3], m[4]), toDec(m[5], m[6], m[7], m[8])]
   }
 
-  buildCard(lm, index, listMode) {
-    const p = this.pal(), visited = !!lm.visited
+  buildCard(lm, index, listMode, orderedIds, cityId) {
+    const p = this.pal(), visited = !!lm.visited, isOwner = this.isOwner()
     return {
       id: lm.id, name: lm.name, image: lm.image || '', description: this.pickDescription(lm),
       index: String(index + 1).padStart(2, '0'),
@@ -193,11 +195,21 @@ export default class App extends React.Component {
         const from = this.state.dragIndex
         if (from === null || from === index) return
         this.setState({ dragIndex: index })
-        this.mutate((d) => {
-          const ci = this.findCity(d)
-          const [moved] = ci.landmarks.splice(from, 1)
-          ci.landmarks.splice(index, 0, moved)
-        })
+        if (isOwner) {
+          // Owners reorder the persisted document itself.
+          this.mutate((d) => {
+            const ci = this.findCity(d)
+            const [moved] = ci.landmarks.splice(from, 1)
+            ci.landmarks.splice(index, 0, moved)
+          })
+        } else {
+          // Viewers reorder only their own in-memory copy (for Print/PDF); the
+          // stored order is never touched and this resets on refresh.
+          const ids = orderedIds.slice()
+          const [moved] = ids.splice(from, 1)
+          ids.splice(index, 0, moved)
+          this.setState({ viewerOrder: { ...this.state.viewerOrder, [cityId]: ids } })
+        }
       },
       onDragEnd: () => this.setState({ dragIndex: null }),
     }
@@ -205,6 +217,18 @@ export default class App extends React.Component {
 
   findCity(d) {
     return d.countries.find((c) => c.id === this.state.countryId).cities.find((c) => c.id === this.state.cityId)
+  }
+
+  // Viewers reorder their own copy for Print/PDF only; it never touches the
+  // persisted document order. Owners always see the document order as-is.
+  orderedLandmarks(city) {
+    if (this.isOwner()) return city.landmarks
+    const order = this.state.viewerOrder[city.id]
+    if (!order) return city.landmarks
+    const byId = new Map(city.landmarks.map((lm) => [lm.id, lm]))
+    const out = order.map((id) => byId.get(id)).filter(Boolean)
+    city.landmarks.forEach((lm) => { if (!order.includes(lm.id)) out.push(lm) })
+    return out
   }
 
   askDelete(name, run) {
@@ -358,14 +382,16 @@ export default class App extends React.Component {
         crumb: '← ' + sel.country.name,
         meta: this.pl(st.total, 'places') + ' · ' + st.seen + ' ' + l.visited,
       }
-      const items = sel.city.landmarks.map((lm, i) => ({ lm, i }))
+      const orderedList = this.orderedLandmarks(sel.city)
+      const orderedIds = orderedList.map((lm) => lm.id)
+      const items = orderedList.map((lm, i) => ({ lm, i }))
       const listMode = s.view === 'list'
       const shell = { display: listMode ? 'flex' : 'grid', gap: listMode ? '12px' : '22px' }
       groups = [{ title: '', showTitle: false, count: '', display: shell.display, gap: shell.gap,
-        items: items.map((x) => this.buildCard(x.lm, x.i, listMode)) }]
+        items: items.map((x) => this.buildCard(x.lm, x.i, listMode, orderedIds, sel.city.id)) }]
     }
 
-    const mapped = sel ? sel.city.landmarks.filter((lm) => COORDS[lm.id]).length : 0
+    const mapped = sel ? sel.city.landmarks.filter((lm) => lm.coords || COORDS[lm.id]).length : 0
     const missing = sel ? sel.city.landmarks.length - mapped : 0
 
     return {
@@ -670,7 +696,7 @@ export default class App extends React.Component {
 
                             <div style={css('display:' + g.display + '; grid-template-columns:repeat(auto-fill, minmax(290px, 1fr)); flex-direction:column; gap:' + g.gap)}>
                               {g.items.map((lm) => (
-                                <article key={lm.id} data-t="card" draggable={V.isOwner} onDragStart={V.isOwner ? lm.onDragStart : undefined} onDragOver={V.isOwner ? lm.onDragOver : undefined} onDragEnd={V.isOwner ? lm.onDragEnd : undefined} style={css(lm.cardStyle)}>
+                                <article key={lm.id} data-t="card" draggable onDragStart={lm.onDragStart} onDragOver={lm.onDragOver} onDragEnd={lm.onDragEnd} style={css(lm.cardStyle)}>
                                   <div data-t="media" style={css(lm.mediaStyle)}>
                                     <img src={lm.image} alt={lm.name} onClick={lm.onPreview} style={css(lm.imgStyle)} />
                                     {V.isOwner && (
@@ -687,7 +713,8 @@ export default class App extends React.Component {
                                     </div>
                                     <p style={css('margin:0; font-size:13.5px; line-height:1.6; color:#7C8474; text-wrap:pretty')}>{lm.description}</p>
                                     <div className="trips-noprint" style={css('display:flex; align-items:center; flex-wrap:wrap; column-gap:8px; row-gap:4px; margin-top:2px')}>
-                                      {V.isOwner && <span style={css('font-size:11px; color:#8C9384; cursor:grab; white-space:nowrap')}>⠿ {V.L.drag}</span>}
+                                      <span style={css('font-size:11px; color:#8C9384; cursor:grab; white-space:nowrap')}>⠿ {V.L.drag}</span>
+                                      {V.notOwner && <span style={css('font-size:10.5px; color:#8C9384; font-style:italic; white-space:nowrap')}>{V.L.viewerOrderHint}</span>}
                                       <span style={css('flex:1 1 auto')}></span>
                                       {lm.hasMapLink && (
                                         <El as="a" href={lm.mapUrl} target="_blank" rel="noopener" base="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; color:#5FA05F; text-decoration:none; white-space:nowrap; flex:0 0 auto" hover="color:#478047">📍 {V.L.viewOnMap}</El>
