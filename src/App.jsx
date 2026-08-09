@@ -442,7 +442,7 @@ export default class App extends React.Component {
     const V = this.renderVals()
     return (
       <div data-theme={V.theme} data-t="app" style={css('display:flex; flex-direction:column; height:100vh; overflow:hidden; background:#F5F6F4')}>
-        <header data-t="panel" className="trips-noprint" style={css('flex:0 0 auto; display:flex; align-items:center; gap:24px; padding:16px 28px; background:#FFFFFF; border-bottom:1px solid #DCE3D6')}>
+        <header data-t="hdr" className="trips-noprint" style={css('flex:0 0 auto; display:flex; align-items:center; gap:24px; padding:16px 28px; background:#FFFFFF; border-bottom:1px solid #DCE3D6')}>
           <button type="button" onClick={V.goHome} style={css('display:flex; align-items:center; gap:10px; border:none; background:none; padding:0; cursor:pointer; text-align:left')}>
             <svg width="26" height="26" viewBox="0 0 64 64" style={{ flex: '0 0 auto' }}>
               <rect width="64" height="64" rx="14" fill="#5FA05F" />
@@ -454,7 +454,7 @@ export default class App extends React.Component {
             <span style={css('font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#7C8474')}>{V.L.tagline}</span>
           </button>
 
-          <div style={css('flex:1 1 auto; max-width:480px; position:relative')}>
+          <div data-t="search" style={css('flex:1 1 auto; max-width:480px; position:relative')}>
             <El as="input" data-t="input" type="text" value={V.query} onChange={V.onQuery} placeholder={V.L.search}
               base="width:100%; box-sizing:border-box; padding:10px 14px 10px 36px; border:1px solid #DCE3D6; border-radius:999px; background:#FFFFFF; color:#26291F; font-size:14px; outline:none"
               focus="border-color:#5FA05F" />
@@ -475,7 +475,7 @@ export default class App extends React.Component {
             hover="border-color:#5FA05F; color:#5FA05F">{V.langLabel}</El>
         </header>
 
-        <div style={css('flex:1 1 auto; display:flex; min-height:0')}>
+        <div data-t="shell" style={css('flex:1 1 auto; display:flex; min-height:0')}>
           {V.showSidebar && (
             <aside data-t="sidebar" className="trips-noprint" style={css('flex:0 0 288px; border-right:1px solid #C7D0BC; box-shadow:1px 0 0 rgba(0,0,0,0.03); background:#EBEEE6; overflow-y:auto; padding:22px 18px 40px')}>
               <div style={css('display:flex; align-items:baseline; justify-content:space-between; margin-bottom:16px')}>
@@ -524,10 +524,7 @@ export default class App extends React.Component {
                           </El>
                         ))}
                         {V.isOwner && (
-                          <El as="button" type="button" onClick={c.onAddCity} base="margin-top:6px; display:flex; align-items:center; gap:8px; border:1px solid transparent; background:#E4EBDD; color:#478047; border-radius:11px; padding:7px 10px; font-size:12.5px; font-weight:500; text-align:left; cursor:pointer" hover="background:#DCE3D6; border-color:#B7DAB7">
-                            <span style={css('display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:999px; background:#5FA05F; color:#FFFFFF; font-size:12px; flex:0 0 auto')}>+</span>
-                            {V.L.addCity}
-                          </El>
+                          <El as="button" type="button" onClick={c.onAddCity} base="margin-top:6px; display:flex; align-items:center; border:1px solid transparent; background:#E4EBDD; color:#478047; border-radius:11px; padding:7px 10px; font-size:12.5px; font-weight:500; text-align:left; cursor:pointer" hover="background:#DCE3D6; border-color:#B7DAB7">{V.L.addCity}</El>
                         )}
                       </div>
                     )}
@@ -537,7 +534,7 @@ export default class App extends React.Component {
             </aside>
           )}
 
-          <main style={css('flex:1 1 auto; overflow-y:auto; min-width:0')}>
+          <main data-t="app" style={css('flex:1 1 auto; overflow-y:auto; min-width:0; background:#F5F6F4')}>
             {V.isSearching && (
               <div style={css('padding:34px 40px 60px; animation:tripsFade 0.25s ease')}>
                 <div style={css('display:flex; align-items:baseline; gap:12px; margin-bottom:22px')}>
@@ -562,14 +559,14 @@ export default class App extends React.Component {
 
             {V.showOverview && (
               <div style={css('padding:0 0 70px; animation:tripsFade 0.25s ease')}>
-                <div style={css('padding:44px 40px 30px; max-width:760px')}>
+                <div data-t="pad" style={css('padding:44px 40px 30px; max-width:760px')}>
                   <p style={css('margin:0 0 10px; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#7C8474')}>{V.L.eyebrow}</p>
                   <h1 data-t="ink" style={css("margin:0 0 14px; font-family:'Work Sans',sans-serif; font-weight:400; font-size:46px; line-height:1.05; letter-spacing:-0.015em; color:#26291F")}>{V.L.headline}</h1>
                   <p style={css('margin:0; font-size:15.5px; line-height:1.6; color:#7C8474; text-wrap:pretty')}>{V.overviewSummary}</p>
                 </div>
 
                 {V.chapters.map((ch) => (
-                  <section key={ch.id} style={css('padding:8px 40px 34px')}>
+                  <section key={ch.id} data-t="pad" style={css('padding:8px 40px 34px')}>
                     <div data-t="edge" style={css('display:flex; align-items:center; gap:14px; padding-bottom:12px; margin-bottom:20px; border-bottom:1px solid #DCE3D6')}>
                       <img src={ch.flag} alt="" data-t="media" style={css('width:38px; height:26px; object-fit:cover; border-radius:3px; background:#E4EBDD')} />
                       <h2 data-t="ink" style={css("margin:0; font-family:'Work Sans',sans-serif; font-weight:400; font-size:26px; color:#26291F")}>{ch.name}</h2>
@@ -603,7 +600,7 @@ export default class App extends React.Component {
                 ))}
 
                 {V.isOwner && (
-                  <div style={css('padding:4px 40px')}>
+                  <div data-t="pad" style={css('padding:4px 40px')}>
                     <El as="button" data-t="dashed" type="button" onClick={V.addCountry} className="trips-noprint" base="border:1px dashed #DCE3D6; background:none; border-radius:14px; padding:16px 22px; font-size:13.5px; color:#7C8474; cursor:pointer" hover="border-color:#5FA05F; color:#5FA05F">{V.L.addCountry}</El>
                   </div>
                 )}
@@ -612,13 +609,13 @@ export default class App extends React.Component {
 
             {V.showCity && (
               <div style={css('animation:tripsFade 0.25s ease')}>
-                <div data-t="media" style={css('position:relative; height:280px; background:#E4EBDD; overflow:hidden')}>
+                <div data-t="hero" style={css('position:relative; height:280px; background:#E4EBDD; overflow:hidden')}>
                   <img src={V.city.image} alt="" style={css('width:100%; height:100%; object-fit:cover; display:block')} />
                   <div style={css('position:absolute; inset:0; background:linear-gradient(to top, rgba(26,29,22,0.85) 0%, rgba(26,29,22,0.24) 55%, rgba(26,29,22,0.05) 100%)')}></div>
-                  <div style={css('position:absolute; left:40px; right:40px; bottom:24px; display:flex; align-items:flex-end; gap:20px')}>
+                  <div data-t="hero-in" style={css('position:absolute; left:40px; right:40px; bottom:24px; display:flex; align-items:flex-end; gap:20px')}>
                     <div style={css('flex:1 1 auto; min-width:0')}>
                       <El as="button" type="button" onClick={V.goHome} className="trips-noprint" base="border:none; background:none; padding:0; color:rgba(255,255,255,0.8); font-size:11.5px; letter-spacing:0.14em; text-transform:uppercase; cursor:pointer; margin-bottom:8px" hover="color:#FFFFFF">{V.city.crumb}</El>
-                      <h1 style={css("margin:0; font-family:'Work Sans',sans-serif; font-weight:400; font-size:52px; line-height:1; color:#FFFFFF; letter-spacing:-0.02em")}>{V.city.name}</h1>
+                      <h1 data-t="hero-title" style={css("margin:0; font-family:'Work Sans',sans-serif; font-weight:400; font-size:52px; line-height:1; color:#FFFFFF; letter-spacing:-0.02em")}>{V.city.name}</h1>
                     </div>
                     <div style={css('flex:0 0 auto; display:flex; align-items:center; gap:10px; color:#FFFFFF')}>
                       <span style={css('font-size:13px; letter-spacing:0.06em; text-transform:uppercase; opacity:0.85')}>{V.city.meta}</span>
@@ -626,7 +623,7 @@ export default class App extends React.Component {
                   </div>
                 </div>
 
-                <div data-t="panel2" style={css('display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:16px 40px; border-bottom:1px solid #DCE3D6; background:#F5F6F4; position:sticky; top:0; z-index:4')}>
+                <div data-t="pad toolbar" style={css('display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:16px 40px; border-bottom:1px solid #DCE3D6; background:#F5F6F4; position:sticky; top:0; z-index:4')}>
                   <div data-t="panel" className="trips-noprint" style={css('display:flex; gap:4px; padding:3px; background:#F5F6F4; border:1px solid #E4EBDD; border-radius:999px')}>
                     <button type="button" onClick={V.setViewGrid} style={css(V.viewGridStyle)}>{V.L.grid}</button>
                     <button type="button" onClick={V.setViewList} style={css(V.viewListStyle)}>{V.L.list}</button>
@@ -640,7 +637,7 @@ export default class App extends React.Component {
                   )}
                 </div>
 
-                <div style={css('display:flex; align-items:flex-start; gap:32px; padding:28px 40px 70px')}>
+                <div data-t="pad city-row" style={css('display:flex; align-items:flex-start; gap:32px; padding:28px 40px 70px')}>
                   <div style={css('flex:1 1 auto; min-width:0')}>
                     {V.isMap && (
                       <CityMap L={V.L} pl={this.pl} mode={V.theme} city={V.mapCity} />
@@ -695,7 +692,7 @@ export default class App extends React.Component {
                   </div>
 
                   {V.showSidePanels && (
-                    <aside className="trips-noprint" style={css('flex:0 0 268px; position:sticky; top:96px; display:flex; flex-direction:column; gap:14px')}>
+                    <aside data-t="side-panels" className="trips-noprint" style={css('flex:0 0 268px; position:sticky; top:96px; display:flex; flex-direction:column; gap:14px')}>
                       <div data-t="card" style={css('border:1px solid #E4EBDD; background:#FFFFFF; border-radius:16px; padding:16px 18px; display:flex; flex-direction:column; gap:10px')}>
                         <p style={css('margin:0; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:#7C8474')}>{V.L.notes}</p>
                         <El as="textarea" data-t="input" value={V.city.notes} onChange={V.onNotes} readOnly={V.notOwner} placeholder={V.L.notesPlaceholder} rows={8}
