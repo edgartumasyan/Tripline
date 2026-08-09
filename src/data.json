@@ -14,10 +14,10 @@
               "id": "plaza-de-col-n",
               "name": "Plaza de Colón",
               "image": "https://images.trvl-media.com/place/508453/e140c50b-b934-4f9b-95be-c549c65cd5e5.jpg",
-              "description": "Կառուցվել է 19-րդ դարում և նվիրված է Քրիստափոր Կոլումբոս-ին։ Այստեղ կա բարձր սյուն (1885թ.) Կոլումբոսի արձանով, ինչպես նաև «Հայտնագործության այգիները»՝ ժամանակակից քանդակներով։",
+              "description": "Անվանվել է Քրիստափոր Կոլումբոսի պատվին։ Այստեղ գտնվում է Կոլումբոսի հուշարձանը, որը կառուցվել է 1881–1885 թվականներին։ Հրապարակը պաշտոնապես ստացել է Plaza de Colón անունը 1893 թվականին, իսկ մոտակայքում գտնվող Հայտնագործության այգիները ստեղծվել են 1970 թվականին։ 1977 թվականին այգիներում տեղադրվել է Ամերիկայի հայտնագործությանը նվիրված հուշարձանը, իսկ 2009 թվականին Կոլումբոսի հուշարձանը վերադարձվել է հրապարակի կենտրոն։ Այսօր հրապարակը շրջապատված է կարևոր տեսարժան վայրերով՝ Ազգային գրադարանով, Ազգային հնագիտական թանգարանով և Կոլոնի աշտարակներով։",
               "day": null,
-              "descriptionEn": "Built in the 19th century and dedicated to Christopher Columbus. It features a tall column (1885) topped with a statue of Columbus, as well as the “Gardens of Discovery” with modern sculptures.",
-              "descriptionRu": "Построена в XIX веке и посвящена Христофору Колумбу. Здесь находится высокая колонна (1885 год) со статуей Колумба, а также «Сады Открытий» с современными скульптурами.",
+              "descriptionEn": "The square is named after Christopher Columbus. It is home to the Columbus Monument, which was built between 1881 and 1885. The square officially received the name Plaza de Colón in 1893, while the nearby Gardens of Discovery were created in 1970. In 1977, a monument dedicated to the Discovery of America was installed in the gardens, and in 2009 the Columbus Monument was returned to the centre of the square. Today, the square is surrounded by important landmarks, including the National Library, the National Archaeological Museum, and the Torres de Colón.",
+              "descriptionRu": "Площадь названа в честь Христофора Колумба. Здесь находится памятник Колумбу, построенный в 1881–1885 годах. В 1893 году площадь официально получила название Plaza de Colón, а расположенные рядом Сады Открытия были созданы в 1970 году. В 1977 году в садах установили памятник, посвящённый открытию Америки, а в 2009 году памятник Колумбу вернули в центр площади. Сегодня площадь окружена важными достопримечательностями, включая Национальную библиотеку, Национальный археологический музей и башни Колумба.",
               "coords": [
                 40.42488888888889,
                 -3.6906111111111115
@@ -28,32 +28,82 @@
               "id": "paseo-de-recoletos",
               "name": "Paseo de Recoletos",
               "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Paseo_de_Recoletos_%28Madrid%29_%284691303651%29.jpg/1280px-Paseo_de_Recoletos_%28Madrid%29_%284691303651%29.jpg",
-              "description": "Շքեղ պողոտա է՝ ծառուղիներով, պատմական շենքերով ու սրճարաններով։ Միացնում է քաղաքային կարևոր հրապարակներ և շատ հաճելի է քայլելու համար։ 18–19-րդ դարերի պողոտա է, ձևավորվել է Կառլոս III-ի բարեփոխումների ժամանակ։",
-              "day": null
+              "description": "Մադրիդի կենտրոնում գտնվող պատմական, ծառապատ պողոտա է, որի ներկայիս ձևավորումը թվագրվում է 1840 թվականով։ Այն միացնում է Սիբելեսի և Կոլումբոսի հրապարակները և հայտնի է իր այգիներով, շատրվաններով, քանդակներով ու 19-րդ դարի էլեգանտ շենքերով։ Պողոտայի երկայնքով գտնվում են Ազգային գրադարանը, Ազգային հնագիտական թանգարանը, Casa de América-ն և պատմական Café Gijón-ը։",
+              "day": null,
+              "descriptionEn": "Paseo de Recoletos is a historic, tree-lined boulevard in central Madrid, with its current layout dating back to 1840. It connects Plaza de Cibeles and Plaza de Colón and is known for its gardens, fountains, sculptures, and elegant 19th-century buildings. Along the boulevard are the National Library, the National Archaeological Museum, Casa de América, and the historic Café Gijón.",
+              "descriptionRu": "Paseo de Recoletos — исторический бульвар в центре Мадрида, обсаженный деревьями; его современная планировка относится к 1840 году. Он соединяет площади Сибелес и Колумба и известен садами, фонтанами, скульптурами и элегантными зданиями XIX века. Вдоль бульвара находятся Национальная библиотека, Национальный археологический музей, Casa de América и историческое кафе Café Gijón.",
+              "coords": [
+                40.424,
+                -3.6911944444444447
+              ],
+              "coordsText": "40°25'26.4\"N 3°41'28.3\"W"
             },
             {
               "id": "plaza-de-cibeles",
               "name": "Plaza de Cibeles",
               "image": "https://upload.wikimedia.org/wikipedia/commons/c/c1/Palacio_de_Comunicaciones_-_47.jpg",
-              "description": "Մադրիդի ամենահայտնի հրապարակներից է։ Կենտրոնում Կիբելե աստվածուհու շատրվանն է, որը ստեղծվել է 1782թ․։ Այն «Ռեալ Մադրիդի» հաղթանակների տոնակատարության վայրն է։ ԱԱյստեղ գտնվող Palacio de Cibeles-ը նախկին փոստային շենք է (1909թ.), այժմ քաղաքապետարան։"
+              "description": "Մադրիդի ամենահայտնի հրապարակներից է։ Կենտրոնում գտնվում է Կիբելե աստվածուհու շատրվանը, որը ստեղծվել է 1782 թ․։ Այն «Ռեալ Մադրիդի» հաղթանակների տոնակատարության հայտնի վայրն է։ Այստեղ գտնվող Palacio de Cibeles-ը նախկին փոստային շենք է, որը կառուցվել է 1909 թ․ և այժմ Մադրիդի քաղաքապետարանն է։ Հրապարակը շրջապատված է նաև Բուենավիստայի և Լինարեսի պալատներով ու Իսպանիայի բանկի շենքով։",
+              "descriptionEn": "Plaza de Cibeles is one of the most famous squares in Madrid. At its center is the Cibeles Fountain, created in 1782 and depicting the goddess Cybele. It is also a famous place for celebrating Real Madrid victories. The Palacio de Cibeles was built in 1909 as a post office and is now Madrid City Hall. The square is also surrounded by the Buenavista and Linares Palaces and the Bank of Spain.",
+              "descriptionRu": "Площадь Сибелес — одна из самых известных площадей Мадрида. В центре находится фонтан богини Кибелы, созданный в 1782 году. Это также известное место празднования побед «Реал Мадрида». Дворец Сибелес (Palacio de Cibeles) был построен в 1909 году как здание почтамта, а сегодня здесь находится мэрия Мадрида. Площадь также окружена дворцами Буэнависта и Линарес и зданием Банка Испании.",
+              "coords": [
+                40.41930555555555,
+                -3.6931111111111115
+              ],
+              "coordsText": "40°25'09.5\"N 3°41'35.2\"W"
             },
             {
               "id": "gate-of-alcala-or-la-puerta-de-alcal",
               "name": "Gate of Alcala or La Puerta de Alcalá",
               "image": "https://www.historyhit.com/app/uploads/2020/11/AlcalaGate_shutterstock.jpg",
-              "description": "Կառուցվել է 1778թ․՝ Կառլոս III-ի պատվերով։ Եվրոպայի առաջին նեոկլասիկ հաղթակամարներից է։"
+              "description": "Ալկալայի դարպասը (La Puerta de Alcalá) Մադրիդի ամենահայտնի խորհրդանիշներից մեկն է և քաղաքի նախկին թագավորական դարպասներից մեկը։ Այն կառուցվել է 1778 թվականին՝ Կառլոս III թագավորի պատվերով և ճարտարապետ Ֆրանչեսկո Սաբատինիի նախագծով։ Նեոկլասիկական ոճի գրանիտե դարպասն ունի հինգ բացվածք և գտնվում է Անկախության հրապարակում՝ Ռետիրո զբոսայգու հարևանությամբ։ Այն կառուցվել է Ալկալա դե Էնարես տանող ճանապարհի վրա, ինչից էլ ստացել է իր անունը։ Այսօր այն Մադրիդի ամենաճանաչելի խորհրդանիշներից է և ընդգրկված է ՅՈՒՆԵՍԿՕ-ի համաշխարհային ժառանգության «Լույսի լանդշաֆտ» տարածքում։ Եվրոպայի առաջին նեոկլասիկ հաղթակամարներից է։",
+              "descriptionEn": "La Puerta de Alcalá is one of Madrid’s most iconic landmarks and one of the city’s former royal gates. It was built in 1778 by order of King Charles III and designed by architect Francesco Sabatini. The neoclassical granite monument has five openings and stands in Plaza de la Independencia, next to El Retiro Park. It was built on the road leading to Alcalá de Henares, which gave the gate its name. Today, it is one of the most recognizable symbols of Madrid and forms part of the Landscape of Light, a UNESCO World Heritage Site.",
+              "descriptionRu": "Ворота Алькала (La Puerta de Alcalá) — одна из самых известных достопримечательностей Мадрида и одни из бывших королевских ворот города. Они были построены в 1778 году по приказу короля Карла III по проекту архитектора Франческо Сабатини. Неоклассические гранитные ворота имеют пять проёмов и расположены на площади Независимости рядом с парком Ретиро. Они были построены на дороге, ведущей к Алькала-де-Энарес, откуда и получили своё название. Сегодня это один из символов Мадрида и часть объекта Всемирного наследия ЮНЕСКО «Ландшафт света».",
+              "coords": [
+                40.419999999999995,
+                -3.688888888888889
+              ],
+              "coordsText": "40°25'12.0\"N 3°41'20.0\"W"
             },
             {
               "id": "parque-del-retiro",
               "name": "Parque del Retiro",
               "image": "https://www.madridhappypeople.com/wp-content/uploads/2024/03/parque-del-retiro-00-jpg.webp",
-              "description": "Մադրիդի «կանաչ սիրտը»։ Պատմական թագավորական այգի է։ Սկզբում ստեղծվել է 1630-ականներին որպես թագավորական այգի։ Հանրությանը բացվել է 1868թ․։ Այստեղ կա «Բյուրեղյա պալատը» (1887թ.) և մեծ լիճ նավակներով։"
+              "description": "Մադրիդի «կանաչ սիրտն» է և պատմական թագավորական այգի՝ ավելի քան 125 հեկտար տարածքով և շուրջ 15,000 ծառերով։ Սկզբում ստեղծվել է 1630-ականներին որպես թագավորական այգի, իսկ հանրության համար բացվել է 1868 թվականին։ Այստեղ գտնվում է հայտնի «Բյուրեղյա պալատը» (1887 թ․), Վելասկեսի պալատը, Ալֆոնսո XII-ի հուշարձանը, ինչպես նաև մեծ լիճ, որտեղ այցելուները կարող են նավակներով զբոսնել։ 2021 թվականից այգին ընդգրկված է ՅՈՒՆԵՍԿՕ-ի համաշխարհային ժառանգության «Լույսի լանդշաֆտ» տարածքում։",
+              "descriptionEn": "El Retiro Park is the “green heart of Madrid” and a historic royal park covering more than 125 hectares with around 15,000 trees. It was originally created in the 1630s as a royal garden and opened to the public in 1868. The park is home to the famous Crystal Palace (1887), Velázquez Palace, the Monument to Alfonso XII, and a large lake where visitors can enjoy boat rides. Since 2021, El Retiro has been part of the UNESCO World Heritage Site “Landscape of Light.”",
+              "descriptionRu": "Парк Ретиро — это «зелёное сердце Мадрида» и исторический королевский парк площадью более 125 гектаров, где растёт около 15 000 деревьев. Первоначально он был создан в 1630-х годах как королевский сад, а для публики открыт в 1868 году. Здесь находятся знаменитый Хрустальный дворец (1887 год), дворец Веласкеса, памятник Альфонсо XII, а также большое озеро, где можно покататься на лодках. С 2021 года парк входит в объект Всемирного наследия ЮНЕСКО «Ландшафт света».",
+              "coords": [
+                40.41972222222222,
+                -3.687805555555556
+              ],
+              "coordsText": "40°25'11.0\"N 3°41'16.1\"W"
+            },
+            {
+              "id": "crystal-palace-palacio-de-cristal",
+              "name": "Crystal Palace — Palacio de Cristal",
+              "image": "https://static1.squarespace.com/static/5f11b7e4e3277041fd2580c6/610d57780860ad408fd5d997/61115e50377d230b39a74c18/1635821069063/04_Cons_ch4_033%5B1A%5D_copyright.jpg?format=1500w",
+              "description": "«Բյուրեղյա պալատը» (Palacio de Cristal) Էլ Ռետիրո այգու ամենահայտնի տեսարժան վայրերից է։ Այն կառուցվել է 1887 թվականին՝ ճարտարապետ Ռիկարդո Վելասկես Բոսկոյի նախագծով՝ ոգեշնչվելով Լոնդոնի Crystal Palace-ից։ Կառույցը հիմնականում պատրաստված է ապակուց և երկաթից և սկզբում նախատեսված էր Ֆիլիպիններից բերված բույսերի ցուցադրության համար։ Այսօր այն օգտագործվում է որպես մշակութային ցուցահանդեսների տարածք և շրջապատված է ծառերով ու փոքր լճով։ Պալատը ներառված է ՅՈՒՆԵՍԿՕ-ի «Լույսի լանդշաֆտ» համաշխարհային ժառանգության տարածքում։",
+              "descriptionEn": "The Crystal Palace (Palacio de Cristal) is one of the most famous landmarks in El Retiro Park. It was built in 1887 by architect Ricardo Velázquez Bosco, inspired by London’s Crystal Palace. The elegant structure is made mainly of glass and iron and was originally built to host an exhibition of plants from the Philippines. Today, it is used as a cultural exhibition space and is surrounded by trees and a small lake. The palace is part of the UNESCO World Heritage Site “Landscape of Light.”",
+              "descriptionRu": "Хрустальный дворец (Palacio de Cristal) — одна из самых известных достопримечательностей парка Ретиро. Он был построен в 1887 году по проекту архитектора Рикардо Веласкеса Боско, вдохновлённого лондонским Crystal Palace. Элегантное здание в основном изготовлено из стекла и железа и первоначально предназначалось для выставки растений, привезённых с Филиппин. Сегодня дворец используется как культурное выставочное пространство и окружён деревьями и небольшим озером. Он входит в объект Всемирного наследия ЮНЕСКО «Ландшафт света».",
+              "coords": [
+                40.413777777777774,
+                -3.6820277777777775
+              ],
+              "coordsText": "40°24'49.6\"N 3°40'55.3\"W",
+              "day": null,
+              "visited": false
             },
             {
               "id": "atocha-estaci-n-de-madrid-atocha",
               "name": "Atocha- Estación de Madrid Atocha",
-              "image": "https://upload.wikimedia.org/wikipedia/commons/7/71/Estaci%C3%B3n_de_Atocha_-_felipe_gabaldon.jpg",
-              "description": "Ոչ միայն կայարան, այլ նաև յուրահատուկ վայր՝ ներսում գտնվող արևադարձային այգով։ Բացվել է 1851թ․, վերակառուցվել՝ 1892թ․։ Ներսում կա արևադարձային այգի՝ մոտ 7000 բույսերով։"
+              "image": "https://images.openai.com/static-rsc-4/LtPDrIrS2lQfPS2PS5tqdYpB_AKQvPZVy05L2ZgdRozC0YDq1d1eqDaay9UbQpB9rbytktTkFQMJJHlNsHwVnVIrgyfZrDj2WDQzXDcfnMQPWyipdbHXCwGuckZrCGKxb_n5FgleJJPS3KCB-ypM3MJ6fx7nKuXjL4NjrXvao9d2vMJ58SKAGXoukOQ64ifh?purpose=fullsize",
+              "description": "Ատոչա կայարանը (Estación de Madrid Atocha) Մադրիդի ամենամեծ և պատմական երկաթուղային կայարանն է։ Առաջին կայարանը բացվել է 1851 թվականին, իսկ հայտնի երկաթյա և ապակյա շենքը կառուցվել է 1892 թվականին՝ ճարտարապետ Ալբերտո դե Պալասիոյի նախագծով։ Պատմական սրահում գտնվում է գեղեցիկ արևադարձային այգի՝ արմավենիներով և ավելի քան 7,000 բույսերով։ Ատոչան կարևոր տրանսպորտային հանգույց է, որտեղ սպասարկվում են արագընթաց AVE և այլ միջքաղաքային ու տարածաշրջանային գնացքներ։ Կայանը հայտնի է նաև 2004 թվականի Մադրիդի ահաբեկչությունների պատճառով։",
+              "descriptionEn": "Madrid Atocha Station (Estación de Madrid Atocha) is Madrid’s largest and most historic railway station. The original station opened in 1851, while the famous iron-and-glass terminal was completed in 1892 and designed by architect Alberto de Palacio. Its historic interior is famous for its beautiful tropical garden, with palm trees and more than 7,000 plants. Atocha is an important hub for high-speed AVE trains and regional and long-distance services. The station is also remembered for the 2004 Madrid train bombings.",
+              "descriptionRu": "Вокзал Аточа (Estación de Madrid Atocha) — крупнейший и один из самых исторических железнодорожных вокзалов Мадрида. Первый вокзал был открыт в 1851 году, а знаменитое здание из железа и стекла было построено в 1892 году по проекту архитектора Альберто де Паласио. Исторический зал известен своим красивым тропическим садом с пальмами и более чем 7 000 растений. Аточа является важным транспортным узлом, обслуживающим скоростные поезда AVE, а также региональные и междугородние поезда. Вокзал также известен в связи с терактами в Мадриде 2004 года.",
+              "coords": [
+                40.40763888888889,
+                -3.691666666666667
+              ],
+              "coordsText": "40°24'27.5\"N 3°41'30.0\"W"
             },
             {
               "id": "caixa-forum-madrid",
@@ -168,6 +218,21 @@
               "name": "Plaza de Castilla",
               "image": "https://i.pinimg.com/564x/5c/83/0e/5c830e3738dadae7b183015ae331adb3.jpg",
               "description": "ժամանակակից Մադրիդի խորհրդանիշներից մեկն է։ Այստեղ են գտնվում հայտնի KIO Towers (1962թ.) թեք երկնաքերերը, որոնք առաջին «թեք» երկնաքերերն էին Եվրոպայում։"
+            },
+            {
+              "id": "santiago-bernab-u-stadium",
+              "name": "Santiago Bernabéu Stadium",
+              "image": "https://www.santosfootballplanet.com/uploads/_contentImageSlider/shutterstock_2468268069.jpg?v=1774010830",
+              "description": "Սանտյագո Բեռնաբեու մարզադաշտը «Ռեալ Մադրիդի» տնային մարզադաշտն է և աշխարհի ամենահայտնի ֆուտբոլային մարզադաշտերից մեկը։ Այն բացվել է 1947 թվականին և անվանվել է ակումբի լեգենդար նախագահ Սանտյագո Բեռնաբեուի պատվին։ Մարզադաշտը մեծ վերակառուցում է անցել՝ ստանալով ժամանակակից արտաքին տեսք, շարժական տանիք և նորագույն ենթակառուցվածքներ։ Այն կարող է տեղավորել շուրջ 80,000 հանդիսական և օգտագործվում է ֆուտբոլային խաղերի, խոշոր միջոցառումների ու համերգների համար։ Այստեղ է գտնվում նաև «Ռեալ Մադրիդի» թանգարանը։",
+              "descriptionEn": "Santiago Bernabéu Stadium is the home stadium of Real Madrid and one of the most famous football stadiums in the world. It opened in 1947 and was named after Santiago Bernabéu, the club’s legendary president. The stadium has undergone a major renovation, adding a modern façade, a retractable roof, and advanced facilities. It can accommodate around 80,000 spectators and hosts Real Madrid matches, major events, and concerts. The stadium is also home to the Real Madrid Museum and a popular stadium tour.",
+              "descriptionRu": "Стадион Сантьяго Бернабеу — домашний стадион «Реал Мадрида» и один из самых известных футбольных стадионов мира. Он был открыт в 1947 году и назван в честь легендарного президента клуба Сантьяго Бернабеу. Стадион прошёл масштабную реконструкцию, получив современный фасад, раздвижную крышу и современные инфраструктурные решения. Он вмещает около 80 000 зрителей и принимает футбольные матчи, крупные мероприятия и концерты. Здесь также находится музей «Реал Мадрида» и проводится популярная экскурсия по стадиону.",
+              "coords": [
+                40.45280555555556,
+                -3.688916666666667
+              ],
+              "coordsText": "40°27'10.1\"N 3°41'20.1\"W",
+              "day": null,
+              "visited": false
             }
           ],
           "notes": "",
