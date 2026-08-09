@@ -3,69 +3,37 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { COORDS } from '../coords.js'
 
-const TILE_URL = {
-  light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-  dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-}
-
 // Esri World Imagery — free satellite basemap, no key required. Note the tile
-// order is {z}/{y}/{x} (not {x}/{y}) and there are no subdomains.
+// order is {z}/{y}/{x} (not {x}/{y}) and there are no subdomains. Satellite is
+// the only basemap; it's theme-agnostic, so the page theme doesn't affect it.
 const SATELLITE_URL =
   'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-
-// The base tile source for the current theme + basemap choice.
-function tileConfig(mode, basemap) {
-  if (basemap === 'satellite') {
-    return {
-      url: SATELLITE_URL,
-      attribution: 'Imagery © Esri, Maxar, Earthstar Geographics',
-    }
-  }
-  return {
-    url: TILE_URL[mode] || TILE_URL.light,
-    attribution: '© OpenStreetMap, © CARTO',
-  }
-}
 
 // Leaflet view of a city's landmarks. Pins are numbered by their position in the
 // itinerary (pin colours use the page's own CSS variables, so they follow the
 // theme automatically). Landmarks with no entry in COORDS are simply left off,
 // and the caption says how many.
-export default function CityMap({ L: labels, pl, mode, city }) {
+export default function CityMap({ L: labels, pl, city }) {
   const elRef = useRef(null)
   const mapRef = useRef(null)
-  const tilesRef = useRef(null)
   const layerRef = useRef(null)
   const [expanded, setExpanded] = useState(false)
-  const [basemap, setBasemap] = useState('map') // 'map' | 'satellite'
 
   useEffect(() => {
     const map = L.map(elRef.current, { scrollWheelZoom: true })
     mapRef.current = map
+    L.tileLayer(SATELLITE_URL, {
+      attribution: 'Imagery © Esri, Maxar, Earthstar Geographics',
+      maxZoom: 19,
+    }).addTo(map)
     layerRef.current = L.layerGroup().addTo(map)
 
     return () => {
       map.remove()
       mapRef.current = null
-      tilesRef.current = null
       layerRef.current = null
     }
   }, [])
-
-  // Rebuild the tile layer when the theme or the basemap choice changes. We
-  // recreate rather than setUrl() so the attribution and tile scheme swap too.
-  useEffect(() => {
-    const map = mapRef.current
-    if (!map) return
-    tilesRef.current?.remove()
-
-    const { url, attribution } = tileConfig(mode, basemap)
-    tilesRef.current = L.tileLayer(url, {
-      attribution,
-      maxZoom: 19,
-      subdomains: 'abcd',
-    }).addTo(map)
-  }, [mode, basemap])
 
   // Only rebuild the pins when something they depict actually changes —
   // otherwise every unrelated edit would re-fit the viewport under the user.
@@ -150,21 +118,6 @@ export default function CityMap({ L: labels, pl, mode, city }) {
             ? `${pl(mapped, 'places')} ${labels.pinnedSuffix} · ${missing} ${labels.needCoords}`
             : labels.allPinned}
         </p>
-        <div className="segmented map-basemap trips-noprint">
-          {[
-            ['map', labels.map],
-            ['satellite', labels.satellite],
-          ].map(([value, label]) => (
-            <button
-              className={`pill${basemap === value ? ' on' : ''}`}
-              type="button"
-              key={value}
-              onClick={() => setBasemap(value)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
         <button
           className="map-expand trips-noprint"
           type="button"
