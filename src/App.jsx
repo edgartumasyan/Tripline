@@ -169,9 +169,12 @@ export default class App extends React.Component {
     return {
       id: lm.id, name: lm.name, image: lm.image || '', description: this.pickDescription(lm),
       index: String(index + 1).padStart(2, '0'),
+      // -webkit-touch-callout/user-select off so pressing a card to drag it on
+      // a phone doesn't trigger the text-selection / copy popover instead.
       cardStyle: 'display:flex; flex-direction:' + (listMode ? 'row' : 'column') +
         '; border:1px solid ' + (visited ? p.seenEdge : p.cardEdge) + '; border-radius:16px; overflow:hidden; background:' +
-        (visited ? p.seenBg : p.cardBg) + '; opacity:' + (this.state.dragIndex === index ? '0.45' : '1') + '; transition:box-shadow .18s ease',
+        (visited ? p.seenBg : p.cardBg) + '; opacity:' + (this.state.dragIndex === index ? '0.45' : '1') +
+        '; transition:box-shadow .18s ease; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none',
       mediaStyle: 'position:relative; flex:0 0 ' + (listMode ? '210px' : 'auto') + '; background:' + p.media + '; ' +
         (listMode ? 'align-self:stretch; min-height:150px' : 'aspect-ratio:16/10'),
       imgStyle: 'width:100%; height:100%; object-fit:cover; display:block; cursor:zoom-in',
@@ -769,7 +772,7 @@ export default class App extends React.Component {
                                     </div>
                                     <p style={css('margin:0; font-size:13.5px; line-height:1.6; color:#7C8474; text-wrap:pretty')}>{lm.description}</p>
                                     <div className="trips-noprint" style={css('display:flex; align-items:center; flex-wrap:wrap; column-gap:8px; row-gap:4px; margin-top:2px')}>
-                                      <span onPointerDown={lm.onHandleDown} style={css('font-size:11px; color:#8C9384; cursor:grab; white-space:nowrap; touch-action:none; user-select:none; -webkit-user-select:none; padding:6px 4px; margin:-6px -4px')}>⠿ {V.L.drag}</span>
+                                      <span data-t="edge" onPointerDown={lm.onHandleDown} title={V.L.drag} style={css('display:inline-flex; align-items:center; gap:6px; font-size:11px; color:#8C9384; cursor:grab; white-space:nowrap; touch-action:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; padding:6px 12px; border:1px solid #E4EBDD; border-radius:999px; background:#F5F6F4')}><span style={css('font-size:14px; line-height:1')}>⠿</span> {V.L.drag}</span>
                                       {V.notOwner && <span style={css('font-size:10.5px; color:#8C9384; font-style:italic; white-space:nowrap')}>{V.L.viewerOrderHint}</span>}
                                       <span style={css('flex:1 1 auto')}></span>
                                       {lm.hasMapLink && (
