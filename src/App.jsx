@@ -149,18 +149,24 @@ export default class App extends React.Component {
     return id
   }
 
+  // Parses Google's DMS coordinate format, e.g. 39°28'12.0"N 0°22'12.0"W, into [lat, lon].
+  parseDMS(str) {
+    const re = /(\d+)[°\s]+(\d+)['\s]+([\d.]+)"?\s*([NSns])[,\s]+(\d+)[°\s]+(\d+)['\s]+([\d.]+)"?\s*([EWew])/
+    const m = String(str || '').trim().match(re)
+    if (!m) return null
+    const toDec = (d, mi, s, dir) => {
+      let v = Number(d) + Number(mi) / 60 + Number(s) / 3600
+      if (/[SWsw]/.test(dir)) v = -v
+      return v
+    }
+    return [toDec(m[1], m[2], m[3], m[4]), toDec(m[5], m[6], m[7], m[8])]
+  }
+
   buildCard(lm, index, listMode) {
     const p = this.pal(), visited = !!lm.visited
-    // Visited chip mirrors the design's chip roles: filled teal when on, a quiet
-    // outlined pill when off. Colours come from pal() so they follow the theme.
-    const chip = 'display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:4px 12px; font-size:11.5px; cursor:pointer; '
     return {
       id: lm.id, name: lm.name, image: lm.image || '', description: this.pickDescription(lm),
       index: String(index + 1).padStart(2, '0'),
-      visited, visitedIcon: visited ? '✓' : '○',
-      visitedStyle: visited
-        ? chip + 'border:1px solid ' + p.chipBg + '; background:' + p.chipBg + '; color:' + p.chipInk
-        : chip + 'border:1px solid ' + p.chipOffEdge + '; background:' + p.chipOffBg + '; color:' + p.chipOffInk,
       cardStyle: 'display:flex; flex-direction:' + (listMode ? 'row' : 'column') +
         '; border:1px solid ' + (visited ? p.seenEdge : p.cardEdge) + '; border-radius:16px; overflow:hidden; background:' +
         (visited ? p.seenBg : p.cardBg) + '; opacity:' + (this.state.dragIndex === index ? '0.45' : '1') + '; transition:box-shadow .18s ease',
@@ -168,8 +174,13 @@ export default class App extends React.Component {
         (listMode ? 'align-self:stretch; min-height:150px' : 'aspect-ratio:16/10'),
       imgStyle: 'width:100%; height:100%; object-fit:cover; display:block; cursor:zoom-in',
       bodyStyle: 'display:flex; flex-direction:column; gap:8px; padding:' + (listMode ? '16px 20px' : '14px 16px 16px') + '; flex:1 1 auto; min-width:0',
+      // A "View on Google Maps" deep link, shown only for places we have coordinates
+      // for. Per-place coords entered in the dialog (lm.coords) win over the built-in
+      // COORDS table keyed by landmark id. Useful to owners and view-only guests alike.
+      hasMapLink: !!(lm.coords || COORDS[lm.id]),
+      mapUrl: (lm.coords || COORDS[lm.id]) ? ('https://www.google.com/maps/search/?api=1&query=' + (lm.coords || COORDS[lm.id])[0] + ',' + (lm.coords || COORDS[lm.id])[1]) : '',
       onPreview: () => lm.image && this.setState({ lightbox: { src: lm.image, alt: lm.name } }),
-      onEdit: () => this.setState({ dialog: { kind: 'edit-landmark', id: lm.id, title: lm.name, name: lm.name, image: lm.image || '', description: lm.description || '', descriptionEn: lm.descriptionEn || '', descriptionRu: lm.descriptionRu || '' } }),
+      onEdit: () => this.setState({ dialog: { kind: 'edit-landmark', id: lm.id, title: lm.name, name: lm.name, image: lm.image || '', description: lm.description || '', descriptionEn: lm.descriptionEn || '', descriptionRu: lm.descriptionRu || '', coordsText: lm.coordsText || '' } }),
       onDelete: () => this.askDelete(lm.name, () => this.mutate((d) => {
         const ci = this.findCity(d); ci.landmarks = ci.landmarks.filter((x) => x.id !== lm.id)
       })),
@@ -205,6 +216,11 @@ export default class App extends React.Component {
     if (!d0 || !d0.name || !d0.name.trim()) return
     const name = d0.name.trim(), image = (d0.image || '').trim(), description = (d0.description || '').trim()
     const descriptionEn = (d0.descriptionEn || '').trim(), descriptionRu = (d0.descriptionRu || '').trim()
+    // Optional per-place coordinates, pasted from Google Maps in DMS form. When present
+    // but unparseable, flag the field and keep the dialog open instead of saving.
+    const coordsText = (d0.coordsText || '').trim()
+    const coords = coordsText ? this.parseDMS(coordsText) : null
+    if (coordsText && !coords) { this.setState({ dialog: { ...d0, coordsError: true } }); return }
     if (d0.kind === 'country') {
       this.mutate((d) => { d.countries.push({ id: this.slug(name, d.countries), name, flag: image, cities: [] }) })
     } else if (d0.kind === 'edit-country') {
@@ -217,10 +233,10 @@ export default class App extends React.Component {
         const ci = c.cities.find((x) => x.id === d0.id); ci.name = name; ci.image = image })
     } else if (d0.kind === 'landmark') {
       this.mutate((d) => { const ci = this.findCity(d)
-        ci.landmarks.push({ id: this.slug(name, ci.landmarks), name, image, description, descriptionEn, descriptionRu, day: null, visited: false }) })
+        ci.landmarks.push({ id: this.slug(name, ci.landmarks), name, image, description, descriptionEn, descriptionRu, coords, coordsText, day: null, visited: false }) })
     } else if (d0.kind === 'edit-landmark') {
       this.mutate((d) => { const t = this.findCity(d).landmarks.find((x) => x.id === d0.id)
-        t.name = name; t.image = image; t.description = description; t.descriptionEn = descriptionEn; t.descriptionRu = descriptionRu })
+        t.name = name; t.image = image; t.description = description; t.descriptionEn = descriptionEn; t.descriptionRu = descriptionRu; t.coords = coords; t.coordsText = coordsText })
     }
     this.setState({ dialog: null })
   }
@@ -310,13 +326,10 @@ export default class App extends React.Component {
       onAddCity: () => this.setState({ dialog: { kind: 'city', countryId: c.id, title: l.addCity, name: '', image: '' } }),
       cities: c.cities.map((ci) => {
         const st = stats(ci)
-        const days = new Set(ci.landmarks.filter((x) => x.day).map((x) => x.day))
         return {
           id: ci.id, name: ci.name, image: ci.image || '',
-          count: this.pl(st.total, 'places'), visitedLabel: st.seen + ' ' + l.visited,
-          badgeBg: st.seen ? p.teal : 'rgba(26,29,22,0.72)', badgeInk: '#FFFFFF',
+          count: this.pl(st.total, 'places'),
           progress: st.pct,
-          note: days.size ? this.pl(days.size, 'days') + ' ' + l.plannedSuffix : l.notScheduled,
           onClick: () => this.setState({ countryId: c.id, cityId: ci.id, openCountry: c.id, view: 'grid' }),
         }
       }),
@@ -364,6 +377,9 @@ export default class App extends React.Component {
       query: s.query, isSearching, noResults: isSearching && results.length === 0,
       resultsTitle: l.results + ' “' + s.query.trim() + '”',
       showSidebar: s.nav === 'tree',
+      // Tags the sidebar while a city is open so the ≤860px breakpoint can hide it
+      // (the hero + city content take over the full width on phones).
+      sidebarInCityClass: (!isSearching && !!sel) ? 'in-city' : '',
       showOverview: !isSearching && !sel,
       showCity: !isSearching && !!sel,
       showSidePanels: true,
@@ -403,13 +419,14 @@ export default class App extends React.Component {
       // places flow across pages.
       printCity: () => window.print(),
       addCountry: () => this.setState({ dialog: { kind: 'country', title: l.addCountry, name: '', image: '' } }),
-      addLandmark: () => this.setState({ dialog: { kind: 'landmark', title: l.addPlace, name: '', image: '', description: '', descriptionEn: '', descriptionRu: '' } }),
+      addLandmark: () => this.setState({ dialog: { kind: 'landmark', title: l.addPlace, name: '', image: '', description: '', descriptionEn: '', descriptionRu: '', coordsText: '' } }),
       onNotes: (e) => { const v = e.target.value; this.mutate((d) => { this.findCity(d).notes = v }) },
       dialogOpen: !!s.dialog,
       dialog: s.dialog ? {
         title: s.dialog.title, name: s.dialog.name || '', image: s.dialog.image || '',
         description: s.dialog.description || '',
         descriptionEn: s.dialog.descriptionEn || '', descriptionRu: s.dialog.descriptionRu || '',
+        coords: s.dialog.coordsText || '', coordsError: !!s.dialog.coordsError,
         nameLabel: s.dialog.kind.indexOf('country') > -1 ? l.countryName
           : s.dialog.kind.indexOf('city') > -1 ? l.cityName : l.placeName,
         namePlaceholder: s.dialog.kind.indexOf('country') > -1 ? 'France'
@@ -418,13 +435,14 @@ export default class App extends React.Component {
         withDescription: s.dialog.kind.indexOf('landmark') > -1,
         hasPreview: !!(s.dialog.image && /^https?:|^data:/.test(s.dialog.image)),
         submitLabel: s.dialog.kind.indexOf('edit') === 0 ? l.save : l.addBtn,
-      } : { title: '', name: '', image: '', description: '', descriptionEn: '', descriptionRu: '', nameLabel: '', namePlaceholder: '', imageLabel: '', withDescription: false, hasPreview: false, submitLabel: '' },
+      } : { title: '', name: '', image: '', description: '', descriptionEn: '', descriptionRu: '', coords: '', coordsError: false, nameLabel: '', namePlaceholder: '', imageLabel: '', withDescription: false, hasPreview: false, submitLabel: '' },
       onDialogName: (e) => this.setState({ dialog: { ...s.dialog, name: e.target.value } }),
       // Image is a plain URL typed/pasted by the user — stored as a string, no upload.
       onDialogImage: (e) => this.setState({ dialog: { ...s.dialog, image: e.target.value } }),
       onDialogDescription: (e) => this.setState({ dialog: { ...s.dialog, description: e.target.value } }),
       onDialogDescriptionEn: (e) => this.setState({ dialog: { ...s.dialog, descriptionEn: e.target.value } }),
       onDialogDescriptionRu: (e) => this.setState({ dialog: { ...s.dialog, descriptionRu: e.target.value } }),
+      onDialogCoords: (e) => this.setState({ dialog: { ...s.dialog, coordsText: e.target.value, coordsError: false } }),
       submitDialog: () => this.submit(),
       closeDialog: () => this.setState({ dialog: null }),
       confirmOpen: !!s.confirm,
@@ -477,7 +495,7 @@ export default class App extends React.Component {
 
         <div data-t="shell" style={css('flex:1 1 auto; display:flex; min-height:0')}>
           {V.showSidebar && (
-            <aside data-t="sidebar" className="trips-noprint" style={css('flex:0 0 288px; border-right:1px solid #C7D0BC; box-shadow:1px 0 0 rgba(0,0,0,0.03); background:#EBEEE6; overflow-y:auto; padding:22px 18px 40px')}>
+            <aside data-t="sidebar" className={('trips-noprint ' + V.sidebarInCityClass).trim()} style={css('flex:0 0 288px; border-right:1px solid #C7D0BC; box-shadow:1px 0 0 rgba(0,0,0,0.03); background:#EBEEE6; overflow-y:auto; padding:22px 18px 40px')}>
               <div style={css('display:flex; align-items:baseline; justify-content:space-between; margin-bottom:16px')}>
                 <span style={css('font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:#7C8474')}>{V.L.countries}</span>
                 {V.isOwner && (
@@ -583,7 +601,6 @@ export default class App extends React.Component {
                             <img src={ci.image} alt="" style={css('width:100%; height:100%; object-fit:cover; display:block')} />
                             <span style={css('position:absolute; left:12px; bottom:12px; display:flex; gap:6px')}>
                               <span style={css('background:rgba(26,29,22,0.72); color:#FFFFFF; border-radius:999px; padding:4px 10px; font-size:11px; letter-spacing:0.06em; text-transform:uppercase')}>{ci.count}</span>
-                              <span style={css('background:' + ci.badgeBg + '; color:' + ci.badgeInk + '; border-radius:999px; padding:4px 10px; font-size:11px; letter-spacing:0.06em; text-transform:uppercase')}>{ci.visitedLabel}</span>
                             </span>
                           </span>
                           <span style={css('display:flex; flex-direction:column; gap:5px; padding:14px 16px 17px')}>
@@ -591,7 +608,6 @@ export default class App extends React.Component {
                             <span data-t="rule" style={css('height:3px; border-radius:3px; background:#E4EBDD; display:block; overflow:hidden')}>
                               <span style={css('display:block; height:100%; width:' + ci.progress + '; background:' + V.tealBar)}></span>
                             </span>
-                            <span style={css('font-size:12.5px; color:#7C8474')}>{ci.note}</span>
                           </span>
                         </El>
                       ))}
@@ -673,12 +689,13 @@ export default class App extends React.Component {
                                       <span style={css('font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:#8C9384; flex:0 0 auto')}>{lm.index}</span>
                                     </div>
                                     <p style={css('margin:0; font-size:13.5px; line-height:1.6; color:#7C8474; text-wrap:pretty')}>{lm.description}</p>
-                                    {V.isOwner && (
-                                      <div className="trips-noprint" style={css('display:flex; align-items:center; gap:8px; margin-top:2px')}>
-                                        <button type="button" onClick={lm.onToggleVisited} style={css(lm.visitedStyle)}>{lm.visitedIcon} {V.L.markVisited}</button>
-                                        <span style={css('font-size:11px; color:#8C9384; cursor:grab')}>⠿ {V.L.drag}</span>
-                                      </div>
-                                    )}
+                                    <div className="trips-noprint" style={css('display:flex; align-items:center; gap:8px; margin-top:2px')}>
+                                      {V.isOwner && <span style={css('font-size:11px; color:#8C9384; cursor:grab')}>⠿ {V.L.drag}</span>}
+                                      <span style={css('flex:1 1 auto')}></span>
+                                      {lm.hasMapLink && (
+                                        <El as="a" href={lm.mapUrl} target="_blank" rel="noopener" base="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; color:#5FA05F; text-decoration:none" hover="color:#478047">📍 {V.L.viewOnMap}</El>
+                                      )}
+                                    </div>
                                   </div>
                                 </article>
                               ))}
@@ -733,6 +750,13 @@ export default class App extends React.Component {
                   <label style={css('display:block; margin-bottom:14px')}>
                     <span style={css('display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#7C8474')}>{V.L.descriptionRu}</span>
                     <El as="textarea" data-t="input" value={V.dialog.descriptionRu} onChange={V.onDialogDescriptionRu} rows={3} base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #E4EBDD; border-radius:11px; background:#FFFFFF; color:#26291F; font-size:14px; line-height:1.55; resize:vertical; outline:none" focus="border-color:#5FA05F" />
+                  </label>
+                  <label style={css('display:block; margin-bottom:14px')}>
+                    <span style={css('display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#7C8474')}>{V.L.coordinates}</span>
+                    <El as="input" data-t="input" type="text" value={V.dialog.coords} onChange={V.onDialogCoords} placeholder={'39°28\'12.0"N 0°22\'12.0"W'} base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #E4EBDD; border-radius:11px; background:#FFFFFF; color:#26291F; font-size:14px; outline:none" focus="border-color:#5FA05F" />
+                    {V.dialog.coordsError && (
+                      <span style={css('display:block; margin-top:5px; font-size:12px; color:#B3543E')}>{V.L.coordsInvalid}</span>
+                    )}
                   </label>
                 </>
               )}

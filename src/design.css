@@ -121,6 +121,9 @@
     border-right: none !important;
     border-bottom: 1px solid #c7d0bc !important;
   }
+  [data-t~='sidebar'].in-city {
+    display: none !important;
+  }
   [data-theme='dark'] [data-t~='sidebar'] {
     border-bottom-color: #33372c !important;
   }
