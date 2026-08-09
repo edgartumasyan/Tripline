@@ -687,7 +687,7 @@ export default class App extends React.Component {
                                     </div>
                                     <p style={css('margin:0; font-size:13.5px; line-height:1.6; color:#7C8474; text-wrap:pretty')}>{lm.description}</p>
                                     <div className="trips-noprint" style={css('display:flex; align-items:center; gap:8px; margin-top:2px')}>
-                                      {V.isOwner && <span style={css('font-size:11px; color:#8C9384; cursor:grab')}>⠿ {V.L.drag}</span>}
+                                      {V.isOwner && <span style={css('font-size:11px; color:#8C9384; cursor:grab; white-space:nowrap')}>⠿ {V.L.drag}</span>}
                                       <span style={css('flex:1 1 auto')}></span>
                                       {lm.hasMapLink && (
                                         <El as="a" href={lm.mapUrl} target="_blank" rel="noopener" base="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; color:#5FA05F; text-decoration:none; white-space:nowrap; flex:0 0 auto" hover="color:#478047">📍 {V.L.viewOnMap}</El>
