@@ -712,7 +712,7 @@ export default class App extends React.Component {
 
         {V.dialogOpen && (
           <div onClick={V.closeDialog} style={css('position:fixed; inset:0; background:rgba(26,29,22,0.6); display:flex; align-items:center; justify-content:center; padding:24px; z-index:50')}>
-            <div data-t="panel" onClick={V.stop} style={css('width:100%; max-width:460px; background:#FFFFFF; border:1px solid #DCE3D6; border-radius:20px; padding:26px 26px 22px; box-shadow:0 26px 60px rgba(26,29,22,0.4)')}>
+            <div data-t="panel" onClick={V.stop} style={css('width:100%; max-width:460px; max-height:calc(100vh - 48px); overflow-y:auto; background:#FFFFFF; border:1px solid #DCE3D6; border-radius:20px; padding:26px 26px 22px; box-shadow:0 26px 60px rgba(26,29,22,0.4)')}>
               <h2 data-t="ink" style={css("margin:0 0 18px; font-family:'Work Sans',sans-serif; font-weight:400; font-size:26px; color:#26291F")}>{V.dialog.title}</h2>
               <label style={css('display:block; margin-bottom:14px')}>
                 <span style={css('display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#7C8474')}>{V.dialog.nameLabel}</span>
