@@ -72,7 +72,7 @@ export default class App extends React.Component {
     nav: 'tree',
     countryId: null, cityId: null, openCountry: 'spain',
     query: '', view: 'grid',
-    dialog: null, confirm: null, lightbox: null, dragIndex: null, checklistDraft: '',
+    dialog: null, confirm: null, lightbox: null, dragIndex: null,
   }
 
   componentDidMount() {
@@ -149,22 +149,21 @@ export default class App extends React.Component {
     return id
   }
 
-  dayOptions() {
-    const l = this.L()
-    const out = [{ value: '', label: l.unassigned }]
-    for (let i = 1; i <= 7; i++) out.push({ value: String(i), label: l.day + ' ' + i })
-    return out
-  }
-
   buildCard(lm, index, listMode) {
-    const l = this.L(), p = this.pal()
+    const p = this.pal(), visited = !!lm.visited
+    // Visited chip mirrors the design's chip roles: filled teal when on, a quiet
+    // outlined pill when off. Colours come from pal() so they follow the theme.
+    const chip = 'display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:4px 12px; font-size:11.5px; cursor:pointer; '
     return {
       id: lm.id, name: lm.name, image: lm.image || '', description: this.pickDescription(lm),
-      index: String(index + 1).padStart(2, '0'), day: lm.day ? String(lm.day) : '',
-      dayOptions: this.dayOptions(),
+      index: String(index + 1).padStart(2, '0'),
+      visited, visitedIcon: visited ? '✓' : '○',
+      visitedStyle: visited
+        ? chip + 'border:1px solid ' + p.chipBg + '; background:' + p.chipBg + '; color:' + p.chipInk
+        : chip + 'border:1px solid ' + p.chipOffEdge + '; background:' + p.chipOffBg + '; color:' + p.chipOffInk,
       cardStyle: 'display:flex; flex-direction:' + (listMode ? 'row' : 'column') +
-        '; border:1px solid ' + p.cardEdge + '; border-radius:16px; overflow:hidden; background:' +
-        p.cardBg + '; opacity:' + (this.state.dragIndex === index ? '0.45' : '1') + '; transition:box-shadow .18s ease',
+        '; border:1px solid ' + (visited ? p.seenEdge : p.cardEdge) + '; border-radius:16px; overflow:hidden; background:' +
+        (visited ? p.seenBg : p.cardBg) + '; opacity:' + (this.state.dragIndex === index ? '0.45' : '1') + '; transition:box-shadow .18s ease',
       mediaStyle: 'position:relative; flex:0 0 ' + (listMode ? '210px' : 'auto') + '; background:' + p.media + '; ' +
         (listMode ? 'align-self:stretch; min-height:150px' : 'aspect-ratio:16/10'),
       imgStyle: 'width:100%; height:100%; object-fit:cover; display:block; cursor:zoom-in',
@@ -174,9 +173,9 @@ export default class App extends React.Component {
       onDelete: () => this.askDelete(lm.name, () => this.mutate((d) => {
         const ci = this.findCity(d); ci.landmarks = ci.landmarks.filter((x) => x.id !== lm.id)
       })),
-      onDay: (e) => { const v = e.target.value; this.mutate((d) => {
-        const t = this.findCity(d).landmarks.find((x) => x.id === lm.id); t.day = v ? Number(v) : null
-      }) },
+      onToggleVisited: () => this.mutate((d) => {
+        const t = this.findCity(d).landmarks.find((x) => x.id === lm.id); t.visited = !t.visited
+      }),
       onDragStart: () => this.setState({ dragIndex: index }),
       onDragOver: (e) => {
         e.preventDefault()
@@ -218,7 +217,7 @@ export default class App extends React.Component {
         const ci = c.cities.find((x) => x.id === d0.id); ci.name = name; ci.image = image })
     } else if (d0.kind === 'landmark') {
       this.mutate((d) => { const ci = this.findCity(d)
-        ci.landmarks.push({ id: this.slug(name, ci.landmarks), name, image, description, descriptionEn, descriptionRu, day: null }) })
+        ci.landmarks.push({ id: this.slug(name, ci.landmarks), name, image, description, descriptionEn, descriptionRu, day: null, visited: false }) })
     } else if (d0.kind === 'edit-landmark') {
       this.mutate((d) => { const t = this.findCity(d).landmarks.find((x) => x.id === d0.id)
         t.name = name; t.image = image; t.description = description; t.descriptionEn = descriptionEn; t.descriptionRu = descriptionRu })
@@ -229,17 +228,6 @@ export default class App extends React.Component {
   setTheme(v) {
     this.setState({ theme: v })
     try { localStorage.setItem('trips.theme', v) } catch (e) {}
-  }
-
-  addChecklistItem() {
-    const text = this.state.checklistDraft.trim()
-    if (!text) return
-    this.mutate((d) => {
-      const ci = this.findCity(d)
-      if (!ci.checklist) ci.checklist = []
-      ci.checklist.push({ id: 'chk-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6), text, done: false })
-    })
-    this.setState({ checklistDraft: '' })
   }
 
   // Builds a standalone, static, read-only HTML snapshot of the current city —
@@ -285,7 +273,11 @@ export default class App extends React.Component {
     const q = s.query.trim().toLowerCase()
     const isSearching = q.length > 1
 
-    const stats = (ci) => ({ total: ci.landmarks.length })
+    const stats = (ci) => {
+      const total = ci.landmarks.length
+      const seen = ci.landmarks.filter((x) => x.visited).length
+      return { total, seen, pct: total ? Math.round((seen / total) * 100) + '%' : '0%' }
+    }
 
     const tree = countries.map((c) => ({
       id: c.id, name: c.name, flag: c.flag || '',
@@ -321,7 +313,9 @@ export default class App extends React.Component {
         const days = new Set(ci.landmarks.filter((x) => x.day).map((x) => x.day))
         return {
           id: ci.id, name: ci.name, image: ci.image || '',
-          count: this.pl(st.total, 'places'),
+          count: this.pl(st.total, 'places'), visitedLabel: st.seen + ' ' + l.visited,
+          badgeBg: st.seen ? p.teal : 'rgba(26,29,22,0.72)', badgeInk: '#FFFFFF',
+          progress: st.pct,
           note: days.size ? this.pl(days.size, 'days') + ' ' + l.plannedSuffix : l.notScheduled,
           onClick: () => this.setState({ countryId: c.id, cityId: ci.id, openCountry: c.id, view: 'grid' }),
         }
@@ -349,15 +343,8 @@ export default class App extends React.Component {
       cityVals = {
         name: sel.city.name, image: sel.city.image || '',
         crumb: '← ' + sel.country.name,
-        meta: this.pl(st.total, 'places'),
+        meta: this.pl(st.total, 'places') + ' · ' + st.seen + ' ' + l.visited,
         notes: sel.city.notes || '',
-        checklist: (sel.city.checklist || []).map((it) => ({
-          id: it.id, text: it.text, done: !!it.done,
-          color: it.done ? '#A9AC9E' : '#26291F', strike: it.done ? 'line-through' : 'none',
-          onToggle: () => this.mutate((d) => { this.findCity(d).checklist.find((x) => x.id === it.id).done = !it.done }),
-          onRemove: () => this.mutate((d) => { const cc = this.findCity(d); cc.checklist = cc.checklist.filter((x) => x.id !== it.id) }),
-        })),
-        checklistEmpty: !(sel.city.checklist || []).length,
       }
       const items = sel.city.landmarks.map((lm, i) => ({ lm, i }))
       const listMode = s.view === 'list'
@@ -371,7 +358,7 @@ export default class App extends React.Component {
 
     return {
       L, tree, chapters, results,
-      theme: mode,
+      theme: mode, tealBar: p.teal,
       themeIcon: mode === 'dark' ? '☾' : '☀',
       toggleTheme: () => this.setTheme(mode === 'dark' ? 'light' : 'dark'),
       query: s.query, isSearching, noResults: isSearching && results.length === 0,
@@ -381,7 +368,7 @@ export default class App extends React.Component {
       showCity: !isSearching && !!sel,
       showSidePanels: true,
       isOwner: this.isOwner(), notOwner: !this.isOwner(),
-      city: cityVals || { name: '', image: '', crumb: '', meta: '', notes: '', checklist: [], checklistEmpty: true },
+      city: cityVals || { name: '', image: '', crumb: '', meta: '', notes: '' },
       mapCity: sel ? sel.city : null,
       groups, cityEmpty: !!sel && groups.every((g) => g.items.length === 0),
       isMap: !!sel && s.view === 'map', isCards: !!sel && s.view !== 'map',
@@ -409,10 +396,6 @@ export default class App extends React.Component {
       setViewGrid: () => this.setState({ view: 'grid' }),
       setViewList: () => this.setState({ view: 'list' }),
       setViewMap: () => this.setState({ view: 'map' }),
-      checklistDraft: s.checklistDraft,
-      onChecklistDraft: (e) => this.setState({ checklistDraft: e.target.value }),
-      onChecklistKeyDown: (e) => { if (e.key === 'Enter') this.addChecklistItem() },
-      addChecklistItem: () => this.addChecklistItem(),
       shareCity: () => this.shareCity(),
       // The "Print / PDF" button opens the browser's print dialog, from which
       // the user can print on paper or save as PDF. The @media print stylesheet
@@ -603,10 +586,14 @@ export default class App extends React.Component {
                             <img src={ci.image} alt="" style={css('width:100%; height:100%; object-fit:cover; display:block')} />
                             <span style={css('position:absolute; left:12px; bottom:12px; display:flex; gap:6px')}>
                               <span style={css('background:rgba(26,29,22,0.72); color:#FFFFFF; border-radius:999px; padding:4px 10px; font-size:11px; letter-spacing:0.06em; text-transform:uppercase')}>{ci.count}</span>
+                              <span style={css('background:' + ci.badgeBg + '; color:' + ci.badgeInk + '; border-radius:999px; padding:4px 10px; font-size:11px; letter-spacing:0.06em; text-transform:uppercase')}>{ci.visitedLabel}</span>
                             </span>
                           </span>
                           <span style={css('display:flex; flex-direction:column; gap:5px; padding:14px 16px 17px')}>
                             <span data-t="ink" style={css("font-family:'Work Sans',sans-serif; font-weight:600; font-size:22px; line-height:1.15; color:#26291F")}>{ci.name}</span>
+                            <span data-t="rule" style={css('height:3px; border-radius:3px; background:#E4EBDD; display:block; overflow:hidden')}>
+                              <span style={css('display:block; height:100%; width:' + ci.progress + '; background:' + V.tealBar)}></span>
+                            </span>
                             <span style={css('font-size:12.5px; color:#7C8474')}>{ci.note}</span>
                           </span>
                         </El>
@@ -691,11 +678,7 @@ export default class App extends React.Component {
                                     <p style={css('margin:0; font-size:13.5px; line-height:1.6; color:#7C8474; text-wrap:pretty')}>{lm.description}</p>
                                     {V.isOwner && (
                                       <div className="trips-noprint" style={css('display:flex; align-items:center; gap:8px; margin-top:2px')}>
-                                        <select data-t="input" value={lm.day} onChange={lm.onDay} style={css('border:1px solid #E4EBDD; background:#FFFFFF; color:#7C8474; border-radius:999px; padding:4px 10px; font-size:11.5px; cursor:pointer; outline:none')}>
-                                          {lm.dayOptions.map((d) => (
-                                            <option key={d.value} value={d.value}>{d.label}</option>
-                                          ))}
-                                        </select>
+                                        <button type="button" onClick={lm.onToggleVisited} style={css(lm.visitedStyle)}>{lm.visitedIcon} {V.L.markVisited}</button>
                                         <span style={css('font-size:11px; color:#8C9384; cursor:grab')}>⠿ {V.L.drag}</span>
                                       </div>
                                     )}
@@ -719,29 +702,6 @@ export default class App extends React.Component {
                           base="width:100%; box-sizing:border-box; border:1px solid #E4EBDD; border-radius:11px; background:#FFFFFF; color:#26291F; padding:10px 12px; font-size:13.5px; line-height:1.55; resize:vertical; outline:none"
                           focus="border-color:#5FA05F" />
                         {V.isOwner && <span style={css('font-size:11px; color:#8C9384')}>{V.L.autosaved}</span>}
-                      </div>
-                      <div data-t="card" style={css('border:1px solid #E4EBDD; background:#FFFFFF; border-radius:16px; padding:16px 18px; display:flex; flex-direction:column; gap:10px')}>
-                        <p style={css('margin:0; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:#7C8474')}>{V.L.checklist}</p>
-                        <div style={css('display:flex; flex-direction:column; gap:7px')}>
-                          {V.city.checklist.map((item) => (
-                            <div key={item.id} style={css('display:flex; align-items:center; gap:8px')}>
-                              <input type="checkbox" checked={item.done} onChange={item.onToggle} disabled={V.notOwner} style={css('width:15px; height:15px; accent-color:#5FA05F; cursor:pointer; flex:0 0 auto')} />
-                              <span style={css('flex:1 1 auto; min-width:0; font-size:13.5px; color:' + item.color + '; text-decoration:' + item.strike + '; overflow-wrap:break-word')}>{item.text}</span>
-                              {V.isOwner && (
-                                <El as="button" type="button" onClick={item.onRemove} title="Remove" className="trips-noprint" base="border:none; background:none; color:#A9AC9E; cursor:pointer; font-size:11px; padding:2px; flex:0 0 auto" hover="color:#B3543E">✕</El>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                        {V.city.checklistEmpty && <p style={css('margin:0; font-size:12.5px; color:#8C9384; font-style:italic')}>{V.L.checklistEmpty}</p>}
-                        {V.isOwner && (
-                          <div style={css('display:flex; gap:6px')} className="trips-noprint">
-                            <El as="input" data-t="input" type="text" value={V.checklistDraft} onChange={V.onChecklistDraft} onKeyDown={V.onChecklistKeyDown} placeholder={V.L.checklistPlaceholder}
-                              base="flex:1 1 auto; min-width:0; box-sizing:border-box; border:1px solid #E4EBDD; border-radius:9px; background:#FFFFFF; color:#26291F; padding:7px 10px; font-size:13px; outline:none"
-                              focus="border-color:#5FA05F" />
-                            <button type="button" onClick={V.addChecklistItem} style={css('border:1px solid #5FA05F; background:#5FA05F; color:#FFFFFF; border-radius:9px; padding:0 12px; font-size:13px; cursor:pointer; flex:0 0 auto')}>{V.L.addBtn}</button>
-                          </div>
-                        )}
                       </div>
                     </aside>
                   )}

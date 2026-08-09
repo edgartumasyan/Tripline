@@ -69,7 +69,9 @@ export default function CityMap({ L: labels, pl, mode, city }) {
 
   // Only rebuild the pins when something they depict actually changes —
   // otherwise every unrelated edit would re-fit the viewport under the user.
-  const signature = `${city.id}|${city.landmarks.map((lm) => lm.id).join(',')}`
+  const signature = `${city.id}|${city.landmarks
+    .map((lm) => lm.id + (lm.visited ? '1' : '0'))
+    .join(',')}`
   const cityRef = useRef(city)
   cityRef.current = city
 
@@ -85,7 +87,8 @@ export default function CityMap({ L: labels, pl, mode, city }) {
       const point = COORDS[lm.id]
       if (!point) return
       points.push(point)
-      const color = 'var(--accent)'
+      // Visited places take the teal pin; still-to-visit ones stay accent green.
+      const color = lm.visited ? 'var(--teal)' : 'var(--accent)'
       const icon = L.divIcon({
         className: '',
         iconSize: [34, 34],
