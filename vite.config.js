@@ -46,6 +46,12 @@ function dataApi() {
 export default defineConfig({
   // Served from https://edgartumasyan.github.io/Tripline/ on GitHub Pages.
   base: '/Tripline/',
+  // src/data.json is imported as a module (storage.js) but is also rewritten at
+  // runtime by the dataApi PUT above. Without this, every save would change a
+  // watched module, trigger an HMR full-page reload, and bounce the user back to
+  // the home screen (losing the open city/landmark). The app already holds the
+  // saved data in memory, so the reload is pure loss — ignore the file.
+  server: { watch: { ignored: ['**/src/data.json'] } },
   plugins: [
     react(),
     dataApi(),
