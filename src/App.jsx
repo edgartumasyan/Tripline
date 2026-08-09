@@ -189,30 +189,86 @@ export default class App extends React.Component {
       onToggleVisited: () => this.mutate((d) => {
         const t = this.findCity(d).landmarks.find((x) => x.id === lm.id); t.visited = !t.visited
       }),
+      // Position in the currently-displayed order — used by both the native
+      // (mouse) drag and the pointer-based (touch) drag to resolve targets.
+      pos: index,
+      // Native HTML5 drag-and-drop — desktop mouse only; touch never fires these.
       onDragStart: () => this.setState({ dragIndex: index }),
       onDragOver: (e) => {
         e.preventDefault()
         const from = this.state.dragIndex
         if (from === null || from === index) return
+        this.reorderLandmark(from, index, orderedIds, cityId, isOwner)
         this.setState({ dragIndex: index })
-        if (isOwner) {
-          // Owners reorder the persisted document itself.
-          this.mutate((d) => {
-            const ci = this.findCity(d)
-            const [moved] = ci.landmarks.splice(from, 1)
-            ci.landmarks.splice(index, 0, moved)
-          })
-        } else {
-          // Viewers reorder only their own in-memory copy (for Print/PDF); the
-          // stored order is never touched and this resets on refresh.
-          const ids = orderedIds.slice()
-          const [moved] = ids.splice(from, 1)
-          ids.splice(index, 0, moved)
-          this.setState({ viewerOrder: { ...this.state.viewerOrder, [cityId]: ids } })
-        }
       },
       onDragEnd: () => this.setState({ dragIndex: null }),
+      // Pointer-based drag from the ⠿ handle — this is what makes reordering
+      // work on touchscreens, where native drag-and-drop does nothing.
+      onHandleDown: (e) => this.startPointerDrag(index, orderedIds, cityId, isOwner, e),
     }
+  }
+
+  // Move a landmark from one display position to another. Owners reorder the
+  // persisted document; viewers reorder only their own in-memory copy (for
+  // Print/PDF), which is never persisted and resets on refresh.
+  reorderLandmark(from, to, orderedIds, cityId, isOwner) {
+    if (isOwner) {
+      this.mutate((d) => {
+        const ci = this.findCity(d)
+        const [moved] = ci.landmarks.splice(from, 1)
+        ci.landmarks.splice(to, 0, moved)
+      })
+    } else {
+      const ids = orderedIds.slice()
+      const [moved] = ids.splice(from, 1)
+      ids.splice(to, 0, moved)
+      this.setState({ viewerOrder: { ...this.state.viewerOrder, [cityId]: ids } })
+    }
+  }
+
+  // Touch/pen reordering via Pointer Events. Started from the drag handle
+  // (which sets touch-action:none so the press doesn't scroll the list). We
+  // track the moving item in an instance field to avoid setState races, follow
+  // the finger with elementFromPoint over the cards' data-lm-idx markers, and
+  // ignore mouse pointers so desktop keeps using native drag-and-drop.
+  startPointerDrag(index, orderedIds, cityId, isOwner, e) {
+    if (e.pointerType === 'mouse') return
+    e.preventDefault()
+    this._drag = { from: index, cityId, isOwner, ids: orderedIds.slice() }
+    this.setState({ dragIndex: index })
+    this._onPtrMove = (ev) => this.pointerDragMove(ev)
+    this._onPtrUp = () => this.endPointerDrag()
+    window.addEventListener('pointermove', this._onPtrMove, { passive: false })
+    window.addEventListener('pointerup', this._onPtrUp)
+    window.addEventListener('pointercancel', this._onPtrUp)
+  }
+
+  pointerDragMove(e) {
+    const d = this._drag
+    if (!d) return
+    e.preventDefault()
+    const el = document.elementFromPoint(e.clientX, e.clientY)
+    const card = el && el.closest('[data-lm-idx]')
+    if (!card) return
+    const to = Number(card.getAttribute('data-lm-idx'))
+    if (Number.isNaN(to) || to === d.from) return
+    this.reorderLandmark(d.from, to, d.ids, d.cityId, d.isOwner)
+    // The viewer path reorders our local id list; keep it in step so successive
+    // moves within one drag resolve against the up-to-date order.
+    if (!d.isOwner) {
+      const [moved] = d.ids.splice(d.from, 1)
+      d.ids.splice(to, 0, moved)
+    }
+    d.from = to
+    this.setState({ dragIndex: to })
+  }
+
+  endPointerDrag() {
+    this._drag = null
+    this.setState({ dragIndex: null })
+    window.removeEventListener('pointermove', this._onPtrMove)
+    window.removeEventListener('pointerup', this._onPtrUp)
+    window.removeEventListener('pointercancel', this._onPtrUp)
   }
 
   findCity(d) {
@@ -696,7 +752,7 @@ export default class App extends React.Component {
 
                             <div style={css('display:' + g.display + '; grid-template-columns:repeat(auto-fill, minmax(290px, 1fr)); flex-direction:column; gap:' + g.gap)}>
                               {g.items.map((lm) => (
-                                <article key={lm.id} data-t="card" draggable onDragStart={lm.onDragStart} onDragOver={lm.onDragOver} onDragEnd={lm.onDragEnd} style={css(lm.cardStyle)}>
+                                <article key={lm.id} data-t="card" data-lm-idx={lm.pos} draggable onDragStart={lm.onDragStart} onDragOver={lm.onDragOver} onDragEnd={lm.onDragEnd} style={css(lm.cardStyle)}>
                                   <div data-t="media" style={css(lm.mediaStyle)}>
                                     <img src={lm.image} alt={lm.name} onClick={lm.onPreview} style={css(lm.imgStyle)} />
                                     {V.isOwner && (
@@ -713,7 +769,7 @@ export default class App extends React.Component {
                                     </div>
                                     <p style={css('margin:0; font-size:13.5px; line-height:1.6; color:#7C8474; text-wrap:pretty')}>{lm.description}</p>
                                     <div className="trips-noprint" style={css('display:flex; align-items:center; flex-wrap:wrap; column-gap:8px; row-gap:4px; margin-top:2px')}>
-                                      <span style={css('font-size:11px; color:#8C9384; cursor:grab; white-space:nowrap')}>⠿ {V.L.drag}</span>
+                                      <span onPointerDown={lm.onHandleDown} style={css('font-size:11px; color:#8C9384; cursor:grab; white-space:nowrap; touch-action:none; user-select:none; -webkit-user-select:none; padding:6px 4px; margin:-6px -4px')}>⠿ {V.L.drag}</span>
                                       {V.notOwner && <span style={css('font-size:10.5px; color:#8C9384; font-style:italic; white-space:nowrap')}>{V.L.viewerOrderHint}</span>}
                                       <span style={css('flex:1 1 auto')}></span>
                                       {lm.hasMapLink && (
