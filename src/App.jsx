@@ -357,7 +357,6 @@ export default class App extends React.Component {
         name: sel.city.name, image: sel.city.image || '',
         crumb: '← ' + sel.country.name,
         meta: this.pl(st.total, 'places') + ' · ' + st.seen + ' ' + l.visited,
-        notes: sel.city.notes || '',
       }
       const items = sel.city.landmarks.map((lm, i) => ({ lm, i }))
       const listMode = s.view === 'list'
@@ -382,9 +381,8 @@ export default class App extends React.Component {
       sidebarInCityClass: (!isSearching && !!sel) ? 'in-city' : '',
       showOverview: !isSearching && !sel,
       showCity: !isSearching && !!sel,
-      showSidePanels: true,
       isOwner: this.isOwner(), notOwner: !this.isOwner(),
-      city: cityVals || { name: '', image: '', crumb: '', meta: '', notes: '' },
+      city: cityVals || { name: '', image: '', crumb: '', meta: '' },
       mapCity: sel ? sel.city : null,
       groups, cityEmpty: !!sel && groups.every((g) => g.items.length === 0),
       isMap: !!sel && s.view === 'map', isCards: !!sel && s.view !== 'map',
@@ -420,7 +418,6 @@ export default class App extends React.Component {
       printCity: () => window.print(),
       addCountry: () => this.setState({ dialog: { kind: 'country', title: l.addCountry, name: '', image: '' } }),
       addLandmark: () => this.setState({ dialog: { kind: 'landmark', title: l.addPlace, name: '', image: '', description: '', descriptionEn: '', descriptionRu: '', coordsText: '' } }),
-      onNotes: (e) => { const v = e.target.value; this.mutate((d) => { this.findCity(d).notes = v }) },
       dialogOpen: !!s.dialog,
       dialog: s.dialog ? {
         title: s.dialog.title, name: s.dialog.name || '', image: s.dialog.image || '',
@@ -707,18 +704,6 @@ export default class App extends React.Component {
 
                     {V.cityEmpty && <p style={css('color:#7C8474; font-style:italic; padding:40px 0; text-align:center')}>{V.L.emptyCity}</p>}
                   </div>
-
-                  {V.showSidePanels && (
-                    <aside data-t="side-panels" className="trips-noprint" style={css('flex:0 0 268px; position:sticky; top:96px; display:flex; flex-direction:column; gap:14px')}>
-                      <div data-t="card" style={css('border:1px solid #E4EBDD; background:#FFFFFF; border-radius:16px; padding:16px 18px; display:flex; flex-direction:column; gap:10px')}>
-                        <p style={css('margin:0; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:#7C8474')}>{V.L.notes}</p>
-                        <El as="textarea" data-t="input" value={V.city.notes} onChange={V.onNotes} readOnly={V.notOwner} placeholder={V.L.notesPlaceholder} rows={8}
-                          base="width:100%; box-sizing:border-box; border:1px solid #E4EBDD; border-radius:11px; background:#FFFFFF; color:#26291F; padding:10px 12px; font-size:13.5px; line-height:1.55; resize:vertical; outline:none"
-                          focus="border-color:#5FA05F" />
-                        {V.isOwner && <span style={css('font-size:11px; color:#8C9384')}>{V.L.autosaved}</span>}
-                      </div>
-                    </aside>
-                  )}
                 </div>
               </div>
             )}
