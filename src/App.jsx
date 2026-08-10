@@ -335,7 +335,13 @@ export default class App extends React.Component {
     const sel = this.city()
     if (!sel) return
     const l = this.L(), esc = (s) => String(s || '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
-    const rows = sel.city.landmarks.map((lm, i) => `
+    const rows = sel.city.landmarks.map((lm, i) => {
+      // Same "View on Google Maps" deep link the live app shows — per-place
+      // coords win over the built-in COORDS table, and places we can't locate
+      // simply get no link.
+      const pt = lm.coords || COORDS[lm.id]
+      const mapUrl = pt ? 'https://www.google.com/maps/search/?api=1&query=' + pt[0] + ',' + pt[1] : ''
+      return `
       <article style="display:flex;gap:16px;border:1px solid #E4EBDD;border-radius:16px;overflow:hidden;background:#FFFFFF;margin-bottom:18px">
         ${lm.image ? `<img src="${esc(lm.image)}" alt="" style="width:220px;height:160px;object-fit:cover;flex:0 0 auto"/>` : ''}
         <div style="padding:16px 20px;display:flex;flex-direction:column;gap:6px;min-width:0">
@@ -344,8 +350,10 @@ export default class App extends React.Component {
             <span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#9C9488">${String(i + 1).padStart(2, '0')}</span>
           </div>
           <p style="margin:0;font-size:13.5px;line-height:1.6;color:#7C8474">${esc(this.pickDescription(lm))}</p>
+          ${mapUrl ? `<a href="${mapUrl}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:#5FA05F;text-decoration:none;white-space:nowrap;margin-top:2px">📍 ${esc(l.viewOnMap)}</a>` : ''}
         </div>
-      </article>`).join('')
+      </article>`
+    }).join('')
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(sel.city.name)}</title>
       <style>body{margin:0;background:#F5F6F4;color:#1B1D18;font-family:'Work Sans',system-ui,sans-serif}
       .wrap{max-width:760px;margin:0 auto;padding:40px 24px 80px}</style></head><body>
@@ -771,8 +779,8 @@ export default class App extends React.Component {
                                       <span style={css('font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:#8C9384; flex:0 0 auto')}>{lm.index}</span>
                                     </div>
                                     <p style={css('margin:0; font-size:13.5px; line-height:1.6; color:#7C8474; text-wrap:pretty')}>{lm.description}</p>
-                                    <div className="trips-noprint" style={css('display:flex; align-items:center; flex-wrap:wrap; column-gap:8px; row-gap:4px; margin-top:2px')}>
-                                      <span data-t="edge" onPointerDown={lm.onHandleDown} title={V.isOwner ? V.L.drag : V.L.viewerOrderHint} style={css('display:inline-flex; align-items:center; gap:6px; font-size:11px; color:#8C9384; cursor:grab; white-space:nowrap; touch-action:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; padding:6px 12px; border:1px solid #E4EBDD; border-radius:999px; background:#F5F6F4')}><span style={css('font-size:14px; line-height:1')}>⠿</span> {V.isOwner ? V.L.drag : V.L.viewerOrderHint}</span>
+                                    <div style={css('display:flex; align-items:center; flex-wrap:wrap; column-gap:8px; row-gap:4px; margin-top:2px')}>
+                                      <span data-t="edge" className="trips-noprint" onPointerDown={lm.onHandleDown} title={V.isOwner ? V.L.drag : V.L.viewerOrderHint} style={css('display:inline-flex; align-items:center; gap:6px; font-size:11px; color:#8C9384; cursor:grab; white-space:nowrap; touch-action:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; padding:6px 12px; border:1px solid #E4EBDD; border-radius:999px; background:#F5F6F4')}><span style={css('font-size:14px; line-height:1')}>⠿</span> {V.isOwner ? V.L.drag : V.L.viewerOrderHint}</span>
                                       <span style={css('flex:1 1 auto')}></span>
                                       {lm.hasMapLink && (
                                         <El as="a" href={lm.mapUrl} target="_blank" rel="noopener" base="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; color:#5FA05F; text-decoration:none; white-space:nowrap; flex:0 0 auto" hover="color:#478047">📍 {V.L.viewOnMap}</El>
