@@ -106,118 +106,235 @@
               "coordsText": "40°24'27.5\"N 3°41'30.0\"W"
             },
             {
+              "id": "paseo-del-prado",
+              "name": "Paseo del Prado",
+              "image": "https://c8.alamy.com/comp/2AD86N7/madrid-paseo-del-prado-2AD86N7.jpg",
+              "description": "Paseo del Prado-ն 2021 թվականին ՅՈՒՆԵՍԿՕ-ի համաշխարհային ժառանգության ցանկում ընդգրկված մշակութային պողոտա է։ Այն համարվում է Մադրիդի մշակութային կյանքի կենտրոններից մեկը, որտեղ կենտրոնացած են քաղաքի լավագույն թանգարանները՝ Պրադոյի թանգարանը, Թիսեն-Բորնեմիսա թանգարանը և Ռեյնա Սոֆիայի թանգարանը։ Պողոտան ձևավորվել է դեռևս 16-րդ դարում և համարվում է Եվրոպայի առաջին ծառաշատ հանրային բուլվարներից մեկը։ Այստեղ են գտնվում նաև Թագավորական բուսաբանական այգին, բազմաթիվ շատրվաններ և պատմական շենքեր։",
+              "descriptionEn": "Paseo del Prado is a cultural boulevard that was added to the UNESCO World Heritage List in 2021. It is one of Madrid’s main cultural areas and is home to the city's most important museums, including the Prado Museum, Thyssen-Bornemisza Museum, and Reina Sofía Museum. The boulevard dates back to the 16th century and is considered one of Europe's earliest tree-lined public avenues. It is also home to the Royal Botanical Garden, historic fountains, and important cultural institutions.",
+              "descriptionRu": "Пасео-дель-Прадо — культурный бульвар, включённый в список Всемирного наследия ЮНЕСКО в 2021 году. Он считается одним из главных культурных центров Мадрида, где расположены лучшие музеи города: музей Прадо, музей Тиссена-Борнемисы и музей королевы Софии. Бульвар существует с XVI века и считается одним из первых общественных проспектов Европы, обсаженных деревьями. Здесь также находятся Королевский ботанический сад, исторические фонтаны и важные культурные учреждения.",
+              "coords": [
+                40.410222222222224,
+                -3.692277777777778
+              ],
+              "coordsText": "40°24'36.8\"N 3°41'32.2\"W"
+            },
+            {
               "id": "caixa-forum-madrid",
               "name": "Caixa Forum Madrid",
               "image": "https://d1bvpoagx8hqbg.cloudfront.net/originals/caixaforum-madrid-4920c67f682f582b6c26d5b01491b3fa.jpg",
-              "description": "Բացվել է 2008թ․։ Հայտնի է իր ուղղահայաց «կանաչ պատով» (մոտ 15,000 բույս)։"
+              "description": "CaixaForum Madrid-ը Մադրիդի ամենահայտնի մշակութային կենտրոններից մեկն է։ Այն բացվել է 2008 թվականին և ստեղծվել է 1900 թվականին կառուցված նախկին էլեկտրակայանի շենքի հիման վրա։ Շենքը վերափոխվել է շվեյցարացի ճարտարապետներ Herzog & de Meuron-ի կողմից և հայտնի է իր յուրահատուկ «լողացող» կառուցվածքով։ Կենտրոնի դիմաց գտնվում է Մադրիդի ամենահայտնի ուղղահայաց այգիներից մեկը, որն ունի ավելի քան 15,000 բույս։ Այստեղ անցկացվում են արվեստի ցուցահանդեսներ, համերգներ և մշակութային միջոցառումներ։",
+              "descriptionEn": "CaixaForum Madrid is one of Madrid’s most famous cultural centers. It opened in 2008 and was created from a former power station originally built in 1900. The building was redesigned by Swiss architects Herzog & de Meuron and is known for its striking “floating” structure. In front of the center is one of Madrid’s most famous vertical gardens, featuring more than 15,000 plants. Today, it hosts art exhibitions, concerts, and cultural events.",
+              "descriptionRu": "CaixaForum Madrid — один из самых известных культурных центров Мадрида. Он открылся в 2008 году и был создан на основе бывшей электростанции, построенной в 1900 году. Здание было реконструировано швейцарскими архитекторами Herzog & de Meuron и известно своей необычной «парящей» конструкцией. Перед центром находится один из самых известных вертикальных садов Мадрида, насчитывающий более 15 000 растений. Сегодня здесь проходят художественные выставки, концерты и культурные мероприятия.",
+              "coords": [
+                40.411027777777775,
+                -3.6933611111111113
+              ],
+              "coordsText": "40°24'39.7\"N 3°41'36.1\"W"
             },
             {
               "id": "real-jard-n-bot-nico-de-madrid",
               "name": "Real Jardín Botánico de Madrid",
               "image": "https://www.ifema.es/img/xl/visita-real-jardin-botanico-madrid/visita-real-jardin-botanico-madrid.jpeg",
-              "description": "Հիմնադրվել է 1755 թվականին՝ Կառլոս III թագավորի նախաձեռնությամբ։ Սկզբում այն ստեղծվել էր գիտական նպատակներով՝ բույսերի ուսումնասիրության և դասակարգման համար, իսկ այսօր նաև հանրային զբոսայգի է։ Այստեղ կա մոտ 5–6 հազար տարբեր բույսերի տեսակ ամբողջ աշխարհից, գիտական կարևոր կենտրոն է։"
-            },
-            {
-              "id": "paseo-del-prado",
-              "name": "Paseo del Prado",
-              "image": "https://c8.alamy.com/comp/2AD86N7/madrid-paseo-del-prado-2AD86N7.jpg",
-              "description": "2021թ․ UNESCO-ի ցանկում ընդգրկված մշակութային պողոտա, որտեղ կենտրոնացած են Մադրիդի լավագույն թանգարանները։"
+              "description": "Մադրիդի Թագավորական բուսաբանական այգին (Real Jardín Botánico) հիմնադրվել է 1755 թվականին՝ Կառլոս III թագավորի նախաձեռնությամբ։ Սկզբում այն ստեղծվել էր գիտական նպատակներով՝ բույսերի ուսումնասիրության, պահպանման և դասակարգման համար, իսկ այսօր նաև հանրային զբոսայգի է։ Այստեղ աճում է մոտ 5–6 հազար տարբեր բույսերի տեսակ աշխարհի տարբեր մասերից։ Այգին հայտնի է իր ջերմոցներով, բոնսայի հավաքածուով և պատմական բուսաբանական հավաքածուներով։ Այն շարունակում է մնալ Իսպանիայի կարևորագույն գիտական և հետազոտական կենտրոններից մեկը։",
+              "descriptionEn": "The Royal Botanical Garden of Madrid (Real Jardín Botánico) was founded in 1755 on the initiative of King Charles III. It was originally created for scientific purposes, including the study, conservation, and classification of plants, and today it also serves as a public garden. The garden contains around 5,000–6,000 plant species from around the world. It is known for its greenhouses, bonsai collection, and historic botanical collections. The garden remains one of Spain’s most important scientific and research centers.",
+              "descriptionRu": "Королевский ботанический сад Мадрида (Real Jardín Botánico) был основан в 1755 году по инициативе короля Карла III. Первоначально он создавался для научных целей — изучения, сохранения и классификации растений, а сегодня также является общественным парком. В саду представлено около 5–6 тысяч видов растений со всего мира. Он известен своими оранжереями, коллекцией бонсай и историческими ботаническими коллекциями. Сад остаётся одним из важнейших научно-исследовательских центров Испании.",
+              "coords": [
+                40.412416666666665,
+                -3.6919722222222227
+              ],
+              "coordsText": "40°24'44.7\"N 3°41'31.1\"W"
             },
             {
               "id": "museo-del-prado",
               "name": "Museo del Prado",
               "image": "https://www.jansen.com/fileadmin/images/building-systems/referenzen/muese-del-prado-madrid-es/museo-del-prado-madrid-es-jansen-ag-01.jpg",
-              "description": "Իսպանիայի գլխավոր արվեստի թանգարանն է, բացվել է 1819թ․։։ Այստեղ են Վելասկեսի, Գոյայի, Էլ Գրեկոյի գլուխգործոցները։"
+              "description": "Պրադոյի թանգարանը (Museo del Prado) Իսպանիայի գլխավոր արվեստի թանգարանն է և աշխարհի ամենահայտնի պատկերասրահներից մեկը։ Այն բացվել է 1819 թվականին և այսօր պահպանում է եվրոպական արվեստի հարուստ հավաքածու։ Այստեղ ցուցադրված են Վելասկեսի, Գոյայի և Էլ Գրեկոյի գլուխգործոցները, ինչպես նաև Տիցիանի, Ռուբենսի և Բոսխի աշխատանքները։ Թանգարանի ամենահայտնի գործերից են Վելասկեսի «Las Meninas» և Գոյայի «The Third of May 1808» նկարները։",
+              "descriptionEn": "The Prado Museum (Museo del Prado) is Spain’s leading art museum and one of the most important art galleries in the world. It opened in 1819 and houses an outstanding collection of European art. The museum is home to masterpieces by Velázquez, Goya, and El Greco, as well as works by Titian, Rubens, and Bosch. Among its most famous paintings are Velázquez’s “Las Meninas” and Goya’s “The Third of May 1808.”",
+              "descriptionRu": "Музей Прадо (Museo del Prado) — главный художественный музей Испании и одна из самых известных картинных галерей мира. Он был открыт в 1819 году и обладает выдающейся коллекцией европейского искусства. Здесь представлены шедевры Веласкеса, Гойи и Эль Греко, а также работы Тициана, Рубенса и Босха. Среди самых известных произведений музея — «Менины» Веласкеса и «Третье мая 1808 года» Гойи.",
+              "coords": [
+                40.413777777777774,
+                -3.6925000000000003
+              ],
+              "coordsText": "40°24'49.6\"N 3°41'33.0\"W"
             },
             {
               "id": "iglesia-de-san-jer-nimo-el-real",
               "name": "Iglesia de san Jerónimo el Real",
               "image": "https://live.staticflickr.com/8369/8492215095_6c4afacb40_b.jpg",
-              "description": "Հին թագավորական եկեղեցի է, որտեղ կատարվել են թագավորական կարևոր արարողություններ: Կառուցվել է 16-րդ դարում (մոտ 1503–1505թթ.)։ Այստեղ են կատարվել թագավորների օծումները։"
+              "description": "Սան Խերոնիմո էլ Ռեալ եկեղեցին հին թագավորական եկեղեցի է, որը սերտորեն կապված է Իսպանիայի միապետության պատմության հետ։ Այն կառուցվել է 16-րդ դարի սկզբին՝ մոտ 1503–1505 թթ., գոթական ոճով։ Այստեղ անցկացվել են թագավորական կարևոր արարողություններ, իսկ 1528–1833 թթ. իսպանական գահի ժառանգները այստեղ երդվել են որպես Աստուրիայի իշխաններ։ Եկեղեցին գտնվում է Պրադոյի թանգարանի հարևանությամբ, իսկ նախկին վանքի պահպանված միակ կլուաստրը ներառված է թանգարանի համալիրում։ Այն համարվում է Մադրիդի կարևոր պատմական հուշարձաններից մեկը։",
+              "descriptionEn": "Iglesia de San Jerónimo el Real is a historic royal church closely connected with the history of the Spanish monarchy. It was built in the early 16th century, around 1503–1505, in the Gothic style. It hosted important royal ceremonies, and from 1528 to 1833, heirs to the Spanish throne swore their oath here as Princes of Asturias. The church stands next to the Prado Museum, while the surviving cloister of the former monastery is now incorporated into the museum complex. It is one of Madrid’s important historic monuments.",
+              "descriptionRu": "Церковь Сан-Херонимо-эль-Реаль — историческая королевская церковь, тесно связанная с историей испанской монархии. Она была построена в начале XVI века, примерно в 1503–1505 годах, в готическом стиле. Здесь проходили важные королевские церемонии, а с 1528 по 1833 год наследники испанского престола приносили здесь присягу как принцы Астурийские. Церковь расположена рядом с музеем Прадо, а сохранившийся клуатр бывшего монастыря сегодня является частью музейного комплекса. Это один из важных исторических памятников Мадрида.",
+              "coords": [
+                40.4145,
+                -3.6914444444444445
+              ],
+              "coordsText": "40°24'52.2\"N 3°41'29.2\"W"
             },
             {
               "id": "gran-v-a",
               "name": "Gran Vía",
               "image": "https://cdn.sanity.io/images/nxpteyfv/goguides/2724cb77e243e26590137a78a8b6d7f7407754b5-1600x1066.jpg",
-              "description": "Մադրիդի ամենակենդանի փողոցն է՝ խանութներ, թատրոններ, կինոթատրոններ։ Կառուցվել է 1910–1929թթ․։ Մադրիդի գլխավոր առևտրային և ժամանցային փողոցն է։"
+              "description": "Gran Vía-ն Մադրիդի ամենակենդանի և հայտնի փողոցներից է՝ խանութներով, թատրոններով, կինոթատրոններով, ռեստորաններով և հյուրանոցներով։ Այն կառուցվել է 1910–1929 թվականներին և այսօր համարվում է Մադրիդի գլխավոր առևտրային ու ժամանցային փողոցը։ Փողոցը հայտնի է իր տպավորիչ 20-րդ դարի սկզբի ճարտարապետությամբ և հաճախ անվանում են «Մադրիդի Բրոդվեյ»։ Այստեղ են գտնվում քաղաքի հայտնի շենքերից մի քանիսը, այդ թվում՝ Metropolis Building-ը և Telefónica Building-ը",
+              "descriptionEn": "Gran Vía is one of Madrid’s liveliest and most famous streets, filled with shops, theaters, cinemas, restaurants, and hotels. It was built between 1910 and 1929 and is now considered Madrid’s main shopping and entertainment street. The avenue is famous for its impressive early 20th-century architecture and is often called the “Broadway of Madrid.” Some of the city’s most recognizable buildings, including the Metropolis Building and Telefónica Building, are located here.",
+              "descriptionRu": "Gran Vía — одна из самых оживлённых и известных улиц Мадрида, где расположены магазины, театры, кинотеатры, рестораны и отели. Она была построена в период с 1910 по 1929 год и сегодня считается главной торговой и развлекательной улицей города. Проспект известен впечатляющей архитектурой начала XX века и часто называется «мадридским Бродвеем». Здесь находятся некоторые из самых узнаваемых зданий города, включая здание Метрополис и здание Telefónica.",
+              "coords": [
+                40.41908333333333,
+                -3.697055555555556
+              ],
+              "coordsText": "40°25'08.7\"N 3°41'49.4\"W"
             },
             {
               "id": "plazza-de-callao",
               "name": "Plazza de callao",
               "image": "https://media.istockphoto.com/id/1672171536/photo/callao-square-in-madrid.jpg?s=612x612&w=0&k=20&c=PbfxlCBlndMROqISqB58ddmB3mA67GB5albyVO4Jzao=",
-              "description": "Քաղաքի «լուսավոր» հատվածը՝ մեծ էկրաններով և ակտիվ կյանքով։ 1930-ականներից հայտնի կենտրոն է՝ կինոթատրոններով ու մեծ էկրաններով, հաճախ համեմատվում է Times Square-ի հետ։"
+              "description": "Մադրիդի «լուսավոր» և ամենակենդանի հրապարակներից է՝ մեծ թվային էկրաններով, խանութներով, կինոթատրոններով և ակտիվ գիշերային կյանքով։ Այն հատկապես հայտնի է դարձել 1930-ականներից՝ որպես կինոյի և ժամանցի կենտրոն։ Հրապարակը գտնվում է Gran Vía-ի կենտրոնական հատվածում և հաճախ համեմատվում է Նյու Յորքի Times Square-ի հետ։ Այստեղ են գտնվում նաև Capitol և Callao կինոթատրոնների հայտնի շենքերը։",
+              "descriptionEn": "Plaza de Callao is one of Madrid’s brightest and liveliest squares, known for its large digital screens, shops, cinemas, and busy nightlife. It became particularly popular as a cinema and entertainment center in the 1930s. Located in the heart of Gran Vía, the square is often compared to New York’s Times Square. It is also home to the iconic Capitol and Callao cinema buildings.",
+              "descriptionRu": "Площадь Кальяо (Plaza de Callao) — одна из самых ярких и оживлённых площадей Мадрида, известная большими цифровыми экранами, магазинами, кинотеатрами и активной ночной жизнью. Особенно известной она стала с 1930-х годов как центр кино и развлечений. Площадь расположена в самом центре Gran Vía и часто сравнивается с нью-йоркской Times Square. Здесь также находятся знаменитые здания кинотеатров Capitol и Callao.",
+              "coords": [
+                40.42019444444444,
+                -3.7058055555555556
+              ],
+              "coordsText": "40°25'12.7\"N 3°42'20.9\"W"
             },
             {
               "id": "puerta-del-sol",
               "name": "Puerta del Sol",
               "image": "https://t3.ftcdn.net/jpg/04/56/13/50/360_F_456135018_G7601jvMIFApU2kMVvSiYvlmmqfGgAse.jpg",
-              "description": "Մադրիդի և ամբողջ Իսպանիայի կենտրոնական կետն է (0 կմ)։ Այստեղ է հայտնի «Արջն ու ծառը» արձանը՝ քաղաքի խորհրդանիշը։"
+              "description": "Puerta del Sol-ը Մադրիդի և ամբողջ Իսպանիայի կենտրոնական կետն է։ Այստեղ գտնվում է «Կիլոմետր 0» նշանը, որտեղից սկսվում են Իսպանիայի հիմնական ճառագայթաձև ճանապարհները։ Հրապարակի հայտնի «Արջն ու ելակենին» արձանը Մադրիդի քաղաքի խորհրդանիշն է։ Այստեղ է գտնվում նաև Casa de Correos-ը, որի ժամացույցը հայտնի է Ամանորի գիշերվա 12 զարկերով և խաղողի ավանդական 12 հատիկներով։",
+              "descriptionEn": "Puerta del Sol is the central point of Madrid and a symbolic center of Spain. It is home to the Kilometre Zero marker, from which Spain’s main radial roads begin. The famous Bear and the Strawberry Tree statue is a symbol of Madrid and one of the square’s most recognizable landmarks. The square is also home to Casa de Correos, whose clock is famous for the traditional New Year’s Eve celebration with twelve chimes and twelve grapes.",
+              "descriptionRu": "Puerta del Sol — центральная точка Мадрида и одно из символических мест Испании. Здесь находится знак «Километр 0», от которого начинаются основные радиальные дороги Испании. Знаменитая статуя «Медведь и земляничное дерево» является символом Мадрида и одной из главных достопримечательностей площади. Здесь также находится Casa de Correos, часы которой известны традиционной встречей Нового года под 12 ударов и с 12 виноградинами.",
+              "coords": [
+                40.416888888888884,
+                -3.7035
+              ],
+              "coordsText": "40°25'00.8\"N 3°42'12.6\"W"
             },
             {
               "id": "plaza-mayor",
               "name": "Plaza Mayor",
               "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Plaza_Mayor_de_Madrid_06.jpg/1280px-Plaza_Mayor_de_Madrid_06.jpg",
-              "description": "17-րդ դարի պատմական հրապարակ՝ թագավորական արարողությունների ու շուկաների վայր։ Կառուցվել է 1617–1619թթ․՝ Ֆիլիպ III-ի օրոք։ Օգտագործվել է շուկաների, տոնակատարությունների և անգամ դատավարությունների համար։"
+              "description": "Plaza Mayor-ը Մադրիդի ամենահայտնի պատմական հրապարակներից է։ Այն կառուցվել է 1617–1619 թվականներին՝ Ֆիլիպ III թագավորի օրոք, և սկզբում օգտագործվել է որպես շուկայի տարածք։ Դարերի ընթացքում այստեղ անցկացվել են թագավորական արարողություններ, տոնակատարություններ, շուկաներ, ցլամարտեր և նույնիսկ դատավարություններ։ Հրապարակի կենտրոնում գտնվում է Ֆիլիպ III-ի ձիարձանը, որը տեղադրվել է 1848 թվականին։ Այսօր Plaza Mayor-ը Մադրիդի ամենահայտնի զբոսաշրջային վայրերից է՝ շրջապատված պատմական շենքերով, սրճարաններով և ռեստորաններով։",
+              "descriptionEn": "Plaza Mayor is one of Madrid’s most famous historic squares. It was built between 1617 and 1619 during the reign of King Philip III and was originally used as a market area. Over the centuries, it hosted royal ceremonies, celebrations, markets, bullfights, and even trials. In the center of the square stands the equestrian statue of Philip III, installed in 1848. Today, Plaza Mayor is one of Madrid’s most popular tourist attractions, surrounded by historic buildings, cafés, and restaurants.",
+              "descriptionRu": "Plaza Mayor — одна из самых известных исторических площадей Мадрида. Она была построена в 1617–1619 годах во время правления короля Филиппа III и первоначально использовалась как рыночная площадь. На протяжении веков здесь проходили королевские церемонии, праздники, рынки, корриды и даже судебные процессы. В центре площади находится конная статуя Филиппа III, установленная в 1848 году. Сегодня Plaza Mayor — одна из самых популярных достопримечательностей Мадрида, окружённая историческими зданиями, кафе и ресторанами.",
+              "coords": [
+                40.4155,
+                -3.707388888888889
+              ],
+              "coordsText": "40°24'55.8\"N 3°42'26.6\"W"
             },
             {
               "id": "market-san-miguel",
               "name": "Market san Miguel",
               "image": "https://upload.wikimedia.org/wikipedia/commons/b/b3/Mercado_de_San_Miguel_2025.jpg",
-              "description": "Հայտնի գաստրոնոմիկ շուկա՝ իսպանական tapas, ծովամթերք և քաղցրավենիք։ Բացվել է 1916թ․։ Այսօր վերածվել է բարձրակարգ գաստրոնոմիկ շուկայի։"
+              "description": "Սան Միգելի շուկան (Mercado de San Miguel) Մադրիդի ամենահայտնի գաստրոնոմիկ շուկաներից է։ Այն բացվել է 1916 թվականին՝ որպես ավանդական սննդի շուկա, իսկ այսօր վերածվել է բարձրակարգ գաստրոնոմիկ կենտրոնի։ Այստեղ կարելի է փորձել իսպանական tapas, ծովամթերք, պանիրներ, մսամթերք, քաղցրավենիք և տարբեր տարածաշրջանային ուտեստներ։ Շուկան գտնվում է Plaza Mayor-ի հարևանությամբ և հայտնի է իր գեղեցիկ երկաթյա ու ապակյա պատմական կառուցվածքով։ Այսօր այն նաև հայտնի հանդիպման վայր է ինչպես տեղացիների, այնպես էլ զբոսաշրջիկների համար։",
+              "descriptionEn": "Mercado de San Miguel is one of Madrid’s most famous gastronomic markets. It opened in 1916 as a traditional food market and has since become an upscale gastronomic destination. Visitors can enjoy Spanish tapas, seafood, cheeses, cured meats, sweets, and specialties from different regions of Spain. Located next to Plaza Mayor, the market is also known for its beautiful historic iron-and-glass structure. Today, it is a popular meeting and dining place for both locals and tourists.",
+              "descriptionRu": "Рынок Сан-Мигель (Mercado de San Miguel) — один из самых известных гастрономических рынков Мадрида. Он открылся в 1916 году как традиционный продуктовый рынок, а сегодня превратился в современный гастрономический центр высокого класса. Здесь можно попробовать испанские тапас, морепродукты, сыры, мясные деликатесы, сладости и блюда разных регионов Испании. Рынок расположен рядом с Plaza Mayor и известен своей красивой исторической конструкцией из железа и стекла. Сегодня это популярное место для встреч и отдыха как среди местных жителей, так и туристов.",
+              "coords": null,
+              "coordsText": ""
             },
             {
               "id": "church-of-san-andr-s",
               "name": "Church of San Andrés",
               "image": "https://thumbs.dreamstime.com/b/san-andres-church-madrid-spain-29859505.jpg",
-              "description": "16–17-րդ դարերի եկեղեցի է՝ Մադրիդի հին թաղամասում (La Latina)։"
+              "description": "Սան Անդրես եկեղեցին (Iglesia de San Andrés) 16–17-րդ դարերի պատմական եկեղեցի է, որը գտնվում է Մադրիդի հին La Latina թաղամասում։ Այն կառուցվել է նախկին մատուռի տեղում և կապված է Սուրբ Իսիդրոյի՝ Մադրիդի հովանավոր սրբի, պատմության հետ։ Եկեղեցին հատկապես հայտնի է իր բարոկկո ոճի ներքին հարդարանքով և պատմական նշանակությամբ։ Այն գտնվում է Plaza de San Andrés-ում՝ Մադրիդի հին քաղաքի կարևոր հատվածում։",
+              "descriptionEn": "The Church of San Andrés (Iglesia de San Andrés) is a historic church dating from the 16th–17th centuries, located in Madrid’s old La Latina district. It was built on the site of an earlier chapel and is closely connected with Saint Isidore, the patron saint of Madrid. The church is known for its Baroque interior and historical importance. It stands in Plaza de San Andrés, in one of the oldest parts of the city.",
+              "descriptionRu": "Церковь Сан-Андрес (Iglesia de San Andrés) — историческая церковь XVI–XVII веков, расположенная в старинном районе Мадрида Ла-Латина (La Latina). Она была построена на месте более ранней часовни и тесно связана с историей Святого Исидора, покровителя Мадрида. Церковь известна своим интерьером в стиле барокко и историческим значением. Она находится на площади Сан-Андрес, в одной из старейших частей города.",
+              "coords": [
+                40.41197222222222,
+                -3.7113333333333336
+              ],
+              "coordsText": "40°24'43.1\"N 3°42'40.8\"W"
             },
             {
               "id": "almudena-cathedral",
-              "name": "Almudena Cathedral -",
-              "image": "https://www.hayquever.com/documentos/fichas/fotos/1395.jpg",
-              "description": "Մադրիդի գլխավոր տաճարն է՝ նեոկլասիկ և նեոգոթական ոճերի խառնուրդով։ Կառուցումը սկսվել է 1883թ․, ավարտվել՝ 1993թ․։ Օծվել է Հովհաննես Պողոս II-ի կողմից։"
+              "name": "Almudena Cathedral",
+              "image": "https://images.openai.com/static-rsc-4/F4vzwgJvTAebWcNkT316QCOnr9FKERcOZgIzI4eabkX-qyLWaHYO4oI1Wbwf-afwAl3nkR-6Gls1OQIfqC5gsucklWzfYdbzqIV2H7BIvdDeOVJ2kJRWsxkOAVtsM6MLxDSzQmT8Sqm7SCZmVohptnghmz1s_bS9ytO9x9a3YkJI3moBiEFfYOIvHRCExxmd?purpose=fullsize",
+              "description": "Ալմուդենա տաճարը (Catedral de la Almudena) Մադրիդի գլխավոր կաթոլիկ տաճարն է և քաղաքի ամենակարևոր կրոնական հուշարձաններից մեկը։ Կառուցումը սկսվել է 1883 թվականին, իսկ տաճարը ավարտվել և օծվել է 1993 թվականին՝ Հռոմի Պապ Հովհաննես Պողոս II-ի կողմից։ Նրա ճարտարապետության մեջ միավորված են նեոկլասիկ, նեոգոթական և նեոռոմանական տարրեր։ Տաճարը գտնվում է Թագավորական պալատի կողքին, իսկ այստեղ 2004 թվականին տեղի է ունեցել Իսպանիայի թագավոր Ֆելիպե VI-ի և Լետիսիայի հարսանիքը։",
+              "descriptionEn": "Almudena Cathedral (Catedral de la Almudena) is Madrid’s main Catholic cathedral and one of the city’s most important religious landmarks. Construction began in 1883, and the cathedral was completed and consecrated in 1993 by Pope John Paul II. Its architecture combines Neoclassical, Neo-Gothic, and Neo-Romanesque elements. The cathedral stands next to the Royal Palace, and in 2004 it hosted the wedding of Spain’s King Felipe VI and Queen Letizia.",
+              "descriptionRu": "Собор Альмудена (Catedral de la Almudena) — главный католический собор Мадрида и один из важнейших религиозных памятников города. Его строительство началось в 1883 году, а завершилось в 1993 году, когда собор был освящён Папой Иоанном Павлом II. В его архитектуре сочетаются элементы неоклассицизма, неоготики и неороманского стиля. Собор расположен рядом с Королевским дворцом, а в 2004 году здесь состоялась свадьба испанского короля Филиппа VI и королевы Летисии.",
+              "coords": [
+                40.415388888888884,
+                -3.714388888888889
+              ],
+              "coordsText": "40°24'55.4\"N 3°42'51.8\"W"
             },
             {
               "id": "palacio-real-de-madrid",
               "name": "Palacio Real de Madrid",
               "image": "https://img.rtve.es/n/2441852",
-              "description": "Եվրոպայի ամենամեծ թագավորական պալատներից է։ Թագավորական ընտանիքը հիմա այստեղ չի ապրում, բայց պալատը պաշտոնական նշանակություն ունի։ Կառուցվել է 1738–1755թթ․։ Եվրոպայի ամենամեծ գործող պալատներից է (մոտ 3400 սենյակ)։"
-            },
-            {
-              "id": "sabatini-gardens",
-              "name": "Sabatini Gardens",
-              "image": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0f/57/56/30/jardines-de-sabatini.jpg?w=1200&h=1200&s=1",
-              "description": "Պալատի կողքի դասական այգիներ՝ գեղեցիկ տեսարաններով։ Ստեղծվել են 1930-ականներին, հանրությանը բացվել՝ 1978թ․։ Ֆրանսիական դասական ոճով այգիներ են։"
+              "description": "Մադրիդի թագավորական պալատը (Palacio Real de Madrid) Եվրոպայի ամենամեծ և ամենատպավորիչ թագավորական պալատներից է։ Ներկայիս շենքը կառուցվել է 1738–1755 թվականներին՝ հին Ալկասարի տեղում, որը ոչնչացել էր 1734 թվականի հրդեհից։ Պալատն ունի մոտ 3,400 սենյակ և համարվում է Եվրոպայի ամենամեծ գործող թագավորական պալատներից մեկը։ Իսպանիայի թագավորական ընտանիքն այստեղ չի բնակվում, սակայն պալատը շարունակում է ունենալ պաշտոնական նշանակություն և օգտագործվում է պետական արարողությունների համար։ Այստեղ կարելի է տեսնել Գահի սրահը, Թագավորական զինանոցը և թագավորական հավաքածուները։",
+              "descriptionEn": "The Royal Palace of Madrid (Palacio Real de Madrid) is one of the largest and most impressive royal palaces in Europe. The current palace was built between 1738 and 1755 on the site of the old Alcázar, which was destroyed by a fire in 1734. It has around 3,400 rooms and is considered one of Europe’s largest functioning royal palaces. The Spanish royal family does not live here today, but the palace still has an official role and is used for state ceremonies. Visitors can explore the Throne Room, Royal Armory, and royal collections.",
+              "descriptionRu": "Королевский дворец Мадрида (Palacio Real de Madrid) — один из крупнейших и самых впечатляющих королевских дворцов Европы. Современное здание было построено в 1738–1755 годах на месте старого Алькасара, уничтоженного пожаром в 1734 году. Во дворце около 3 400 помещений, что делает его одним из крупнейших действующих королевских дворцов Европы. Испанская королевская семья сегодня здесь не живёт, однако дворец сохраняет официальное значение и используется для государственных церемоний. Посетители могут увидеть Тронный зал, Королевскую оружейную палату и королевские коллекции.",
+              "coords": [
+                40.41788888888889,
+                -3.7143055555555557
+              ],
+              "coordsText": "40°25'04.4\"N 3°42'51.5\"W"
             },
             {
               "id": "teatro-real",
               "name": "Teatro real",
               "image": "https://upload.wikimedia.org/wikipedia/commons/9/90/Teatro_Real_de_Madrid_2025.jpg",
-              "description": "Իսպանիայի գլխավոր օպերային թատրոնը։ Բացվել է 1850թ․;"
+              "description": "Teatro Real-ը Իսպանիայի գլխավոր օպերային թատրոնն է և Մադրիդի ամենակարևոր մշակութային շենքերից մեկը։ Այն բացվել է 1850 թվականին և գտնվում է Plaza de Oriente-ի մոտ՝ Թագավորական պալատի դիմաց։ Թատրոնը հայտնի է իր հարուստ պատմությամբ, շքեղ դահլիճով և օպերային ու բալետային ներկայացումներով։ 1997 թվականին երկարատև վերակառուցումից հետո այն կրկին բացվել է և այսօր համարվում է Եվրոպայի առաջատար օպերային բեմերից մեկը։",
+              "descriptionEn": "Teatro Real is Spain’s leading opera house and one of Madrid’s most important cultural landmarks. It opened in 1850 and is located near Plaza de Oriente, opposite the Royal Palace. The theatre is known for its rich history, elegant auditorium, and opera and ballet performances. After a major renovation, it reopened in 1997 and is now considered one of Europe’s leading opera venues.",
+              "descriptionRu": "Teatro Real — главный оперный театр Испании и одна из важнейших культурных достопримечательностей Мадрида. Он открылся в 1850 году и расположен рядом с Plaza de Oriente, напротив Королевского дворца. Театр известен своей богатой историей, роскошным залом и оперными и балетными постановками. После масштабной реконструкции он вновь открылся в 1997 году и сегодня считается одной из ведущих оперных сцен Европы.",
+              "coords": [
+                40.41833333333333,
+                -3.7113055555555556
+              ],
+              "coordsText": "40°25'06.0\"N 3°42'40.7\"W"
+            },
+            {
+              "id": "sabatini-gardens",
+              "name": "Sabatini Gardens",
+              "image": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0f/57/56/30/jardines-de-sabatini.jpg?w=1200&h=1200&s=1",
+              "description": "Սաբատինիի այգիները (Jardines de Sabatini) Մադրիդի Թագավորական պալատի կողքին գտնվող գեղեցիկ դասական այգիներ են։ Դրանք ստեղծվել են 1930-ականներին՝ նախկին թագավորական ախոռների տարածքում, իսկ հանրության համար բացվել են 1978 թվականին։ Այգիները նախագծված են ֆրանսիական դասական ոճով՝ երկրաչափական ձևերով, շատրվաններով, քանդակներով և խնամված ծառերով։ Այստեղից բացվում է գեղեցիկ տեսարան դեպի Թագավորական պալատ, հատկապես մայրամուտի ժամանակ։",
+              "descriptionEn": "The Sabatini Gardens (Jardines de Sabatini) are beautiful classical gardens located next to the Royal Palace of Madrid. They were created in the 1930s on the site of the former royal stables and opened to the public in 1978. The gardens were designed in the French classical style, with geometric shapes, fountains, sculptures, and carefully arranged trees. They offer beautiful views of the Royal Palace, especially at sunset.",
+              "descriptionRu": "Сады Сабатини (Jardines de Sabatini) — красивые классические сады, расположенные рядом с Королевским дворцом Мадрида. Они были созданы в 1930-х годах на месте бывших королевских конюшен и открыты для публики в 1978 году. Сады оформлены во французском классическом стиле с геометрическими формами, фонтанами, скульптурами и аккуратно подстриженными деревьями. Отсюда открывается красивый вид на Королевский дворец, особенно на закате.",
+              "coords": [
+                40.420249999999996,
+                -3.714
+              ],
+              "coordsText": "40°25'12.9\"N 3°42'50.4\"W"
             },
             {
               "id": "plaza-de-espa-a",
               "name": "Plaza de España",
               "image": "https://mywowo.net/media/images/cache/madrid_gran_via_04_plaza_de_espana_jpg_1200_630_cover_85.jpg",
-              "description": "Վերջերս վերանորոգված մեծ հրապարակ՝ շատ հարմար ընտանեկան զբոսանքի համար։ Այստեղ կա Միգել դե Սերվանտես-ի հուշարձանը։"
+              "description": "Plaza de España-ն Մադրիդի ամենահայտնի և ընդարձակ հրապարակներից է, որը վերջին տարիներին ամբողջությամբ վերանորոգվել է։ Այն շատ հարմար է ընտանեկան զբոսանքների և հանգստի համար՝ կանաչ տարածքներով, ծառերով, նստարաններով և շատրվաններով։ Հրապարակի կենտրոնում գտնվում է իսպանացի հայտնի գրող Միգել դե Սերվանտեսի հուշարձանը՝ Դոն Կիխոտի և Սանչո Պանսայի արձաններով։ Հրապարակը գտնվում է Gran Vía-ի և Թագավորական պալատի միջև և կարևոր զբոսաշրջային վայր է։",
+              "descriptionEn": "Plaza de España is one of Madrid’s largest and most famous squares, recently renovated to create a more pleasant public space. It is ideal for family walks and relaxation, with green areas, trees, benches, and fountains. At the center of the square is a monument dedicated to the famous Spanish writer Miguel de Cervantes, featuring statues of Don Quixote and Sancho Panza. The square is located between Gran Vía and the Royal Palace and is an important tourist attraction.",
+              "descriptionRu": "Plaza de España — одна из крупнейших и самых известных площадей Мадрида, недавно полностью реконструированная. Она отлично подходит для семейных прогулок и отдыха благодаря зелёным зонам, деревьям, скамейкам и фонтанам. В центре площади находится памятник знаменитому испанскому писателю Мигелю де Сервантесу, рядом с которым расположены скульптуры Дон Кихота и Санчо Пансы. Площадь находится между Gran Vía и Королевским дворцом и является популярным туристическим местом.",
+              "coords": [
+                40.422999999999995,
+                -3.7121944444444446
+              ],
+              "coordsText": "40°25'22.8\"N 3°42'43.9\"W"
             },
             {
               "id": "debod-temple",
               "name": "Debod (temple)",
-              "image": "https://cdn.sanity.io/images/nxpteyfv/goguides/fdd126f5436831b1d7aa2d9854792cb7db441713-1600x1066.jpg",
-              "description": "Հին եգիպտական տաճար, նվիրաբերված Իսպանիային։ Լավագույն վայրերից է մայրամուտը դիտելու համար։ Հին եգիպտական տաճար (մ.թ.ա. 2-րդ դար), Իսպանիային նվիրաբերվել է 1968թ․՝ Նուբիական հուշարձանների փրկության համար։"
+              "image": "https://images.openai.com/static-rsc-4/ne9LwjOBvIEw9a5lcUuXG6vSwguWKFI0r71eylBLsHtm2-mPd0QSOxC7HJSaN04Dm-gmVlRfoYu0E1as4NbkCI9HBvIUrt1NNwn0p77YRGOrRaFaMZxBwCU054sIozH9BnzgniaPomoTsI0e3j13kbz_WEXm4ZPpdgCP89cegNi5HETtxb8e0hCN2b7uMD66?purpose=fullsize",
+              "description": "Դեբոդի տաճարը (Templo de Debod) հին եգիպտական տաճար է, որը գտնվում է Մադրիդի Parque del Oeste այգում։ Այն կառուցվել է մ.թ.ա. II դարում և սկզբում նվիրված էր եգիպտական Ամուն և Իսիս աստվածներին։ Տաճարը 1968 թվականին նվիրաբերվել է Իսպանիային՝ Նուբիայի հնագույն հուշարձանների փրկության գործում Իսպանիայի աջակցության համար։ Այն ապամոնտաժվել և քար առ քար տեղափոխվել է Մադրիդ, որտեղ վերակառուցվել է։ Այսօր այն Մադրիդի ամենայուրահատուկ տեսարժան վայրերից է և հատկապես հայտնի է մայրամուտի գեղեցիկ տեսարաններով։",
+              "descriptionEn": "The Temple of Debod (Templo de Debod) is an ancient Egyptian temple located in Madrid’s Parque del Oeste. It dates back to the 2nd century BC and was originally dedicated to the Egyptian gods Amun and Isis. In 1968, Egypt donated the temple to Spain in recognition of Spain’s support in saving ancient Nubian monuments. The temple was dismantled, transported stone by stone, and rebuilt in Madrid. Today, it is one of Madrid’s most unique landmarks and is especially famous as a beautiful sunset-viewing spot.",
+              "descriptionRu": "Храм Дебод (Templo de Debod) — древнеегипетский храм, расположенный в мадридском парке Кампо-дель-Оэсте (Parque del Oeste). Он датируется II веком до н. э. и первоначально был посвящён египетским богам Амону и Исиде. В 1968 году Египет подарил храм Испании в знак благодарности за помощь в спасении древних памятников Нубии. Храм был разобран, перевезён в Мадрид по частям и восстановлен на новом месте. Сегодня это одна из самых необычных достопримечательностей Мадрида и особенно популярное место для наблюдения за закатом.",
+              "coords": [
+                40.424,
+                -3.7176944444444446
+              ],
+              "coordsText": "40°25'26.4\"N 3°43'03.7\"W"
             },
             {
               "id": "paseo-de-la-castellana",
               "name": "Paseo de la Castellana",
               "image": "https://media.istockphoto.com/id/1499294893/photo/castellana-avenue-on-madrid-downtown-with-plaza-de-castilla-and-cuatro-torres-on-the-skyline.jpg?s=612x612&w=0&k=20&c=zm32cxW7FD4_2XScHfx4-eliWNYT2RiAkLwBli2x2tY=",
-              "description": "Մադրիդի ամենակարևոր ու երկար պողոտան է։ Այն բաժանում է քաղաքը հյուսիսից հարավ և խորհրդանշում է ժամանակակից Մադրիդը՝ բիզնես կենտրոններ, բանկեր, դեսպանատներ և մեծ մոլեր։  Castellana 200-ը հարմար կանգառ է՝ հանգստանալու, սնվելու կամ արագ գնումների համար։"
-            },
-            {
-              "id": "plaza-de-castilla",
-              "name": "Plaza de Castilla",
-              "image": "https://i.pinimg.com/564x/5c/83/0e/5c830e3738dadae7b183015ae331adb3.jpg",
-              "description": "ժամանակակից Մադրիդի խորհրդանիշներից մեկն է։ Այստեղ են գտնվում հայտնի KIO Towers (1962թ.) թեք երկնաքերերը, որոնք առաջին «թեք» երկնաքերերն էին Եվրոպայում։"
+              "description": "Paseo de la Castellana-ն Մադրիդի ամենակարևոր և ամենաերկար պողոտաներից է։ Այն անցնում է քաղաքի հյուսիսից հարավ և համարվում է ժամանակակից Մադրիդի խորհրդանիշը՝ իր բիզնես կենտրոններով, բանկերով, դեսպանատներով, հյուրանոցներով և խոշոր առևտրի կենտրոններով։ Պողոտայի երկայնքով գտնվում են հայտնի Cuatro Torres երկնաքերերը, որոնք Մադրիդի ժամանակակից երկնաքերերի խորհրդանիշներից են։ Castellana 200-ը հարմար կանգառ է՝ հանգստանալու, սնվելու կամ արագ գնումներ կատարելու համար։ Պողոտան նաև կարևոր տրանսպորտային և քաղաքային երթուղի է։",
+              "descriptionEn": "Paseo de la Castellana is one of Madrid’s most important and longest avenues. It runs from north to south and represents modern Madrid, with business centers, banks, embassies, hotels, and large shopping centers. Along the avenue are the famous Cuatro Torres skyscrapers, among the symbols of Madrid’s modern skyline. Castellana 200 is a convenient stop for relaxing, eating, or doing some quick shopping. The avenue is also an important transportation and urban route.",
+              "descriptionRu": "Paseo de la Castellana — один из самых важных и длинных проспектов Мадрида. Он проходит с севера на юг и является символом современного Мадрида с бизнес-центрами, банками, посольствами, отелями и крупными торговыми центрами. Вдоль проспекта расположены знаменитые небоскрёбы Cuatro Torres, являющиеся одним из символов современного силуэта Мадрида. Castellana 200 — удобное место для отдыха, еды или быстрых покупок. Проспект также является важной транспортной и городской артерией.",
+              "coords": [
+                40.44705555555555,
+                -3.6914722222222225
+              ],
+              "coordsText": "40°26'49.4\"N 3°41'29.3\"W"
             },
             {
               "id": "santiago-bernab-u-stadium",
@@ -233,6 +350,19 @@
               "coordsText": "40°27'10.1\"N 3°41'20.1\"W",
               "day": null,
               "visited": false
+            },
+            {
+              "id": "plaza-de-castilla",
+              "name": "Plaza de Castilla",
+              "image": "https://i.pinimg.com/564x/5c/83/0e/5c830e3738dadae7b183015ae331adb3.jpg",
+              "description": "Plaza de Castilla-ն ժամանակակից Մադրիդի կարևորագույն հրապարակներից և խորհրդանիշներից մեկն է։ Այստեղ են գտնվում հայտնի KIO Towers-ը կամ Puerta de Europa-ն՝ երկու թեք երկնաքերեր, որոնք ավարտվել են 1995 թվականին և դարձել են Մադրիդի ժամանակակից ճարտարապետության խորհրդանիշներից մեկը։ Դրանք հայտնի են իրենց արտասովոր թեքված կառուցվածքով և համարվում են աշխարհի ամենահայտնի զույգ թեք աշտարակներից մեկը։ Հրապարակում է գտնվում նաև Obelisco de la Caja-ն, իսկ տարածքը կարևոր տրանսպորտային հանգույց է՝ մետրոյի և ավտոբուսային կայարաններով։",
+              "descriptionEn": "Plaza de Castilla is one of the important squares and symbols of modern Madrid. It is home to the famous KIO Towers, also known as Puerta de Europa, two leaning skyscrapers completed in 1995 that have become icons of Madrid’s modern architecture. They are famous for their unusual tilted design and are among the world’s best-known pair of leaning towers. The square is also home to the Obelisco de la Caja and is an important transportation hub with metro and bus stations.",
+              "descriptionRu": "Plaza de Castilla — одна из важных площадей и символов современного Мадрида. Здесь находятся знаменитые башни KIO, также известные как Puerta de Europa, — два наклонённых небоскрёба, завершённых в 1995 году, которые стали символами современной архитектуры Мадрида. Они известны своей необычной наклонной конструкцией и являются одной из самых известных пар наклонённых башен в мире. На площади также находится обелиск Caja, а сама площадь является важным транспортным узлом с метро и автобусными станциями.",
+              "coords": [
+                40.46691666666667,
+                -3.6895555555555557
+              ],
+              "coordsText": "40°28'00.9\"N 3°41'22.4\"W"
             }
           ],
           "notes": "",
