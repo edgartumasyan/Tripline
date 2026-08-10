@@ -14,6 +14,10 @@ import './design.css'
 
 const LANGS = { en: EN, hy: HY, ru: RU }
 
+// Google Maps directions accept at most 10 points on a single route, so the
+// selection is hard-capped here instead of silently dropping extras.
+const MAX_ROUTE = 10
+
 const PAL = {
   light: {
     pillOnBg: '#26291F', pillOnInk: '#FFFFFF', pillOffInk: '#7C8474', chipBg: '#93C193', chipInk: '#FFFFFF',
@@ -189,13 +193,17 @@ export default class App extends React.Component {
       hasMapLink: !!(lm.coords || COORDS[lm.id]),
       mapUrl: (lm.coords || COORDS[lm.id]) ? ('https://www.google.com/maps/search/?api=1&query=' + (lm.coords || COORDS[lm.id])[0] + ',' + (lm.coords || COORDS[lm.id])[1]) : '',
       // Route selection: only places with coordinates can be added. routeIndex
-      // is the 1-based position (== selection order) shown on the pill when picked.
+      // is the 1-based position (== selection order) shown on the pill when
+      // picked. Once the route is full, unpicked places are disabled.
       inRoute: this.state.route.includes(lm.id),
       routeIndex: String(this.state.route.indexOf(lm.id) + 1),
-      routeStyle: 'display:inline-flex; align-items:center; gap:5px; font-size:11.5px; white-space:nowrap; flex:0 0 auto; cursor:pointer; border-radius:999px; padding:5px 11px; transition:background .12s ease, color .12s ease; ' +
+      routeFull: !this.state.route.includes(lm.id) && this.state.route.length >= MAX_ROUTE,
+      routeStyle: 'display:inline-flex; align-items:center; gap:5px; font-size:11.5px; white-space:nowrap; flex:0 0 auto; border-radius:999px; padding:5px 11px; transition:background .12s ease, color .12s ease; ' +
         (this.state.route.includes(lm.id)
-          ? 'border:1px solid ' + p.chipBg + '; background:' + p.chipBg + '; color:' + p.chipInk
-          : 'border:1px solid ' + p.cardEdge + '; background:' + p.media + '; color:#8C9384'),
+          ? 'cursor:pointer; border:1px solid ' + p.chipBg + '; background:' + p.chipBg + '; color:' + p.chipInk
+          : this.state.route.length >= MAX_ROUTE
+            ? 'cursor:not-allowed; border:1px solid ' + p.cardEdge + '; background:' + p.media + '; color:#B7BDB0; opacity:0.6'
+            : 'cursor:pointer; border:1px solid ' + p.cardEdge + '; background:' + p.media + '; color:#8C9384'),
       onToggleRoute: () => this.toggleRoute(lm.id),
       onPreview: () => lm.image && this.setState({ lightbox: { src: lm.image, alt: lm.name } }),
       onEdit: () => this.setState({ dialog: { kind: 'edit-landmark', id: lm.id, title: lm.name, name: lm.name, image: lm.image || '', description: lm.description || '', descriptionEn: lm.descriptionEn || '', descriptionRu: lm.descriptionRu || '', coordsText: lm.coordsText || '' } }),
@@ -308,11 +316,13 @@ export default class App extends React.Component {
   pointFor(lm) { return (lm && (lm.coords || COORDS[lm.id])) || null }
 
   // Toggle a landmark in/out of the directions route. Appending on select is
-  // what makes selection order == route order.
+  // what makes selection order == route order. Adding is ignored once the
+  // route is full (Google Maps allows at most MAX_ROUTE points).
   toggleRoute(id) {
     const route = this.state.route.slice()
     const i = route.indexOf(id)
     if (i > -1) route.splice(i, 1)
+    else if (route.length >= MAX_ROUTE) return
     else route.push(id)
     this.setState({ route })
   }
@@ -325,17 +335,16 @@ export default class App extends React.Component {
     return this.state.route.map((id) => byId.get(id)).filter((lm) => this.pointFor(lm))
   }
 
-  // Build a Google Maps directions deep link that follows the selected order.
-  // api=1 takes an origin, a destination and up to 9 intermediate waypoints
-  // (~11 stops); anything past that is dropped so the link never silently fails.
+  // Build a Google Maps directions deep link that follows the selected order:
+  // an origin, a destination and the middle points as waypoints. Selection is
+  // already capped at MAX_ROUTE, so this stays within Google's route limit.
   directionsUrl(city) {
-    const pts = this.routePoints(city).map((lm) => this.pointFor(lm))
+    const pts = this.routePoints(city).map((lm) => this.pointFor(lm)).slice(0, MAX_ROUTE)
     if (pts.length < 2) return ''
     const enc = (p) => p[0] + ',' + p[1]
-    const capped = pts.length > 11 ? [...pts.slice(0, 10), pts[pts.length - 1]] : pts
-    const origin = enc(capped[0])
-    const destination = enc(capped[capped.length - 1])
-    const waypoints = capped.slice(1, -1).map(enc).join('|')
+    const origin = enc(pts[0])
+    const destination = enc(pts[pts.length - 1])
+    const waypoints = pts.slice(1, -1).map(enc).join('|')
     let url = 'https://www.google.com/maps/dir/?api=1&travelmode=walking' +
       '&origin=' + encodeURIComponent(origin) + '&destination=' + encodeURIComponent(destination)
     if (waypoints) url += '&waypoints=' + encodeURIComponent(waypoints)
@@ -567,7 +576,7 @@ export default class App extends React.Component {
       // routable (2+), and the handlers behind the toolbar button.
       routeCount,
       routeReady: routeCount >= 2,
-      routeCapped: routeCount > 11,
+      routeCapped: routeCount >= MAX_ROUTE,
       routeLabel: l.directions + (routeCount ? ' (' + routeCount + ')' : ''),
       routeHint: l.routeHint,
       routeCappedNote: l.routeCapped,
@@ -861,7 +870,7 @@ export default class App extends React.Component {
                                       <span data-t="edge" className="trips-noprint" onPointerDown={lm.onHandleDown} title={V.isOwner ? V.L.drag : V.L.viewerOrderHint} style={css('display:inline-flex; align-items:center; gap:6px; font-size:11px; color:#8C9384; cursor:grab; white-space:nowrap; touch-action:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; padding:6px 12px; border:1px solid #E4EBDD; border-radius:999px; background:#F5F6F4')}><span style={css('font-size:14px; line-height:1')}>⠿</span> {V.isOwner ? V.L.drag : V.L.viewerOrderHint}</span>
                                       <span style={css('flex:1 1 auto')}></span>
                                       {lm.hasMapLink && (
-                                        <button type="button" onClick={lm.onToggleRoute} className="trips-noprint" title={lm.inRoute ? '' : V.routeHint} style={css(lm.routeStyle)}>{lm.inRoute ? '✓ ' + lm.routeIndex : '＋ ' + V.L.route}</button>
+                                        <button type="button" onClick={lm.onToggleRoute} disabled={lm.routeFull} className="trips-noprint" title={lm.inRoute ? '' : (lm.routeFull ? V.routeCappedNote : V.routeHint)} style={css(lm.routeStyle)}>{lm.inRoute ? '✓ ' + lm.routeIndex : '＋ ' + V.L.route}</button>
                                       )}
                                       {lm.hasMapLink && (
                                         <El as="a" href={lm.mapUrl} target="_blank" rel="noopener" base="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; color:#5FA05F; text-decoration:none; white-space:nowrap; flex:0 0 auto" hover="color:#478047">📍 {V.L.viewOnMap}</El>
