@@ -75,6 +75,10 @@ export default class App extends React.Component {
     dialog: null, confirm: null, lightbox: null, dragIndex: null,
     // Viewer-only reorder for Print/PDF, keyed by cityId — never persisted, resets on refresh.
     viewerOrder: {},
+    // Ordered list of landmark ids the user has picked for a Google Maps
+    // directions link. Selection order = route order. Ephemeral: cleared when
+    // navigating to another city, never persisted.
+    route: [],
   }
 
   componentDidMount() {
@@ -184,6 +188,15 @@ export default class App extends React.Component {
       // COORDS table keyed by landmark id. Useful to owners and view-only guests alike.
       hasMapLink: !!(lm.coords || COORDS[lm.id]),
       mapUrl: (lm.coords || COORDS[lm.id]) ? ('https://www.google.com/maps/search/?api=1&query=' + (lm.coords || COORDS[lm.id])[0] + ',' + (lm.coords || COORDS[lm.id])[1]) : '',
+      // Route selection: only places with coordinates can be added. routeIndex
+      // is the 1-based position (== selection order) shown on the pill when picked.
+      inRoute: this.state.route.includes(lm.id),
+      routeIndex: String(this.state.route.indexOf(lm.id) + 1),
+      routeStyle: 'display:inline-flex; align-items:center; gap:5px; font-size:11.5px; white-space:nowrap; flex:0 0 auto; cursor:pointer; border-radius:999px; padding:5px 11px; transition:background .12s ease, color .12s ease; ' +
+        (this.state.route.includes(lm.id)
+          ? 'border:1px solid ' + p.chipBg + '; background:' + p.chipBg + '; color:' + p.chipInk
+          : 'border:1px solid ' + p.cardEdge + '; background:' + p.media + '; color:#8C9384'),
+      onToggleRoute: () => this.toggleRoute(lm.id),
       onPreview: () => lm.image && this.setState({ lightbox: { src: lm.image, alt: lm.name } }),
       onEdit: () => this.setState({ dialog: { kind: 'edit-landmark', id: lm.id, title: lm.name, name: lm.name, image: lm.image || '', description: lm.description || '', descriptionEn: lm.descriptionEn || '', descriptionRu: lm.descriptionRu || '', coordsText: lm.coordsText || '' } }),
       onDelete: () => this.askDelete(lm.name, () => this.mutate((d) => {
@@ -288,6 +301,51 @@ export default class App extends React.Component {
     const out = order.map((id) => byId.get(id)).filter(Boolean)
     city.landmarks.forEach((lm) => { if (!order.includes(lm.id)) out.push(lm) })
     return out
+  }
+
+  // The coordinate for a landmark, if any: per-place coords entered in the
+  // dialog win over the built-in COORDS table keyed by landmark id.
+  pointFor(lm) { return (lm && (lm.coords || COORDS[lm.id])) || null }
+
+  // Toggle a landmark in/out of the directions route. Appending on select is
+  // what makes selection order == route order.
+  toggleRoute(id) {
+    const route = this.state.route.slice()
+    const i = route.indexOf(id)
+    if (i > -1) route.splice(i, 1)
+    else route.push(id)
+    this.setState({ route })
+  }
+
+  // The selected landmarks, in route order, restricted to this city and to
+  // places that actually have coordinates (others can't be placed on a route).
+  routePoints(city) {
+    if (!city) return []
+    const byId = new Map(city.landmarks.map((l) => [l.id, l]))
+    return this.state.route.map((id) => byId.get(id)).filter((lm) => this.pointFor(lm))
+  }
+
+  // Build a Google Maps directions deep link that follows the selected order.
+  // api=1 takes an origin, a destination and up to 9 intermediate waypoints
+  // (~11 stops); anything past that is dropped so the link never silently fails.
+  directionsUrl(city) {
+    const pts = this.routePoints(city).map((lm) => this.pointFor(lm))
+    if (pts.length < 2) return ''
+    const enc = (p) => p[0] + ',' + p[1]
+    const capped = pts.length > 11 ? [...pts.slice(0, 10), pts[pts.length - 1]] : pts
+    const origin = enc(capped[0])
+    const destination = enc(capped[capped.length - 1])
+    const waypoints = capped.slice(1, -1).map(enc).join('|')
+    let url = 'https://www.google.com/maps/dir/?api=1&travelmode=walking' +
+      '&origin=' + encodeURIComponent(origin) + '&destination=' + encodeURIComponent(destination)
+    if (waypoints) url += '&waypoints=' + encodeURIComponent(waypoints)
+    return url
+  }
+
+  openDirections() {
+    const sel = this.city()
+    const url = sel ? this.directionsUrl(sel.city) : ''
+    if (url) window.open(url, '_blank', 'noopener')
   }
 
   askDelete(name, run) {
@@ -402,7 +460,7 @@ export default class App extends React.Component {
           meta: this.pl(st.total, 'places'),
           ink: s.cityId === ci.id ? p.accent : (mode === 'dark' ? '#F5F6F4' : '#26291F'),
           rowBg: s.cityId === ci.id ? (mode === 'dark' ? '#3D4235' : '#E4EBDD') : 'transparent',
-          onClick: () => this.setState({ countryId: c.id, cityId: ci.id, query: '', view: 'grid' }),
+          onClick: () => this.setState({ countryId: c.id, cityId: ci.id, query: '', view: 'grid', route: [] }),
           onEdit: () => this.setState({ dialog: { kind: 'edit-city', id: ci.id, countryId: c.id, title: ci.name, name: ci.name, image: ci.image || '' } }),
           onDelete: () => this.askDelete(ci.name, () => this.mutate((d) => {
             const cc = d.countries.find((x) => x.id === c.id); cc.cities = cc.cities.filter((x) => x.id !== ci.id)
@@ -421,7 +479,7 @@ export default class App extends React.Component {
           id: ci.id, name: ci.name, image: ci.image || '',
           count: this.pl(st.total, 'places'),
           progress: st.pct,
-          onClick: () => this.setState({ countryId: c.id, cityId: ci.id, openCountry: c.id, view: 'grid' }),
+          onClick: () => this.setState({ countryId: c.id, cityId: ci.id, openCountry: c.id, view: 'grid', route: [] }),
         }
       }),
     }))
@@ -435,7 +493,7 @@ export default class App extends React.Component {
           id: c.id + ci.id + lm.id, name: lm.name, image: lm.image || '',
           where: ci.name + ' · ' + c.name,
           snippet: this.pickDescription(lm).slice(0, 150),
-          onClick: () => this.setState({ countryId: c.id, cityId: ci.id, openCountry: c.id, query: '' }),
+          onClick: () => this.setState({ countryId: c.id, cityId: ci.id, openCountry: c.id, query: '', route: [] }),
         })
       })))
       results = results.slice(0, 40)
@@ -460,6 +518,7 @@ export default class App extends React.Component {
 
     const mapped = sel ? sel.city.landmarks.filter((lm) => lm.coords || COORDS[lm.id]).length : 0
     const missing = sel ? sel.city.landmarks.length - mapped : 0
+    const routeCount = sel ? this.routePoints(sel.city).length : 0
 
     return {
       L, tree, chapters, results,
@@ -494,7 +553,7 @@ export default class App extends React.Component {
       navOverviewStyle: s.nav === 'overview' ? PILL_ON : PILL_OFF,
       setNavTree: () => this.setState({ nav: 'tree' }),
       setNavOverview: () => this.setState({ nav: 'overview' }),
-      goHome: () => this.setState({ cityId: null, countryId: null, query: '' }),
+      goHome: () => this.setState({ cityId: null, countryId: null, query: '', route: [] }),
       onQuery: (e) => this.setState({ query: e.target.value }),
       clearQuery: () => this.setState({ query: '' }),
       viewGridStyle: s.view === 'grid' ? PILL_ON : PILL_OFF,
@@ -504,6 +563,17 @@ export default class App extends React.Component {
       setViewList: () => this.setState({ view: 'list' }),
       setViewMap: () => this.setState({ view: 'map' }),
       shareCity: () => this.shareCity(),
+      // Directions route: count of picked places (with coords), whether it's
+      // routable (2+), and the handlers behind the toolbar button.
+      routeCount,
+      routeReady: routeCount >= 2,
+      routeCapped: routeCount > 11,
+      routeLabel: l.directions + (routeCount ? ' (' + routeCount + ')' : ''),
+      routeHint: l.routeHint,
+      routeCappedNote: l.routeCapped,
+      clearRouteLabel: l.clearRoute,
+      onDirections: () => this.openDirections(),
+      clearRoute: () => this.setState({ route: [] }),
       // The "Print / PDF" button opens the browser's print dialog, from which
       // the user can print on paper or save as PDF. The @media print stylesheet
       // hides the app chrome (toolbar, sidebar, header) and lets the city's
@@ -736,6 +806,14 @@ export default class App extends React.Component {
                     <button type="button" onClick={V.setViewMap} style={css(V.viewMapStyle)}>{V.L.map}</button>
                   </div>
                   <span style={css('flex:1 1 auto')}></span>
+                  {V.isCards && V.routeCount > 0 && (
+                    <El as="button" data-t="ghost" type="button" onClick={V.clearRoute} className="trips-noprint" base="border:1px solid #DCE3D6; background:#FFFFFF; border-radius:999px; padding:8px 16px; font-size:13px; color:#7C8474; cursor:pointer" hover="border-color:#B3543E; color:#B3543E">{V.clearRouteLabel}</El>
+                  )}
+                  {V.isCards && (
+                    <button type="button" onClick={V.onDirections} disabled={!V.routeReady} title={!V.routeReady ? V.routeHint : (V.routeCapped ? V.routeCappedNote : '')} className="trips-noprint" style={css(V.routeReady
+                      ? 'border:1px solid #5FA05F; background:#5FA05F; color:#FFFFFF; border-radius:999px; padding:8px 16px; font-size:13px; font-weight:500; cursor:pointer'
+                      : 'border:1px solid #DCE3D6; background:#FFFFFF; color:#B7BDB0; border-radius:999px; padding:8px 16px; font-size:13px; cursor:not-allowed')}>🧭 {V.routeLabel}</button>
+                  )}
                   <El as="button" data-t="ghost" type="button" onClick={V.shareCity} className="trips-noprint" base="border:1px solid #DCE3D6; background:#FFFFFF; border-radius:999px; padding:8px 16px; font-size:13px; color:#7C8474; cursor:pointer" hover="border-color:#5FA05F; color:#5FA05F">{V.L.share}</El>
                   <El as="button" data-t="ghost" type="button" onClick={V.printCity} className="trips-noprint" base="border:1px solid #DCE3D6; background:#FFFFFF; border-radius:999px; padding:8px 16px; font-size:13px; color:#7C8474; cursor:pointer" hover="border-color:#5FA05F; color:#5FA05F">{V.L.pdf}</El>
                   {V.isOwner && (
@@ -782,6 +860,9 @@ export default class App extends React.Component {
                                     <div style={css('display:flex; align-items:center; flex-wrap:wrap; column-gap:8px; row-gap:4px; margin-top:2px')}>
                                       <span data-t="edge" className="trips-noprint" onPointerDown={lm.onHandleDown} title={V.isOwner ? V.L.drag : V.L.viewerOrderHint} style={css('display:inline-flex; align-items:center; gap:6px; font-size:11px; color:#8C9384; cursor:grab; white-space:nowrap; touch-action:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; padding:6px 12px; border:1px solid #E4EBDD; border-radius:999px; background:#F5F6F4')}><span style={css('font-size:14px; line-height:1')}>⠿</span> {V.isOwner ? V.L.drag : V.L.viewerOrderHint}</span>
                                       <span style={css('flex:1 1 auto')}></span>
+                                      {lm.hasMapLink && (
+                                        <button type="button" onClick={lm.onToggleRoute} className="trips-noprint" title={lm.inRoute ? '' : V.routeHint} style={css(lm.routeStyle)}>{lm.inRoute ? '✓ ' + lm.routeIndex : '＋ ' + V.L.route}</button>
+                                      )}
                                       {lm.hasMapLink && (
                                         <El as="a" href={lm.mapUrl} target="_blank" rel="noopener" base="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; color:#5FA05F; text-decoration:none; white-space:nowrap; flex:0 0 auto" hover="color:#478047">📍 {V.L.viewOnMap}</El>
                                       )}
