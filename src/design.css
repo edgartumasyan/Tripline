@@ -91,6 +91,16 @@
   border-color: #3a3e33 !important;
 }
 
+/* Mobile nav drawer, from the design helmet. The hamburger and backdrop are
+   hidden on desktop; the ≤860px breakpoint below turns the sidebar into an
+   off-canvas drawer toggled by the hamburger. */
+[data-t~='hamburger'] {
+  display: none;
+}
+[data-t~='drawer-backdrop'] {
+  display: none;
+}
+
 /* Responsive: tablet (iPad-ish) and phone breakpoints, from the design helmet.
    The template tags layout regions with data-t hooks; because inline styles win
    by default, these overrides use !important. Hooks are matched with ~= so
@@ -114,15 +124,34 @@
   [data-t~='shell'] {
     flex-direction: column !important;
   }
-  [data-t~='sidebar'] {
-    flex: 0 0 auto !important;
-    width: 100% !important;
-    max-height: 240px !important;
-    border-right: none !important;
-    border-bottom: 1px solid #c7d0bc !important;
+  [data-t~='hamburger'] {
+    display: flex !important;
   }
-  [data-t~='sidebar'].in-city {
-    display: none !important;
+  [data-t~='sidebar'] {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 82vw !important;
+    max-width: 320px !important;
+    max-height: none !important;
+    z-index: 40 !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18) !important;
+    transform: translateX(-105%) !important;
+    transition: transform 0.22s ease !important;
+    padding-top: 70px !important;
+  }
+  [data-t~='sidebar'].drawer-open {
+    transform: translateX(0) !important;
+  }
+  [data-t~='drawer-backdrop'].drawer-open {
+    display: block !important;
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgba(0, 0, 0, 0.35) !important;
+    z-index: 35 !important;
   }
   [data-theme='dark'] [data-t~='sidebar'] {
     border-bottom-color: #33372c !important;
@@ -146,6 +175,7 @@
   [data-t~='toolbar'] {
     padding-left: 18px !important;
     padding-right: 18px !important;
+    position: static !important;
   }
   [data-t~='hero'] {
     height: 190px !important;
@@ -207,7 +237,6 @@
     gap: 20px !important;
   }
   [data-t~='sidebar'] {
-    max-height: 200px !important;
-    padding: 16px 14px 24px !important;
+    padding-top: 64px !important;
   }
 }

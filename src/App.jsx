@@ -1,6 +1,6 @@
 import React from 'react'
 import { COORDS } from './coords.js'
-import { EN, HY, RU, LANG_ORDER, LANG_LABEL, labelsFor, pluralize } from './i18n.js'
+import { EN, HY, RU, LANG_ORDER, LANG_LABEL, LANG_FLAG, LANG_NAME, labelsFor, pluralize } from './i18n.js'
 import { loadData, saveData } from './storage.js'
 import CityMap from './components/CityMap.jsx'
 import './design.css'
@@ -74,8 +74,12 @@ export default class App extends React.Component {
     lang: 'en',
     theme: 'auto',
     nav: 'tree',
-    countryId: null, cityId: null, openCountry: 'spain',
+    countryId: null, cityId: null, openCountry: null,
     query: '', view: 'grid',
+    // Mobile nav drawer (sidebar slides in over content at ≤860px) and the
+    // overview's selected country (null = show the country grid, else drill
+    // into that country's cities). Both are ephemeral UI state, never persisted.
+    drawerOpen: false, overviewCountry: null, langMenuOpen: false,
     dialog: null, confirm: null, lightbox: null, dragIndex: null,
     // Viewer-only reorder for Print/PDF, keyed by cityId — never persisted, resets on refresh.
     viewerOrder: {},
@@ -90,9 +94,7 @@ export default class App extends React.Component {
     if (savedTheme) this.setState({ theme: savedTheme })
     const savedLang = localStorage.getItem('trips.lang')
     if (savedLang && LANGS[savedLang]) this.setState({ lang: savedLang })
-    loadData().then((d) =>
-      this.setState({ data: d, openCountry: d.countries[0]?.id ?? this.state.openCountry }),
-    )
+    loadData().then((d) => this.setState({ data: d }))
     this.applyTheme()
   }
 
@@ -469,7 +471,7 @@ export default class App extends React.Component {
           meta: this.pl(st.total, 'places'),
           ink: s.cityId === ci.id ? p.accent : (mode === 'dark' ? '#F5F6F4' : '#26291F'),
           rowBg: s.cityId === ci.id ? (mode === 'dark' ? '#3D4235' : '#E4EBDD') : 'transparent',
-          onClick: () => this.setState({ countryId: c.id, cityId: ci.id, query: '', view: 'grid', route: [] }),
+          onClick: () => this.setState({ countryId: c.id, cityId: ci.id, query: '', view: 'grid', route: [], drawerOpen: false }),
           onEdit: () => this.setState({ dialog: { kind: 'edit-city', id: ci.id, countryId: c.id, title: ci.name, name: ci.name, image: ci.image || '' } }),
           onDelete: () => this.askDelete(ci.name, () => this.mutate((d) => {
             const cc = d.countries.find((x) => x.id === c.id); cc.cities = cc.cities.filter((x) => x.id !== ci.id)
@@ -481,6 +483,10 @@ export default class App extends React.Component {
     const chapters = countries.map((c) => ({
       id: c.id, name: c.name, flag: c.flag || '',
       meta: this.pl(c.cities.length, 'cities') + ' · ' + this.pl(c.cities.reduce((n, ci) => n + ci.landmarks.length, 0), 'places'),
+      // Overview drill-down: the grid of country cards picks one (onSelect),
+      // then only that country's chapter (isSelected) renders its cities.
+      isSelected: s.overviewCountry === c.id,
+      onSelect: () => this.setState({ overviewCountry: c.id }),
       onAddCity: () => this.setState({ dialog: { kind: 'city', countryId: c.id, title: l.addCity, name: '', image: '' } }),
       cities: c.cities.map((ci) => {
         const st = stats(ci)
@@ -540,7 +546,18 @@ export default class App extends React.Component {
       // Tags the sidebar while a city is open so the ≤860px breakpoint can hide it
       // (the hero + city content take over the full width on phones).
       sidebarInCityClass: (!isSearching && !!sel) ? 'in-city' : '',
+      // Mobile drawer: at ≤860px the sidebar becomes an off-canvas panel toggled
+      // by the header hamburger; 'drawer-open' slides it in and shows the
+      // backdrop. Only meaningful in tree nav, which is the only mode with a sidebar.
+      drawerOpenClass: s.drawerOpen ? 'drawer-open' : '',
+      showDrawerBackdrop: s.nav === 'tree',
+      toggleDrawer: () => this.setState({ drawerOpen: !s.drawerOpen }),
+      closeDrawer: () => this.setState({ drawerOpen: false }),
       showOverview: !isSearching && !sel,
+      // Overview is two-level: a grid of country cards, then one country's cities.
+      hasOverviewCountry: !!s.overviewCountry,
+      showCountryGrid: !s.overviewCountry,
+      clearOverviewCountry: () => this.setState({ overviewCountry: null }),
       showCity: !isSearching && !!sel,
       isOwner: this.isOwner(), notOwner: !this.isOwner(),
       city: cityVals || { name: '', image: '', crumb: '', meta: '' },
@@ -552,17 +569,22 @@ export default class App extends React.Component {
         ? countries.map((c) => c.name).join(' · ') + ' — ' +
           this.pl(countries.reduce((n, c) => n + c.cities.reduce((m, ci) => m + ci.landmarks.length, 0), 0), 'places')
         : '',
-      langLabel: LANG_LABEL[s.lang],
-      cycleLang: () => {
-        const next = LANG_ORDER[(LANG_ORDER.indexOf(s.lang) + 1) % LANG_ORDER.length]
-        this.setState({ lang: next })
-        try { localStorage.setItem('trips.lang', next) } catch (e) {}
-      },
-      navTreeStyle: s.nav === 'tree' ? PILL_ON : PILL_OFF,
-      navOverviewStyle: s.nav === 'overview' ? PILL_ON : PILL_OFF,
-      setNavTree: () => this.setState({ nav: 'tree' }),
-      setNavOverview: () => this.setState({ nav: 'overview' }),
-      goHome: () => this.setState({ cityId: null, countryId: null, query: '', route: [] }),
+      // Language picker: the button shows the flag + compact code; clicking it
+      // opens a menu of the three languages (flag + endonym), the current one
+      // highlighted. Picking one sets the language and closes the menu.
+      langLabel: LANG_LABEL[s.lang], langFlag: LANG_FLAG[s.lang],
+      langMenuOpen: s.langMenuOpen,
+      toggleLangMenu: () => this.setState({ langMenuOpen: !s.langMenuOpen }),
+      langOptions: LANG_ORDER.map((code) => ({
+        code, flag: LANG_FLAG[code], label: LANG_NAME[code],
+        style: 'display:flex; align-items:center; gap:8px; border:none; border-radius:8px; padding:8px 10px; font-size:13.5px; cursor:pointer; text-align:left; background:' +
+          (code === s.lang ? '#E4EBDD' : 'none') + '; color:#26291F',
+        onClick: () => {
+          this.setState({ lang: code, langMenuOpen: false })
+          try { localStorage.setItem('trips.lang', code) } catch (e) {}
+        },
+      })),
+      goHome: () => this.setState({ cityId: null, countryId: null, query: '', route: [], overviewCountry: null }),
       onQuery: (e) => this.setState({ query: e.target.value }),
       clearQuery: () => this.setState({ query: '' }),
       viewGridStyle: s.view === 'grid' ? PILL_ON : PILL_OFF,
@@ -630,6 +652,9 @@ export default class App extends React.Component {
     return (
       <div data-theme={V.theme} data-t="app" style={css('display:flex; flex-direction:column; height:100vh; overflow:hidden; background:#F5F6F4')}>
         <header data-t="hdr" className="trips-noprint" style={css('flex:0 0 auto; display:flex; align-items:center; gap:24px; padding:16px 28px; background:#FFFFFF; border-bottom:1px solid #DCE3D6')}>
+          {V.showSidebar && (
+            <button data-t="hamburger" type="button" onClick={V.toggleDrawer} title="Menu" style={css('align-items:center; justify-content:center; width:36px; height:36px; border:1px solid #DCE3D6; background:#FFFFFF; border-radius:10px; cursor:pointer; flex:0 0 auto; font-size:16px; color:#26291F')}>☰</button>
+          )}
           <button type="button" onClick={V.goHome} style={css('display:flex; align-items:center; gap:10px; border:none; background:none; padding:0; cursor:pointer; text-align:left')}>
             <svg width="26" height="26" viewBox="0 0 64 64" style={{ flex: '0 0 auto' }}>
               <rect width="64" height="64" rx="14" fill="#5FA05F" />
@@ -648,23 +673,30 @@ export default class App extends React.Component {
             <span style={css('position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:13px; color:#7C8474')}>⌕</span>
           </div>
 
-          <div data-t="panel2" style={css('display:flex; align-items:center; gap:6px; padding:3px; background:#F5F6F4; border-radius:999px; border:1px solid #E4EBDD')}>
-            <button type="button" onClick={V.setNavTree} style={css(V.navTreeStyle)}>{V.L.navTree}</button>
-            <button type="button" onClick={V.setNavOverview} style={css(V.navOverviewStyle)}>{V.L.navOverview}</button>
-          </div>
-
           <El as="button" data-t="ghost" type="button" onClick={V.toggleTheme} title="Theme"
             base="border:1px solid #DCE3D6; background:#FFFFFF; border-radius:999px; width:38px; height:34px; font-size:14px; color:#7C8474; cursor:pointer"
             hover="border-color:#5FA05F; color:#5FA05F">{V.themeIcon}</El>
 
-          <El as="button" data-t="ghost" type="button" onClick={V.cycleLang} title="Language"
-            base="border:1px solid #DCE3D6; background:#FFFFFF; border-radius:999px; padding:7px 14px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#7C8474; cursor:pointer; min-width:56px"
-            hover="border-color:#5FA05F; color:#5FA05F">{V.langLabel}</El>
+          <div style={css('position:relative')}>
+            <El as="button" data-t="ghost" type="button" onClick={V.toggleLangMenu} title="Language"
+              base="border:1px solid #DCE3D6; background:#FFFFFF; border-radius:999px; padding:7px 14px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#7C8474; cursor:pointer; min-width:56px; display:flex; align-items:center; gap:6px"
+              hover="border-color:#5FA05F; color:#5FA05F">{V.langFlag} {V.langLabel}</El>
+            {V.langMenuOpen && (
+              <div data-t="card" style={css('position:absolute; right:0; top:calc(100% + 6px); z-index:20; background:#FFFFFF; border:1px solid #DCE3D6; border-radius:12px; padding:6px; display:flex; flex-direction:column; gap:2px; min-width:150px; box-shadow:0 12px 30px rgba(26,29,22,0.16)')}>
+                {V.langOptions.map((lo) => (
+                  <button key={lo.code} type="button" onClick={lo.onClick} style={css(lo.style)}>{lo.flag} {lo.label}</button>
+                ))}
+              </div>
+            )}
+          </div>
         </header>
 
         <div data-t="shell" style={css('flex:1 1 auto; display:flex; min-height:0')}>
+          {V.showDrawerBackdrop && (
+            <div data-t="drawer-backdrop" className={V.drawerOpenClass} onClick={V.closeDrawer}></div>
+          )}
           {V.showSidebar && (
-            <aside data-t="sidebar" className={('trips-noprint ' + V.sidebarInCityClass).trim()} style={css('flex:0 0 288px; border-right:1px solid #C7D0BC; box-shadow:1px 0 0 rgba(0,0,0,0.03); background:#EBEEE6; overflow-y:auto; padding:22px 18px 40px')}>
+            <aside data-t="sidebar" className={('trips-noprint ' + V.sidebarInCityClass + ' ' + V.drawerOpenClass).replace(/\s+/g, ' ').trim()} style={css('flex:0 0 288px; border-right:1px solid #C7D0BC; box-shadow:1px 0 0 rgba(0,0,0,0.03); background:#EBEEE6; overflow-y:auto; padding:22px 18px 40px')}>
               <div style={css('display:flex; align-items:baseline; justify-content:space-between; margin-bottom:16px')}>
                 <span style={css('font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:#7C8474')}>{V.L.countries}</span>
                 {V.isOwner && (
@@ -752,9 +784,10 @@ export default class App extends React.Component {
                   <p style={css('margin:0; font-size:15.5px; line-height:1.6; color:#7C8474; text-wrap:pretty')}>{V.overviewSummary}</p>
                 </div>
 
-                {V.chapters.map((ch) => (
+                {V.hasOverviewCountry && V.chapters.filter((ch) => ch.isSelected).map((ch) => (
                   <section key={ch.id} data-t="pad" style={css('padding:8px 40px 34px')}>
                     <div data-t="edge" style={css('display:flex; align-items:center; gap:14px; padding-bottom:12px; margin-bottom:20px; border-bottom:1px solid #DCE3D6')}>
+                      <El as="button" type="button" onClick={V.clearOverviewCountry} base="border:none; background:none; color:#7C8474; font-size:13px; cursor:pointer; padding:0" hover="color:#5FA05F">← {V.L.countries}</El>
                       <img src={ch.flag} alt="" data-t="media" style={css('width:38px; height:26px; object-fit:cover; border-radius:3px; background:#E4EBDD')} />
                       <h2 data-t="ink" style={css("margin:0; font-family:'Work Sans',sans-serif; font-weight:400; font-size:26px; color:#26291F")}>{ch.name}</h2>
                       <span style={css('font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#7C8474')}>{ch.meta}</span>
@@ -784,9 +817,22 @@ export default class App extends React.Component {
                   </section>
                 ))}
 
-                {V.isOwner && (
-                  <div data-t="pad" style={css('padding:4px 40px')}>
-                    <El as="button" data-t="dashed" type="button" onClick={V.addCountry} className="trips-noprint" base="border:1px dashed #DCE3D6; background:none; border-radius:14px; padding:16px 22px; font-size:13.5px; color:#7C8474; cursor:pointer" hover="border-color:#5FA05F; color:#5FA05F">{V.L.addCountry}</El>
+                {V.showCountryGrid && (
+                  <div data-t="pad" style={css('padding:8px 40px 34px')}>
+                    <div style={css('display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:18px')}>
+                      {V.chapters.map((ch) => (
+                        <El key={ch.id} as="button" data-t="card" type="button" onClick={ch.onSelect} base="display:flex; align-items:center; gap:14px; text-align:left; padding:14px 16px; border:1px solid #E4EBDD; border-radius:16px; background:#FFFFFF; cursor:pointer; transition:transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease" hover="transform:translateY(-3px); box-shadow:0 14px 30px rgba(26,29,22,0.14)">
+                          <img src={ch.flag} alt="" data-t="media" style={css('width:48px; height:34px; object-fit:cover; border-radius:5px; background:#E4EBDD; flex:0 0 auto')} />
+                          <span style={css('flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:3px')}>
+                            <span data-t="ink" style={css("font-family:'Work Sans',sans-serif; font-weight:600; font-size:19px; color:#26291F")}>{ch.name}</span>
+                            <span style={css('font-size:12px; color:#7C8474')}>{ch.meta}</span>
+                          </span>
+                        </El>
+                      ))}
+                    </div>
+                    {V.isOwner && (
+                      <El as="button" data-t="dashed" type="button" onClick={V.addCountry} className="trips-noprint" base="margin-top:18px; border:1px dashed #DCE3D6; background:none; border-radius:14px; padding:16px 22px; font-size:13.5px; color:#7C8474; cursor:pointer" hover="border-color:#5FA05F; color:#5FA05F">{V.L.addCountry}</El>
+                    )}
                   </div>
                 )}
               </div>
