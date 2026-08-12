@@ -25,9 +25,9 @@ const PAL = {
     seenBg: '#E4EBDD', seenEdge: '#B7DAB7', teal: '#93C193', accent: '#5FA05F', media: '#E4EBDD', pinRing: '#FFFFFF',
   },
   dark: {
-    pillOnBg: '#F5F6F4', pillOnInk: '#1B1D18', pillOffInk: '#8C9384', chipBg: '#93C193', chipInk: '#1B1D18',
-    chipOffBg: '#292C25', chipOffInk: '#A9AC9E', chipOffEdge: '#3A3E33', cardBg: '#26291F', cardEdge: '#3A3E33',
-    seenBg: '#2A3B26', seenEdge: '#456E42', teal: '#93C193', accent: '#93C193', media: '#2B2E26', pinRing: '#1B1D18',
+    pillOnBg: '#ECF1F3', pillOnInk: '#0F1417', pillOffInk: '#73838B', chipBg: '#6FD6A9', chipInk: '#0F1417',
+    chipOffBg: '#243036', chipOffInk: '#A2B0B6', chipOffEdge: '#33424A', cardBg: '#1E282D', cardEdge: '#33424A',
+    seenBg: '#16332C', seenEdge: '#2F6E58', teal: '#6FD6A9', accent: '#6FD6A9', media: '#28353B', pinRing: '#0F1417',
   },
 }
 
@@ -459,7 +459,7 @@ export default class App extends React.Component {
       id: c.id, name: c.name, flag: c.flag || '',
       count: this.pl(c.cities.length, 'cities'),
       open: s.openCountry === c.id,
-      rowBg: s.openCountry === c.id ? (mode === 'dark' ? '#2B2E26' : '#E4EBDD') : 'transparent',
+      rowBg: s.openCountry === c.id ? (mode === 'dark' ? '#1E2B31' : '#E4EBDD') : 'transparent',
       onClick: () => this.setState({ openCountry: s.openCountry === c.id ? null : c.id }),
       onEdit: () => this.setState({ dialog: { kind: 'edit-country', id: c.id, title: c.name, name: c.name, image: c.flag || '' } }),
       onDelete: () => this.askDelete(c.name, () => this.mutate((d) => { d.countries = d.countries.filter((x) => x.id !== c.id) })),
@@ -469,8 +469,8 @@ export default class App extends React.Component {
         return {
           id: ci.id, name: ci.name, image: ci.image || '',
           meta: this.pl(st.total, 'places'),
-          ink: s.cityId === ci.id ? p.accent : (mode === 'dark' ? '#F5F6F4' : '#26291F'),
-          rowBg: s.cityId === ci.id ? (mode === 'dark' ? '#3D4235' : '#E4EBDD') : 'transparent',
+          ink: s.cityId === ci.id ? p.accent : (mode === 'dark' ? '#ECF1F3' : '#26291F'),
+          rowBg: s.cityId === ci.id ? (mode === 'dark' ? '#203A36' : '#E4EBDD') : 'transparent',
           onClick: () => this.setState({ countryId: c.id, cityId: ci.id, query: '', view: 'grid', route: [], drawerOpen: false }),
           onEdit: () => this.setState({ dialog: { kind: 'edit-city', id: ci.id, countryId: c.id, title: ci.name, name: ci.name, image: ci.image || '' } }),
           onDelete: () => this.askDelete(ci.name, () => this.mutate((d) => {
@@ -577,8 +577,10 @@ export default class App extends React.Component {
       toggleLangMenu: () => this.setState({ langMenuOpen: !s.langMenuOpen }),
       langOptions: LANG_ORDER.map((code) => ({
         code, flag: LANG_FLAG[code], label: LANG_NAME[code],
+        // The menu sits in a data-t="card" surface (themed), so the item text
+        // and the current-language highlight must follow the theme too.
         style: 'display:flex; align-items:center; gap:8px; border:none; border-radius:8px; padding:8px 10px; font-size:13.5px; cursor:pointer; text-align:left; background:' +
-          (code === s.lang ? '#E4EBDD' : 'none') + '; color:#26291F',
+          (code === s.lang ? (mode === 'dark' ? '#203A36' : '#E4EBDD') : 'none') + '; color:' + (mode === 'dark' ? '#ECF1F3' : '#26291F'),
         onClick: () => {
           this.setState({ lang: code, langMenuOpen: false })
           try { localStorage.setItem('trips.lang', code) } catch (e) {}
@@ -599,6 +601,11 @@ export default class App extends React.Component {
       routeCount,
       routeReady: routeCount >= 2,
       routeCapped: routeCount >= MAX_ROUTE,
+      // Themed via the palette so the ready (accent) and disabled (muted ghost)
+      // states follow light/dark instead of the old hardcoded green/white pill.
+      directionsStyle: (routeCount >= 2)
+        ? 'border:1px solid ' + p.accent + '; background:' + p.accent + '; color:' + p.chipInk + '; border-radius:999px; padding:8px 16px; font-size:13px; font-weight:500; cursor:pointer'
+        : 'border:1px solid ' + p.chipOffEdge + '; background:' + p.chipOffBg + '; color:' + p.pillOffInk + '; border-radius:999px; padding:8px 16px; font-size:13px; cursor:not-allowed',
       routeLabel: l.directions + (routeCount ? ' (' + routeCount + ')' : ''),
       routeHint: l.routeHint,
       routeCappedNote: l.routeCapped,
@@ -865,9 +872,7 @@ export default class App extends React.Component {
                     <El as="button" data-t="ghost" type="button" onClick={V.clearRoute} className="trips-noprint" base="border:1px solid #DCE3D6; background:#FFFFFF; border-radius:999px; padding:8px 16px; font-size:13px; color:#7C8474; cursor:pointer" hover="border-color:#B3543E; color:#B3543E">{V.clearRouteLabel}</El>
                   )}
                   {V.isCards && (
-                    <button type="button" onClick={V.onDirections} disabled={!V.routeReady} title={!V.routeReady ? V.routeHint : (V.routeCapped ? V.routeCappedNote : '')} className="trips-noprint" style={css(V.routeReady
-                      ? 'border:1px solid #5FA05F; background:#5FA05F; color:#FFFFFF; border-radius:999px; padding:8px 16px; font-size:13px; font-weight:500; cursor:pointer'
-                      : 'border:1px solid #DCE3D6; background:#FFFFFF; color:#B7BDB0; border-radius:999px; padding:8px 16px; font-size:13px; cursor:not-allowed')}>🧭 {V.routeLabel}</button>
+                    <button type="button" onClick={V.onDirections} disabled={!V.routeReady} title={!V.routeReady ? V.routeHint : (V.routeCapped ? V.routeCappedNote : '')} className="trips-noprint" style={css(V.directionsStyle)}>🧭 {V.routeLabel}</button>
                   )}
                   <El as="button" data-t="ghost" type="button" onClick={V.shareCity} className="trips-noprint" base="border:1px solid #DCE3D6; background:#FFFFFF; border-radius:999px; padding:8px 16px; font-size:13px; color:#7C8474; cursor:pointer" hover="border-color:#5FA05F; color:#5FA05F">{V.L.share}</El>
                   <El as="button" data-t="ghost" type="button" onClick={V.printCity} className="trips-noprint" base="border:1px solid #DCE3D6; background:#FFFFFF; border-radius:999px; padding:8px 16px; font-size:13px; color:#7C8474; cursor:pointer" hover="border-color:#5FA05F; color:#5FA05F">{V.L.pdf}</El>
