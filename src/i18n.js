@@ -199,6 +199,10 @@ export const RU = {
 const LANGS = { en: EN, hy: HY, ru: RU }
 export const LANG_ORDER = ['en', 'hy', 'ru']
 export const LANG_LABEL = { en: 'EN', hy: 'ՀԱՅ', ru: 'RU' }
+// Flag + endonym for the language picker menu (label above is the compact code
+// shown on the button itself).
+export const LANG_FLAG = { en: '🇬🇧', hy: '🇦🇲', ru: '🇷🇺' }
+export const LANG_NAME = { en: 'English', hy: 'Հայերեն', ru: 'Русский' }
 
 // Word forms for "N cities / places / days" per language, so counts read
 // naturally instead of always using the English plural rule.
