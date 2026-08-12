@@ -387,80 +387,201 @@
             {
               "id": "porta-de-la-mar",
               "name": "Porta de la Mar",
-              "image": "https://thumbs.dreamstime.com/b/plaza-de-la-puerta-del-mar-gate-sea-square-downtown-valencia-city-spain-august-95402749.jpg",
-              "description": "Հին քաղաքի խորհրդանշական մուտքի դարպասի վերակառուցված տարբերակն է։ Այստեղից սկսվում է հին Վալենսիայի պատմական հատվածը։"
+              "image": "https://images.openai.com/static-rsc-4/16ksbZ7sb-Yh2FruSoC77NT5eu1d6jbZKyjssomA2wM4XFNffAN2xttakWec8wMChMN584yIdtGINKUELe58TLOb7UMu8SbH68HzngMWRNzlcWBQYLJez_F9P9a3jkQi8COz7Y1OQGLjnTHlam9epJQfAh4WB0FCcgWVr6eR4EngiH4Yha3E4VtBoe1HY0Nt?purpose=inline",
+              "description": "Porta de la Mar-ը Վալենսիայի հին քաղաքի խորհրդանշական մուտքի դարպասի վերակառուցված տարբերակն է։ Այստեղից սկսվում է Վալենսիայի պատմական կենտրոնը, և այն հիշեցնում է միջնադարյան պարիսպներով շրջապատված քաղաքի անցյալը։ Ներկայիս հուշարձանը կառուցվել է 1946 թվականին՝ նախկին Puerta del Mar դարպասի հիշատակին, որը ժամանակին քաղաքի գլխավոր ելքն էր դեպի նավահանգիստ և Միջերկրական ծով։ Այսօր այն համարվում է Վալենսիայի ամենահայտնի քաղաքային խորհրդանիշներից մեկը։",
+              "descriptionEn": "Porta de la Mar is a reconstructed version of the symbolic gateway to Valencia's old city. It marks the beginning of the historic center and recalls the days when Valencia was surrounded by medieval walls. The current monument was built in 1946 in memory of the former Puerta del Mar, which served as the city's main route to the port and the Mediterranean Sea. Today, it is one of Valencia's most recognizable urban landmarks.",
+              "descriptionRu": "Porta de la Mar — это реконструированная версия символических ворот старого города Валенсии. Отсюда начинается исторический центр города, а сам памятник напоминает о временах, когда Валенсия была окружена средневековыми стенами. Современный монумент был построен в 1946 году в память о старинных воротах Puerta del Mar, которые служили главным выходом к порту и Средиземному морю. Сегодня это один из самых узнаваемых символов Валенсии.",
+              "coords": [
+                39.472055555555556,
+                -0.3683333333333333
+              ],
+              "coordsText": "39°28'19.4\"N 0°22'06.0\"W"
             },
             {
               "id": "el-parterre-jardines-de-la-glorieta",
-              "name": "El Parterre / Jardines de la Glorieta",
-              "image": "https://www.valencia-cityguide.com/images/attractions4/jardin-parterre.jpg",
-              "description": "Փոքր, բայց շատ գեղեցիկ պատմական այգի է։ Այստեղ է գտնվում Վալենսիայի ամենահայտնի հսկա ֆիկուս ծառերից մեկը: Ծառի արմատները դուրս են եկել հողի մակերես և ստեղծում են գրեթե «կենդանի քանդակ»: Տարիքը՝ ավելի քան 150–170 տարի:"
+              "name": "El Parterre & Jardines de la Glorieta",
+              "image": "https://images.openai.com/static-rsc-4/3F7U42d5Aq7810oisCtXGr15DkUcj5RsAhy0C7Emm2M5ir6cYtZphaKiD6wQwamOSoLac1ejqsgYu-aea-Xet41UxeJDO2sFHAVRMx1KImK0BVaFNRH1Ii-LJCebzFdjShc6EIeSmdYsUYTBEAdQJCkciUI3KC_h28N2Ozfw2PaQFUJMYFndMpLVAhMkZHRt?purpose=inline",
+              "description": "El Parterre-ը և Jardines de la Glorieta-ն Վալենսիայի կենտրոնում գտնվող միմյանց շատ մոտ երկու առանձին պատմական այգիներ են, որոնք միասին կազմում են քաղաքի կարևոր կանաչ տարածքներից մեկը։ Երկուսն էլ հայտնի են իրենց հսկա և հին ֆիկուս ծառերով (Ficus macrophylla), որոնցից մի քանիսը ավելի քան 150 տարեկան են։ Ամենահայտնի ֆիկուսը գտնվում է El Parterre-ում՝ Plaza de Alfonso el Magnánimo-ի մոտ։ Նրա հսկայական արմատները դուրս են գալիս հողի մակերես և ստեղծում յուրահատուկ «կենդանի քանդակի» տեսք։ Jardines de la Glorieta-ում նույնպես կան մի քանի մեծ ու հին ֆիկուսներ, որոնք այգու կարևոր առանձնահատկություններից են։ El Parterre-ում կարելի է տեսնել նաև Արագոնի թագավոր Խայմե I-ի ձիարձանը, իսկ La Glorieta-ն հայտնի է իր պատմական քանդակներով, շատրվաններով և հանգիստ զբոսանքի համար նախատեսված կանաչ տարածքներով։",
+              "descriptionEn": "El Parterre and Jardines de la Glorieta are two separate historic gardens located very close to each other in central Valencia, forming an important green area of the city. Both gardens are known for their huge and old Ficus macrophylla trees, several of which are more than 150 years old. The most famous ficus is located in El Parterre, near Plaza de Alfonso el Magnánimo. Its enormous roots rise above the ground, giving the tree the appearance of a unique “living sculpture.” Jardines de la Glorieta also has several large and old ficus trees that are an important feature of the garden. El Parterre also features the equestrian statue of King James I of Aragon, while La Glorieta is known for its historic sculptures, fountains, and peaceful green spaces.",
+              "descriptionRu": "El Parterre и Jardines de la Glorieta — два отдельных исторических сада, расположенных совсем рядом друг с другом в центре Валенсии. Вместе они образуют одну из важных зелёных зон города. Оба сада известны своими огромными старыми фикусами Ficus macrophylla, некоторым из которых более 150 лет. Самый известный фикус находится в El Parterre, рядом с площадью Plaza de Alfonso el Magnánimo. Его огромные корни выходят на поверхность земли и создают необычный вид «живой скульптуры». В Jardines de la Glorieta также растёт несколько больших старых фикусов, являющихся важной особенностью сада. В El Parterre также находится конная статуя короля Хайме I Арагонского, а La Glorieta известна своими историческими скульптурами, фонтанами и спокойными зелёными зонами для прогулок.",
+              "coords": [
+                39.47244444444445,
+                -0.3698611111111111
+              ],
+              "coordsText": "39°28'20.8\"N 0°22'11.5\"W"
             },
             {
               "id": "mercado-de-colon",
               "name": "Mercado de colon",
               "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOjwKdgvyS13sSa-BvBM6eW4LBtA2f_k0lkqisBPHxO62GSPaoxA6DVCVN&s=10",
-              "description": "20-րդ դարի մոդեռնիստական շուկա՝ գեղեցիկ երկաթյա կառուցվածքով։ Շրջակայքը՝ Eixample թաղամաս։"
+              "description": "Mercado de Colón-ը Վալենսիայի ամենահայտնի մոդեռնիստական շենքերից մեկն է՝ կառուցված 20-րդ դարի սկզբին։ Այն նախագծվել է ճարտարապետ Ֆրանցիսկո Մորայի (Francisco Mora) կողմից և բացվել է 1916 թվականին։ Շուկան առանձնանում է իր գեղեցիկ երկաթյա կառուցվածքով, աղյուսով և գունավոր կերամիկական դետալներով։ Այն գտնվում է Eixample թաղամասում և այսօր հիմնականում գործում է որպես գաստրոնոմիկ ու ժամանցային վայր՝ սրճարաններով, ռեստորաններով և խանութներով։",
+              "descriptionEn": "Mercado de Colón is one of Valencia's best-known Modernist buildings, built in the early 20th century. It was designed by architect Francisco Mora and opened in 1916. The market is notable for its beautiful iron structure, brickwork, and colorful ceramic details. It is located in the Eixample district and today mainly functions as a gastronomic and leisure space with cafés, restaurants, and shops.",
+              "descriptionRu": "Mercado de Colón — одно из самых известных зданий Валенсии в стиле модернизма, построенное в начале XX века. Оно было спроектировано архитектором Франсиско Мора и открыто в 1916 году. Рынок выделяется красивой железной конструкцией, кирпичной кладкой и яркими керамическими деталями. Он расположен в районе Эшампле (Eixample) и сегодня в основном используется как гастрономическое и развлекательное пространство с кафе, ресторанами и магазинами.",
+              "coords": [
+                39.469277777777776,
+                -0.3680555555555555
+              ],
+              "coordsText": "39°28'09.4\"N 0°22'05.0\"W"
+            },
+            {
+              "id": "gran-v-a-de-valencia-gran-v-a-marqu-s-del-turia",
+              "name": "Gran Vía de Valencia — Gran Vía Marqués del Turia",
+              "image": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/26/cb/23/34/la-gran-via-de-valencia.jpg?w=900&h=500&s=1",
+              "description": "Gran Vía-ն (Gran Vía Marqués del Turia) Վալենսիայի ամենահայտնի և էլեգանտ պողոտաներից մեկն է։ Այն ստեղծվել է որպես քաղաքի Eixample (Ensanche) ընդարձակման նախագծի մաս և դարձել է քաղաքի գլխավոր բուլվարներից մեկը։ Պողոտան ունի լայն կենտրոնական զբոսայգի, ծառաշատ հատվածներ և շրջապատված է գեղեցիկ բնակելի ու մոդեռնիստական շենքերով։ Այսօր այն հայտնի է իր սրճարաններով, ռեստորաններով, խանութներով և ակտիվ քաղաքային կյանքով։ Gran Vía-ն համարվում է Վալենսիայի ամենահարմար վայրերից մեկը զբոսնելու և քաղաքի ժամանակակից մթնոլորտը զգալու համար։",
+              "descriptionEn": "Gran Vía (Gran Vía Marqués del Turia) is one of Valencia's most famous and elegant avenues. It was created as part of the city's Eixample (Ensanche) expansion and became one of Valencia's main boulevards. The avenue features a wide central promenade, tree-lined gardens, and beautiful residential and Modernist buildings. Today, it is known for its cafés, restaurants, shops, and lively urban atmosphere. Gran Vía is considered one of the best places to walk and experience modern Valencia.",
+              "descriptionRu": "Gran Vía (Gran Vía Marqués del Turia) — один из самых известных и элегантных проспектов Валенсии. Он был создан как часть проекта расширения города Эшампле (Ensanche) и стал одним из главных бульваров Валенсии. Проспект имеет широкий центральный прогулочный бульвар, зелёные аллеи и окружён красивыми жилыми и модернистскими зданиями. Сегодня он известен своими кафе, ресторанами, магазинами и оживлённой городской атмосферой. Gran Vía считается одним из лучших мест для прогулок и знакомства с современной Валенсией.",
+              "coords": [
+                39.46802777777778,
+                -0.3670555555555555
+              ],
+              "coordsText": "39°28'04.9\"N 0°22'01.4\"W",
+              "day": null,
+              "visited": false
+            },
+            {
+              "id": "plaza-de-toros-de-valencia-pla-a-de-bous",
+              "name": "Plaza de Toros de Valencia — Plaça de Bous",
+              "image": "https://images.openai.com/static-rsc-4/lpdSPKHDZB0PPRg_JVMzsgLA69FwV3wzdBoPSY0nPTwFyrffkJIkMJEyEU97uBF-pEpOIac-QUmAEt2M6HOEZwfNmnOIrmq_sez74O_WUdPsxJtgkwmill-bsFcJ1Dk5Eb-kUWiAqUgLhtDDg0wQTSjlE_6LRn-idGjwOiWMsfL3GzztxdwwK7I6W0sFyPH6?purpose=fullsize",
+              "description": "Plaza de Toros de Valencia-ն Վալենսիայի հայտնի պատմական ցլամարտի արենան է, որը գտնվում է քաղաքի կենտրոնում՝ Estació del Nord-ի կողքին։ Այն կառուցվել է 1850–1859 թվականներին ճարտարապետ Սեբաստիան Մոնլեոն Էստելյեսի նախագծով և բացվել է 1859 թվականին։ Շենքը կառուցված է նեոկլասիկ ոճով և իր բազմաթիվ աղեղներով հիշեցնում է Հռոմի Կոլիզեյը։ Արենան ունի մոտ 52 մետր տրամագիծ և պատմականորեն կարող էր ընդունել մինչև 16,800 հանդիսատես։ Այսօր այստեղ անցկացվում են տարբեր միջոցառումներ, իսկ շենքում գործում է նաև Ցլամարտի թանգարանը (Museo Taurino)։",
+              "descriptionEn": "Plaza de Toros de Valencia is Valencia's famous historic bullring, located in the city center next to Estació del Nord. It was built between 1850 and 1859 by architect Sebastián Monleón Estellés and opened in 1859. The building has a Neoclassical design with several levels of arches and is inspired by the Colosseum in Rome. The arena has a diameter of about 52 meters and historically could accommodate up to 16,800 spectators. Today, it hosts different events and also houses the Bullfighting Museum (Museo Taurino).",
+              "descriptionRu": "Plaza de Toros de Valencia — знаменитая историческая арена для корриды, расположенная в центре Валенсии рядом с Estació del Nord. Она была построена в 1850–1859 годах по проекту архитектора Себастьяна Монлеона Эстельеса и открыта в 1859 году. Здание выполнено в неоклассическом стиле с несколькими рядами арок и напоминает Колизей в Риме. Диаметр арены составляет около 52 метров, а исторически она могла вместить до 16 800 зрителей. Сегодня здесь проводятся различные мероприятия, а также находится Музей корриды (Museo Taurino).",
+              "coords": [
+                39.467194444444445,
+                -0.3763888888888889
+              ],
+              "coordsText": "39°28'01.9\"N 0°22'35.0\"W",
+              "day": null,
+              "visited": false
             },
             {
               "id": "estaci-del-nord",
               "name": "Estació del Nord",
               "image": "https://www.spain.info/export/sites/segtur/.content/imagenes/cabeceras-grandes/valencia/estacion_norte_valencia_s_1025318791.jpg",
-              "description": "Վալենսիայի գլխավոր երկաթուղային կայարանը՝ մոդեռնիստական ոճով (1917թ.)։ Ուշադրություն դարձրեք նարնջի և գյուղատնտեսական մոտիվներով զարդարանքներին։"
+              "description": "Estació del Nord-ը Վալենսիայի գլխավոր երկաթուղային կայարանն է և քաղաքի ամենահայտնի մոդեռնիստական շենքերից մեկը։ Այն նախագծել է ճարտարապետ Դեմետրիո Ռիբեսը և բացվել է 1917 թվականին։ Շենքը հատկապես հայտնի է իր հարուստ զարդարանքով՝ նարինջների, նարնջի ծաղիկների, ծաղկային և գյուղատնտեսական մոտիվներով, որոնք արտացոլում են Վալենսիայի գյուղատնտեսական ավանդույթները։ Ուշադրություն դարձրեք նաև գունավոր կերամիկային, խճանկարներին և գեղեցիկ գլխավոր սրահին։ Կայարանը գտնվում է քաղաքի կենտրոնում՝ Plaza de Toros-ի և քաղաքապետարանի մոտ։",
+              "descriptionEn": "Estació del Nord is Valencia's main railway station and one of the city's most famous Modernist buildings. It was designed by architect Demetrio Ribes and opened in 1917. The station is especially famous for its rich decoration featuring oranges, orange blossoms, floral and agricultural motifs, reflecting Valencia's agricultural traditions. Look closely at the colorful ceramics, mosaics, and beautiful main hall. The station is located in the city center, close to Plaza de Toros and the City Hall.",
+              "descriptionRu": "Estació del Nord — главный железнодорожный вокзал Валенсии и одно из самых известных зданий города в стиле модернизма. Он был спроектирован архитектором Деметрио Рибесом и открыт в 1917 году. Вокзал особенно известен богатым декором с изображениями апельсинов, цветов апельсина, растительных и сельскохозяйственных мотивов, отражающих сельскохозяйственные традиции Валенсии. Обратите внимание на яркую керамику, мозаики и красивый главный зал. Вокзал находится в центре города, рядом с Plaza de Toros и мэрией.",
+              "coords": [
+                39.467222222222226,
+                -0.3770833333333333
+              ],
+              "coordsText": "39°28'02.0\"N 0°22'37.5\"W"
             },
             {
               "id": "plaza-del-ayuntamiento",
               "name": "Plaza del Ayuntamiento",
               "image": "https://myrhotels.com/guia-turismo-valencia/wp-content/uploads/2023/02/Propuesta-Redes-2023-Dra.-Elisa-Matheus.png",
-              "description": "Քաղաքի գլխավոր հրապարակը։ Այստեղ է գտնվում քաղաքապետարանի շենքը։ Տոնական միջոցառումների ու Fallas փառատոնի հիմնական վայրն է։"
+              "description": "Plaza del Ayuntamiento-ը Վալենսիայի գլխավոր և ամենակենտրոնական հրապարակներից է։ Այստեղ է գտնվում Վալենսիայի քաղաքապետարանի շենքը, որի ներկայիս տեսքը ձևավորվել է 20-րդ դարի սկզբի ընդլայնումներից և վերակառուցումներից։ Հրապարակը հայտնի է իր ծաղիկների կրպակներով, շատրվանով և շրջապատող գեղեցիկ պատմական շենքերով։ Այն քաղաքի գլխավոր տոնական վայրերից է և հատկապես կարևոր դեր ունի Fallas փառատոնի ժամանակ, երբ այստեղ անցկացվում է հայտնի Mascletà հրավառության-պայթուցիկ շոուն։",
+              "descriptionEn": "Plaza del Ayuntamiento is Valencia's main and most central square. It is home to Valencia City Hall, whose current appearance was shaped by extensions and renovations in the early 20th century. The square is known for its flower stalls, fountain, and beautiful historic buildings surrounding it. It is one of the city's main places for celebrations and is especially important during the Fallas festival, when the famous Mascletà takes place here.",
+              "descriptionRu": "Plaza del Ayuntamiento — главная и одна из самых центральных площадей Валенсии. Здесь находится мэрия Валенсии, современный облик которой сформировался после расширений и реконструкций в начале XX века. Площадь известна цветочными киосками, фонтаном и красивыми историческими зданиями вокруг неё. Это одно из главных мест городских праздников, особенно во время фестиваля Fallas, когда здесь проходит знаменитая Mascletà.",
+              "coords": [
+                39.469972222222225,
+                -0.3764166666666666
+              ],
+              "coordsText": "39°28'11.9\"N 0°22'35.1\"W"
             },
             {
               "id": "museu-nacional-de-cer-mica-i-de-les-arts-sumptu-ries-gonz-lez-mart",
               "name": "Museu Nacional de Ceràmica i de les Arts Sumptuàries González Martí",
               "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPIqlHASRcHS-RHxqQYA-17YCdajO_YBw9QU3-7xNfv2WU_QV7alWXRhO6&s=10",
-              "description": "Տեղակայված է շքեղ բարոկկո պալատում (Palacio del Marqués de Dos Aguas)։ Ճակատը Վալենսիայի ամենաազդեցիկ ճարտարապետական աշխատանքներից է։"
+              "description": "Գտնվում է շքեղ Palacio del Marqués de Dos Aguas բարոկկո պալատում, որը համարվում է Վալենսիայի ամենատպավորիչ պատմական շենքերից մեկը։ Պալատի հայտնի ճակատը, ստեղծված մոտ 1740 թվականին, իսպանական քաղաքացիական բարոկկոյի գլուխգործոցներից է և քաղաքի ամենաազդեցիկ ճարտարապետական աշխատանքներից մեկը։ Թանգարանը հիմնադրվել է 1947 թվականին և նվիրված է կերամիկայի ու կիրառական արվեստների պատմությանը։ Այստեղ կարելի է տեսնել Վալենսիայի հայտնի կերամիկան, պատմական ինտերիերներ, կահույք, կառքեր, հագուստ և դեկորատիվ արվեստի նմուշներ։",
+              "descriptionEn": "Museo Nacional de Cerámica y Artes Suntuarias González Martí is housed in the magnificent Palacio del Marqués de Dos Aguas, one of Valencia's most impressive historic buildings. The palace's famous façade, created around 1740, is considered a masterpiece of Spanish Baroque architecture and one of the city's most remarkable architectural works. The museum was founded in 1947 and is dedicated to ceramics and decorative arts. Visitors can explore Valencia's renowned ceramics, historic rooms, furniture, carriages, clothing, and decorative art collections.",
+              "descriptionRu": "Museo Nacional de Cerámica y Artes Suntuarias González Martí расположен в роскошном барочном дворце Palacio del Marqués de Dos Aguas, который считается одним из самых впечатляющих исторических зданий Валенсии. Знаменитый фасад дворца, созданный около 1740 года, является шедевром испанского гражданского барокко и одной из самых выдающихся архитектурных работ города. Музей был основан в 1947 году и посвящён керамике и декоративно-прикладному искусству. Здесь можно увидеть знаменитую валенсийскую керамику, исторические интерьеры, мебель, кареты, костюмы и произведения декоративного искусства.",
+              "coords": [
+                39.47280555555556,
+                -0.37463888888888885
+              ],
+              "coordsText": "39°28'22.1\"N 0°22'28.7\"W"
             },
             {
               "id": "plaza-redonda",
               "name": "Plaza Redonda",
               "image": "https://images.trvl-media.com/place/553248621532487840/e74da8be-8139-4c2c-b6c8-f63de5ff145b.jpg",
-              "description": "Կլոր, յուրահատուկ հրապարակ՝ փոքրիկ խանութներով։ Գտնվում է Կենտրոնական շուկայի մոտ։"
+              "description": "Plaza Redonda-ն Վալենսիայի ամենայուրահատուկ հրապարակներից մեկն է՝ իր կատարյալ կլոր ձևով։ Այն կառուցվել է 1840 թվականին ճարտարապետ Սալվադոր Էսկրիգի նախագծով և ժամանակին գտնվել է քաղաքի ճշգրիտ երկրաչափական կենտրոնում։ Հրապարակը շրջապատված է փոքրիկ խանութներով, արհեստագործական տաղավարներով և սրճարաններով, իսկ կենտրոնում գտնվում է շատրվանը։ Plaza Redonda-ն գտնվում է Կենտրոնական շուկայի (Mercado Central) և Վալենսիայի տաճարի մոտ և համարվում է քաղաքի ամենահմայիչ վայրերից մեկը։",
+              "descriptionEn": "Plaza Redonda is one of Valencia's most unique squares, famous for its perfectly circular design. It was built in 1840 by architect Salvador Escrig and was originally located at the exact geometric center of the city. The square is surrounded by small shops, craft stalls, and cafés, while a fountain stands at its center. Located near the Central Market and Valencia Cathedral, Plaza Redonda is considered one of the city's most charming and photogenic places.",
+              "descriptionRu": "Plaza Redonda — одна из самых необычных площадей Валенсии благодаря своей идеально круглой форме. Она была построена в 1840 году по проекту архитектора Сальвадора Эскрига и первоначально находилась в геометрическом центре города. Площадь окружена небольшими магазинами, ремесленными лавками и кафе, а в центре расположен фонтан. Находясь рядом с Центральным рынком и Кафедральным собором Валенсии, Plaza Redonda считается одним из самых уютных и фотогеничных мест города.",
+              "coords": [
+                39.47358333333334,
+                -0.37666666666666665
+              ],
+              "coordsText": "39°28'24.9\"N 0°22'36.0\"W"
             },
             {
               "id": "plaza-de-la-reina",
               "name": "Plaza de la Reina",
               "image": "https://www.visitvalencia.com/sites/default/files/media/media-images/images/PLAZA_REINA_VALENCIA%20%2813%29_1024.jpg",
-              "description": "Սրճարաններով լի հրապարակ, որտեղից բացվում է տեսարան դեպի Մայր տաճարն ու Միգելետե աշտարակը։"
+              "description": "Plaza de la Reina-ն Վալենսիայի ամենահայտնի և ամենակենտրոնական հրապարակներից մեկն է։ Այն լի է սրճարաններով, ռեստորաններով և բացօթյա տեռասաներով, իսկ հրապարակից բացվում է հիանալի տեսարան դեպի Վալենսիայի Մայր տաճարը և նրա խորհրդանիշ դարձած Միգելետե (El Miguelete) զանգակատունը։ Հրապարակը ձևավորվել է 19-րդ դարի երկրորդ կեսից, իսկ 2022 թվականին ամբողջությամբ հետիոտնային գոտի է դարձել՝ դարձնելով այն ավելի հարմար զբոսանքի և հանգստի համար։ Այսօր այն համարվում է հին քաղաքի գլխավոր հանդիպման վայրերից մեկը։",
+              "descriptionEn": "Plaza de la Reina is one of Valencia's most famous and central squares. It is filled with cafés, restaurants, and outdoor terraces, offering beautiful views of Valencia Cathedral and the iconic Miguelete (El Miguelete) Bell Tower. The square began taking shape in the second half of the 19th century and was fully pedestrianized in 2022, making it an even more attractive place for walking and relaxing. Today, it is one of the main gathering points in Valencia's historic center.",
+              "descriptionRu": "Plaza de la Reina — одна из самых известных и центральных площадей Валенсии. Она окружена кафе, ресторанами и открытыми террасами, а с площади открывается прекрасный вид на Кафедральный собор Валенсии и знаменитую колокольню Мигелете (El Miguelete). Площадь начала формироваться во второй половине XIX века, а в 2022 году стала полностью пешеходной зоной, что сделало её ещё более привлекательной для прогулок и отдыха. Сегодня это одно из главных мест встреч в историческом центре города.",
+              "coords": [
+                39.47452777777778,
+                -0.3754722222222222
+              ],
+              "coordsText": "39°28'28.3\"N 0°22'31.7\"W"
             },
             {
               "id": "valencia-cathedral-el-miguelete",
-              "name": "Valencia cathedral / El Miguelete",
-              "image": "https://www.visitvalencia.com/sites/default/files/media/media-images/images/PLAZA_REINA_VALENCIA%20_3__1024.jpg",
-              "description": "Մայր տաճարը կառուցվել է 13–15-րդ դարերում։ Այստեղ է պահվում Սուրբ Գրաալի բաժակը։ Միգելետեից բացվում է լավագույն պանորաման։"
+              "name": "Valencia Cathedral & El Miguelete",
+              "image": "https://images.openai.com/static-rsc-4/Bc3nJBXCvhqzGL0JlXyKhI8OpxcgExFtReoZakeSRD_lYxN2qBAF8SFk3GiDOpeHt2gg8sNrHcSeD4oR_zOdPGGOnlnLQKOyDUfYIJvJmO_hnuFQsC99kDYDEoyKCqBKDrrEKXkmXfHsldu82ZXYgRyZZOYoxaZbdtY966tpR3BAzKqMrPniEmQjBfggzrdx?purpose=fullsize",
+              "description": "Valencia Cathedral-ը (Մայր տաճար) Վալենսիայի գլխավոր կրոնական հուշարձաններից է, որը կառուցվել է 13–15-րդ դարերում նախկին մզկիթի տեղում։ Տաճարը միավորում է գոթական, ռոմանական, վերածննդի և բարոկկո ճարտարապետական ոճերը։ Այստեղ է պահվում հայտնի Սուրբ Գրաալի բաժակը, որը, ըստ ավանդության, օգտագործվել է Հիսուս Քրիստոսի Վերջին Ընթրիքի ժամանակ։ Տաճարի ամենահայտնի հատվածը Միգելետե (El Miguelete) զանգակատունն է, որը կառուցվել է 1381–1429 թվականներին։ Նրա գագաթ հասնելու համար պետք է հաղթահարել 207 աստիճան, իսկ վերևից բացվում է Վալենսիայի պատմական կենտրոնի լավագույն պանորամիկ տեսարաններից մեկը։",
+              "descriptionEn": "Valencia Cathedral is one of the city's most important religious landmarks, built between the 13th and 15th centuries on the site of a former mosque. The cathedral combines Gothic, Romanesque, Renaissance, and Baroque architectural styles. It is famous for housing the Holy Grail, which tradition identifies as the cup used by Jesus Christ during the Last Supper. The cathedral's most recognizable feature is El Miguelete, its bell tower, built between 1381 and 1429. Visitors can climb 207 steps to the top, where they are rewarded with one of the best panoramic views of Valencia's historic center.",
+              "descriptionRu": "Кафедральный собор Валенсии — один из главных религиозных памятников города, построенный в XIII–XV веках на месте бывшей мечети. Собор сочетает в себе готический, романский, ренессансный и барочный архитектурные стили. Здесь хранится знаменитая Чаша Святого Грааля, которая, согласно традиции, использовалась Иисусом Христом во время Тайной вечери. Самой узнаваемой частью собора является колокольня Мигелете (El Miguelete), построенная в 1381–1429 годах. На её вершину ведут 207 ступеней, а сверху открывается один из лучших панорамных видов на исторический центр Валенсии.",
+              "coords": [
+                39.47527777777778,
+                -0.3754722222222222
+              ],
+              "coordsText": "39°28'31.0\"N 0°22'31.7\"W"
             },
             {
               "id": "almoina-archaeological-museum",
-              "name": "Almoina Archaeological Museum",
+              "name": "Almoina Archaeological Museum (L'Almoina Archaeological Centre)",
               "image": "https://www.visitvalencia.com/sites/default/files/media/media-images/images/_09A1125_1024.jpg",
-              "description": "Ստորգետնյա հռոմեական ավերակներ։ Արվեստների եւ պատմության մի բացառիկ կետ։ Սա հենց այն վայրը է, որտեղ կարող եք քայլել հին հռոմեական քաղաքային ջրանցքներով, տեսնել բնակարանների, տաճարների, ձորակների մնացորդները եւ պատկերացնել Վալենսիայի վաղ շրջանի պատմությունը։"
+              "description": "Almoina Archaeological Museum-ը Վալենսիայի ամենահետաքրքիր պատմական վայրերից մեկն է։ Այն ստորգետնյա թանգարան է, որտեղ կարելի է տեսնել քաղաքի պատմության ավելի քան 2000 տարվա շերտերը՝ հռոմեական, վեստգոթական և արաբական ժամանակաշրջաններից։ Սա հենց այն վայրն է, որտեղ կարող եք քայլել հին հռոմեական փողոցների և ջրանցքների կողքով, տեսնել բնակարանների, բաղնիքների, տաճարների, ֆորումի և այլ շինությունների մնացորդները ու պատկերացնել հին Valentia քաղաքի կյանքը։ Թանգարանը գտնվում է Մայր տաճարի կողքին և համարվում է Եվրոպայի կարևորագույն հնագիտական կենտրոններից մեկը։",
+              "descriptionEn": "Almoina Archaeological Museum is one of Valencia's most fascinating historical sites. It is an underground museum where visitors can explore more than 2,000 years of history, including Roman, Visigothic, and Islamic remains. Here you can walk alongside ancient Roman streets and water channels, see the remains of houses, baths, temples, the forum, and other public buildings, and imagine life in the ancient city of Valentia. Located next to Valencia Cathedral, it is considered one of the most important archaeological centers in Europe.",
+              "descriptionRu": "Археологический музей Альмоина — одно из самых интересных исторических мест Валенсии. Это подземный музей, где представлены более 2000 лет истории города: римский, вестготский и исламский периоды. Здесь можно пройти рядом с древнеримскими улицами и водными каналами, увидеть остатки домов, бань, храмов, форума и других общественных зданий, а также представить жизнь древнего города Валентия (Valentia). Музей расположен рядом с Кафедральным собором и считается одним из важнейших археологических центров Европы.",
+              "coords": [
+                39.47627777777778,
+                -0.3743611111111111
+              ],
+              "coordsText": "39°28'34.6\"N 0°22'27.7\"W"
             },
             {
               "id": "plaza-de-la-virgen",
               "name": "Plaza de la Virgen",
               "image": "https://thumbs.dreamstime.com/b/plaza-de-la-virgen-cathedral-square-valencia-spain-august-large-located-central-location-city-92890455.jpg",
-              "description": "Հին քաղաքի ամենահին հրապարակը։ Այստեղ են Մայր տաճարը և Basilica de la Virgen de los Desamparados-ը։"
+              "description": "Վալենսիայի հին քաղաքի ամենահին և ամենակարևոր հրապարակներից մեկն է։ Այն գտնվում է հին հռոմեական Valentia քաղաքի ֆորումի տեղում և համարվում է քաղաքի պատմական սիրտը։ Հրապարակի շուրջ են գտնվում Վալենսիայի Մայր տաճարը, Basilica de la Virgen de los Desamparados-ը և Generalitat-ի պալատը։ Կենտրոնում գտնվում է հայտնի Turia շատրվանը, որը խորհրդանշում է Տուրիա գետը և Վալենսիայի ոռոգման ավանդույթները։ Հրապարակը բազմաթիվ տոնակատարությունների, մշակութային միջոցառումների և պատմական արարողությունների վայր է։",
+              "descriptionEn": "Plaça de la Mare de Déu is one of the oldest and most important squares in Valencia's historic center. It stands on the site of the ancient Roman forum of Valentia and is considered the historical heart of the city. The square is surrounded by Valencia Cathedral, the Basilica of Our Lady of the Forsaken, and the Palace of the Generalitat. At its center is the famous Turia Fountain, symbolizing the Turia River and Valencia's irrigation traditions. The square hosts many cultural events, celebrations, and historic ceremonies throughout the year.",
+              "descriptionRu": "Plaça de la Mare de Déu — одна из старейших и самых важных площадей исторического центра Валенсии. Она расположена на месте древнеримского форума города Valentia и считается историческим сердцем города. Площадь окружена Кафедральным собором Валенсии, Базиликой Девы Марии Обездоленных и Дворцом Женералитета. В центре находится знаменитый фонтан Турия, символизирующий реку Турия и традиционную систему орошения Валенсии. Здесь проходят многочисленные праздники, культурные мероприятия и исторические церемонии.",
+              "coords": [
+                39.47627777777778,
+                -0.3753055555555555
+              ],
+              "coordsText": "39°28'34.6\"N 0°22'31.1\"W"
             },
             {
               "id": "torres-de-serranos",
               "name": "Torres de Serranos",
               "image": "https://veryvalencia.com/images/guide/valencia-torres-serrano.jpg",
-              "description": "Միջնադարյան քաղաքի դարպասներից ամենահայտնին։ Կարելի է բարձրանալ վերև և տեսնել Turia այգին։"
+              "description": "Torres de Serranos-ը Վալենսիայի միջնադարյան քաղաքի պահպանված ամենահայտնի դարպասներից է և քաղաքի հին պարիսպների կարևոր մասն էր։ Այն կառուցվել է 1392–1398 թվականներին՝ ճարտարապետ Պերե Բալագերի կողմից, վալենսիական գոթական ոճով։ Դարպասը երկար ժամանակ եղել է քաղաքի գլխավոր մուտքերից մեկը հյուսիսային կողմից և օգտագործվել է նաև թագավորների ու կարևոր հյուրերի հանդիսավոր ընդունելությունների համար։ Այսօր կարելի է բարձրանալ աշտարակների վերև և վայելել գեղեցիկ տեսարան դեպի Turia Gardens և Վալենսիայի հին քաղաքը։",
+              "descriptionEn": "Torres de Serranos is one of Valencia's best-preserved and most famous medieval city gates. It was built between 1392 and 1398 by architect Pere Balaguer in the Valencian Gothic style. For centuries, it served as one of the city's main northern entrances and was also used for ceremonial receptions of kings and important visitors. Today, visitors can climb the towers and enjoy beautiful views of the Turia Gardens and Valencia's historic center.",
+              "descriptionRu": "Torres de Serranos — одни из самых известных и хорошо сохранившихся средневековых городских ворот Валенсии. Они были построены в 1392–1398 годах архитектором Пере Балагером в валенсийском готическом стиле. На протяжении веков ворота служили одним из главных северных входов в город, а также использовались для торжественных встреч королей и важных гостей. Сегодня на башни можно подняться и насладиться красивым видом на сады Турия и исторический центр Валенсии.",
+              "coords": [
+                39.47936111111111,
+                -0.376
+              ],
+              "coordsText": "39°28'45.7\"N 0°22'33.6\"W"
             },
             {
               "id": "church-of-san-nicolas",
               "name": "Church of San Nicolas",
               "image": "https://img.freepik.com/premium-photo/church-san-nicolas-city-valencia_938072-43.jpg",
-              "description": "«Վալենսիայի Սիքստինյան կապելլա»՝ հիասքանչ ֆրեսկներով առաստաղ։"
+              "description": "Սան Նիկոլաս եկեղեցին Վալենսիայի ամենատպավորիչ պատմական եկեղեցիներից է և հաճախ կոչվում է «Վալենսիայի Սիքստինյան կապելլա»՝ իր հիասքանչ բարոկկո ֆրեսկներով։ Եկեղեցին ունի 15-րդ դարի գոթական կառուցվածք, որը հետագայում զարդարվել է բարոկկո ոճով։ Առաստաղի մոտ 2,000 մ² ֆրեսկները պատկերում են Սուրբ Նիկոլասի և Սուրբ Պետրոս Նահատակ Վերոնացու կյանքը։ Ֆրեսկները ստեղծվել են 17-րդ դարի վերջին՝ Անտոնիո Պալոմինոյի նախագծով և Դիոնիս Վիդալի կատարմամբ։",
+              "descriptionEn": "The Church of San Nicolás is one of Valencia's most impressive historic churches and is often called the “Valencian Sistine Chapel” because of its magnificent Baroque frescoes. The church retains its 15th-century Gothic structure, which was later richly decorated in the Baroque style. Almost 2,000 m² of frescoes cover the vaults, depicting the lives of Saint Nicholas and Saint Peter Martyr of Verona. The frescoes were created in the late 17th century, based on designs by Antonio Palomino and painted by Dionís Vidal.",
+              "descriptionRu": "Церковь Сан-Николас — одна из самых впечатляющих исторических церквей Валенсии, которую часто называют «Валенсийской Сикстинской капеллой» благодаря великолепным барочным фрескам. Церковь сохранила готическую структуру XV века, которая позднее была богато украшена в стиле барокко. Почти 2 000 м² фресок покрывают своды и изображают жизнь Святого Николая и Святого Петра Мученика Веронского. Фрески были созданы в конце XVII века по проекту Антонио Паломино и написаны Дионисом Видалем.",
+              "coords": [
+                39.47616666666667,
+                -0.3790833333333333
+              ],
+              "coordsText": "39°28'34.2\"N 0°22'44.7\"W"
             },
             {
               "id": "la-lonja-de-la-seda",
