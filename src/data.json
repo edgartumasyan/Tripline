@@ -506,6 +506,45 @@
               "coordsText": "39°28'24.9\"N 0°22'36.0\"W"
             },
             {
+              "id": "mercado-central-plaza-del-mercado",
+              "name": "Mercado Central de Valencia — Central Market",
+              "image": "https://www.visitvalencia.com/sites/default/files/styles/full_width_gallery_desktop/public/media/media-images/images/mercado-central-valencia%2520%283%29.jpg?itok=5xf-24B-",
+              "description": "Mercado Central-ը Վալենսիայի ամենահայտնի պատմական շուկաներից մեկն է և Եվրոպայի խոշորագույն փակ շուկաներից մեկը։ Ներկայիս մոդեռնիստական շենքը կառուցվել է 1914–1928 թվականներին և բացվել է 1928 թվականին։ Այն հայտնի է իր մեծ գունավոր գմբեթով, երկաթյա կառուցվածքով, ապակիներով և կերամիկական զարդարանքներով։ Ներսում կարելի է գտնել տեղական մրգեր ու բանջարեղեն, միս, պանիրներ, քաղցրավենիք և թարմ ծովամթերք։ Շուկան գտնվում է La Lonja de la Seda-ի և Iglesia de los Santos Juanes-ի կողքին՝ քաղաքի պատմական կենտրոնում։",
+              "descriptionEn": "Mercado Central is one of Valencia's most famous historic markets and one of Europe's largest covered markets. The current Modernist building was constructed between 1914 and 1928 and officially opened in 1928. It is known for its large colorful dome, iron structure, stained glass, and ceramic decorations. Inside, visitors can find local fruit and vegetables, meat, cheeses, sweets, and fresh seafood. The market is located next to La Lonja de la Seda and Iglesia de los Santos Juanes in Valencia's historic center.",
+              "descriptionRu": "Mercado Central — один из самых известных исторических рынков Валенсии и один из крупнейших крытых рынков Европы. Современное здание в стиле модернизма было построено в 1914–1928 годах и официально открыто в 1928 году. Оно известно своим большим цветным куполом, железной конструкцией, витражами и керамическим декором. Внутри можно найти местные фрукты и овощи, мясо, сыры, сладости и свежие морепродукты. Рынок находится рядом с La Lonja de la Seda и Iglesia de los Santos Juanes в историческом центре Валенсии.",
+              "coords": [
+                39.47386111111111,
+                -0.3783611111111111
+              ],
+              "coordsText": "39°28'25.9\"N 0°22'42.1\"W"
+            },
+            {
+              "id": "esgl-sia-de-sant-joan-del-mercat",
+              "name": "Església de Sant Joan del Mercat — Church of Sant Joan del Mercat",
+              "image": "https://thumbs.dreamstime.com/b/valencia-spain-july-church-sant-joan-del-mercat-santos-juanes-santos-juanes-sant-joan-del-mercat-church-valencia-437402855.jpg",
+              "description": "Església de Sant Joan del Mercat-ը (Սուրբ Հովհաննեսների եկեղեցի) գտնվում է հենց Mercado Central-ի դիմաց և Վալենսիայի պատմական կենտրոնի կարևոր հուշարձաններից է։ Եկեղեցին կառուցվել է միջնադարյան ավելի հին շինության տեղում և ներկայիս տեսքը հիմնականում ստացել է 17–18-րդ դարերում։ Այն համատեղում է բարոկկո և ուշ գոթական տարրեր։ Հատկապես ուշագրավ է հարուստ զարդարված ճակատը և ներսի մեծ որմնանկարներով ու դեկորատիվ ձևավորմամբ ինտերիերը։",
+              "descriptionEn": "Església de Sant Joan del Mercat (Church of Sant Joan del Mercat) stands directly opposite Mercado Central and is one of the important historic landmarks in Valencia's old town. The church was built on the site of an earlier medieval building and acquired most of its present appearance during the 17th and 18th centuries. It combines Baroque and Late Gothic elements. Its richly decorated façade and interior, featuring large frescoes and elaborate decorative details, are especially impressive.",
+              "descriptionRu": "Església de Sant Joan del Mercat (церковь Святых Иоаннов) находится прямо напротив Mercado Central и является одним из важных исторических памятников старого города Валенсии. Церковь была построена на месте более раннего средневекового здания, а свой современный облик в основном получила в XVII–XVIII веках. В её архитектуре сочетаются элементы барокко и поздней готики. Особенно впечатляют богато украшенный фасад и интерьер с большими фресками и многочисленными декоративными деталями.",
+              "coords": [
+                39.474250000000005,
+                -0.3788888888888889
+              ],
+              "coordsText": "39°28'27.3\"N 0°22'44.0\"W"
+            },
+            {
+              "id": "la-lonja-de-la-seda",
+              "name": "La Lonja de la Seda — Silk Exchange",
+              "image": "https://content-viajes.nationalgeographic.com.es/medio/2023/10/20/lonja-de-la-seda-valencia_0b5701a1_231020122239_1280x854.jpg",
+              "description": "La Lonja de la Seda-ն Վալենսիայի ամենահայտնի պատմական հուշարձաններից է և ՅՈՒՆԵՍԿՕ-ի համաշխարհային ժառանգության հուշարձան է։ Այն կառուցվել է 1482–1533 թվականներին՝ որպես առևտրական բորսա, հատկապես մետաքսի առևտրի համար։ Շենքը համարվում է ուշ գոթական ճարտարապետության գլուխգործոց։ Ամենատպավորիչ հատվածներից է Sala de Contratación-ը, որտեղ բարձր ոլորաձև սյուները և կամարները ստեղծում են յուրահատուկ տեսարան։ Համալիրը ներառում է նաև աշտարակ, ծովային հյուպատոսության շենք և նարնջիների բակ (Patio de los Naranjos)։",
+              "descriptionEn": "La Lonja de la Seda, or the Silk Exchange, is one of Valencia's most important historic landmarks and a UNESCO World Heritage Site. It was built between 1482 and 1533 as a commercial exchange, especially for the silk trade. The building is considered a masterpiece of Late Gothic architecture. One of its most impressive spaces is the Sala de Contratación, where tall twisted columns and complex vaults create a spectacular interior. The complex also includes a tower, the Consulado del Mar, and the beautiful Patio de los Naranjos (Orange Tree Courtyard).",
+              "descriptionRu": "La Lonja de la Seda, или Шёлковая биржа, — один из важнейших исторических памятников Валенсии и объект Всемирного наследия ЮНЕСКО. Она была построена в 1482–1533 годах как торговая биржа, прежде всего для торговли шёлком. Здание считается шедевром поздней готической архитектуры. Одно из самых впечатляющих помещений — Sala de Contratación, где высокие винтовые колонны и сложные своды создают необычный интерьер. В комплекс также входят башня, здание Морского консульства и красивый Апельсиновый двор (Patio de los Naranjos).",
+              "coords": [
+                39.474472222222225,
+                -0.37849999999999995
+              ],
+              "coordsText": "39°28'28.1\"N 0°22'42.6\"W"
+            },
+            {
               "id": "plaza-de-la-reina",
               "name": "Plaza de la Reina",
               "image": "https://www.visitvalencia.com/sites/default/files/media/media-images/images/PLAZA_REINA_VALENCIA%20%2813%29_1024.jpg",
@@ -558,21 +597,8 @@
               "coordsText": "39°28'34.6\"N 0°22'31.1\"W"
             },
             {
-              "id": "torres-de-serranos",
-              "name": "Torres de Serranos",
-              "image": "https://veryvalencia.com/images/guide/valencia-torres-serrano.jpg",
-              "description": "Torres de Serranos-ը Վալենսիայի միջնադարյան քաղաքի պահպանված ամենահայտնի դարպասներից է և քաղաքի հին պարիսպների կարևոր մասն էր։ Այն կառուցվել է 1392–1398 թվականներին՝ ճարտարապետ Պերե Բալագերի կողմից, վալենսիական գոթական ոճով։ Դարպասը երկար ժամանակ եղել է քաղաքի գլխավոր մուտքերից մեկը հյուսիսային կողմից և օգտագործվել է նաև թագավորների ու կարևոր հյուրերի հանդիսավոր ընդունելությունների համար։ Այսօր կարելի է բարձրանալ աշտարակների վերև և վայելել գեղեցիկ տեսարան դեպի Turia Gardens և Վալենսիայի հին քաղաքը։",
-              "descriptionEn": "Torres de Serranos is one of Valencia's best-preserved and most famous medieval city gates. It was built between 1392 and 1398 by architect Pere Balaguer in the Valencian Gothic style. For centuries, it served as one of the city's main northern entrances and was also used for ceremonial receptions of kings and important visitors. Today, visitors can climb the towers and enjoy beautiful views of the Turia Gardens and Valencia's historic center.",
-              "descriptionRu": "Torres de Serranos — одни из самых известных и хорошо сохранившихся средневековых городских ворот Валенсии. Они были построены в 1392–1398 годах архитектором Пере Балагером в валенсийском готическом стиле. На протяжении веков ворота служили одним из главных северных входов в город, а также использовались для торжественных встреч королей и важных гостей. Сегодня на башни можно подняться и насладиться красивым видом на сады Турия и исторический центр Валенсии.",
-              "coords": [
-                39.47936111111111,
-                -0.376
-              ],
-              "coordsText": "39°28'45.7\"N 0°22'33.6\"W"
-            },
-            {
               "id": "church-of-san-nicolas",
-              "name": "Church of San Nicolas",
+              "name": "Church of San Nicolás — Iglesia de San Nicolás",
               "image": "https://img.freepik.com/premium-photo/church-san-nicolas-city-valencia_938072-43.jpg",
               "description": "Սան Նիկոլաս եկեղեցին Վալենսիայի ամենատպավորիչ պատմական եկեղեցիներից է և հաճախ կոչվում է «Վալենսիայի Սիքստինյան կապելլա»՝ իր հիասքանչ բարոկկո ֆրեսկներով։ Եկեղեցին ունի 15-րդ դարի գոթական կառուցվածք, որը հետագայում զարդարվել է բարոկկո ոճով։ Առաստաղի մոտ 2,000 մ² ֆրեսկները պատկերում են Սուրբ Նիկոլասի և Սուրբ Պետրոս Նահատակ Վերոնացու կյանքը։ Ֆրեսկները ստեղծվել են 17-րդ դարի վերջին՝ Անտոնիո Պալոմինոյի նախագծով և Դիոնիս Վիդալի կատարմամբ։",
               "descriptionEn": "The Church of San Nicolás is one of Valencia's most impressive historic churches and is often called the “Valencian Sistine Chapel” because of its magnificent Baroque frescoes. The church retains its 15th-century Gothic structure, which was later richly decorated in the Baroque style. Almost 2,000 m² of frescoes cover the vaults, depicting the lives of Saint Nicholas and Saint Peter Martyr of Verona. The frescoes were created in the late 17th century, based on designs by Antonio Palomino and painted by Dionís Vidal.",
@@ -584,28 +610,35 @@
               "coordsText": "39°28'34.2\"N 0°22'44.7\"W"
             },
             {
-              "id": "la-lonja-de-la-seda",
-              "name": "La Lonja de la Seda",
-              "image": "https://content-viajes.nationalgeographic.com.es/medio/2023/10/20/lonja-de-la-seda-valencia_0b5701a1_231020122239_1280x854.jpg",
-              "description": "ՅՈՒՆԵՍԿՕ-ի հուշարձան։ 15-րդ դարի առևտրական բորսա՝ գոթական ճարտարապետության գլուխգործոց։"
-            },
-            {
-              "id": "mercado-central-plaza-del-mercado",
-              "name": "Mercado central  / plaza del mercado -",
-              "image": "https://www.visitvalencia.com/sites/default/files/media/media-images/images/_09A9554_1024.jpg",
-              "description": "Եվրոպայի ամենամեծ պատմական շուկաներից մեկը։ Գունավոր գմբեթ, տեղական մթերք, ծովամթերք։"
-            },
-            {
-              "id": "esgl-sia-de-sant-joan-del-mercat",
-              "name": "Església de Sant Joan del Mercat",
-              "image": "https://thumbs.dreamstime.com/b/valencia-spain-december-view-church-santos-juanes-situated-spanish-city-image-246704243.jpg",
-              "description": "Բարոկկո ոճի եկեղեցի՝ Կենտրոնական շուկայի դիմաց։"
-            },
-            {
               "id": "quart-towers",
               "name": "Quart Towers",
               "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3EnWHPfel-P6FBnW9lMXKH9SuNvMAWuUcosLmCP7SeGSBuEjrWe98Y2M&s=10",
               "description": "Միջնադարյան պաշտպանական աշտարակներ։ Պատերին դեռ երևում են թնդանոթների հետքերը։"
+            },
+            {
+              "id": "ivam-valencia-institute-of-modern-art",
+              "name": "IVAM (Valencia Institute of Modern Art)",
+              "image": "https://upload.wikimedia.org/wikipedia/commons/3/36/Fachada_del_IVAM_febrero_2018.jpg",
+              "description": "Եթե սիրում եք ժամանակակից արվեստ, սա Իսպանիայի լավագույն թանգարաններից մեկն է: Այն գտնվում է El Carmen թաղամասի եզրին: Հատկապես հետաքրքիր է ստորգետնյա հարկը, որտեղ պահպանված են միջնադարյան քաղաքային պարիսպների մնացորդները:"
+            },
+            {
+              "id": "el-carmen",
+              "name": "El carmen neighborhood",
+              "image": "https://triptotripvalencia.com/wp-content/uploads/2020/10/IMG_0647.jpg",
+              "description": "Հին քաղաքի ամենաատմասֆերիկ հատվածը՝ նեղ փողոցներ, street art։"
+            },
+            {
+              "id": "torres-de-serranos",
+              "name": "Torres de Serranos",
+              "image": "https://veryvalencia.com/images/guide/valencia-torres-serrano.jpg",
+              "description": "Torres de Serranos-ը Վալենսիայի միջնադարյան քաղաքի պահպանված ամենահայտնի դարպասներից է և քաղաքի հին պարիսպների կարևոր մասն էր։ Այն կառուցվել է 1392–1398 թվականներին՝ ճարտարապետ Պերե Բալագերի կողմից, վալենսիական գոթական ոճով։ Դարպասը երկար ժամանակ եղել է քաղաքի գլխավոր մուտքերից մեկը հյուսիսային կողմից և օգտագործվել է նաև թագավորների ու կարևոր հյուրերի հանդիսավոր ընդունելությունների համար։ Այսօր կարելի է բարձրանալ աշտարակների վերև և վայելել գեղեցիկ տեսարան դեպի Turia Gardens և Վալենսիայի հին քաղաքը։",
+              "descriptionEn": "Torres de Serranos is one of Valencia's best-preserved and most famous medieval city gates. It was built between 1392 and 1398 by architect Pere Balaguer in the Valencian Gothic style. For centuries, it served as one of the city's main northern entrances and was also used for ceremonial receptions of kings and important visitors. Today, visitors can climb the towers and enjoy beautiful views of the Turia Gardens and Valencia's historic center.",
+              "descriptionRu": "Torres de Serranos — одни из самых известных и хорошо сохранившихся средневековых городских ворот Валенсии. Они были построены в 1392–1398 годах архитектором Пере Балагером в валенсийском готическом стиле. На протяжении веков ворота служили одним из главных северных входов в город, а также использовались для торжественных встреч королей и важных гостей. Сегодня на башни можно подняться и насладиться красивым видом на сады Турия и исторический центр Валенсии.",
+              "coords": [
+                39.47936111111111,
+                -0.376
+              ],
+              "coordsText": "39°28'45.7\"N 0°22'33.6\"W"
             },
             {
               "id": "city-of-arts-and-sciences",
@@ -626,6 +659,12 @@
               "description": "Բացօթյա այգի՝ արմավենիներով ու ժամանակակից քանդակներով։"
             },
             {
+              "id": "gulliver-park",
+              "name": "Gulliver Park",
+              "image": "https://www.lovevalencia.com/wp-content/uploads/2016/11/parco-gulliver-sam.travel.jpg",
+              "description": "Մեծահասակների և երեխաների համար խաղահրապարակ՝ հսկա Գուլիվերի տեսքով։"
+            },
+            {
               "id": "museo-de-las-ciencias-pr-ncipe-felipe",
               "name": "Museo de las Ciencias Príncipe Felipe",
               "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7HXsY2z_R9pAjfpevR3NPrJWOOCjXjpQ6QNdJ6x3dcC9QfMD4pTkHncE&s=10",
@@ -636,12 +675,6 @@
               "name": "Hemisfèric",
               "image": "https://connectingvalencia.com/wp-content/uploads/2025/03/hemisferic-and-queen-sofia-palace-of-arts-valencia.jpg",
               "description": ""
-            },
-            {
-              "id": "gulliver-park",
-              "name": "Gulliver Park",
-              "image": "https://www.lovevalencia.com/wp-content/uploads/2016/11/parco-gulliver-sam.travel.jpg",
-              "description": "Մեծահասակների և երեխաների համար խաղահրապարակ՝ հսկա Գուլիվերի տեսքով։"
             },
             {
               "id": "monforte-garden",
@@ -678,18 +711,6 @@
               "name": "Marina de Valencia",
               "image": "https://www.visitvalencia.com/sites/default/files/styles/wysiwyg_large/public/media/media-images/images/CONCIERTOS_VIVEROS_MARINA_VALENCIA%20_7__1024.jpg?itok=7yEWxhxi",
               "description": ""
-            },
-            {
-              "id": "ivam-valencia-institute-of-modern-art",
-              "name": "IVAM (Valencia Institute of Modern Art)",
-              "image": "https://upload.wikimedia.org/wikipedia/commons/3/36/Fachada_del_IVAM_febrero_2018.jpg",
-              "description": "Եթե սիրում եք ժամանակակից արվեստ, սա Իսպանիայի լավագույն թանգարաններից մեկն է: Այն գտնվում է El Carmen թաղամասի եզրին: Հատկապես հետաքրքիր է ստորգետնյա հարկը, որտեղ պահպանված են միջնադարյան քաղաքային պարիսպների մնացորդները:"
-            },
-            {
-              "id": "el-carmen",
-              "name": "El carmen neighborhood",
-              "image": "https://triptotripvalencia.com/wp-content/uploads/2020/10/IMG_0647.jpg",
-              "description": "Հին քաղաքի ամենաատմասֆերիկ հատվածը՝ նեղ փողոցներ, street art։"
             },
             {
               "id": "ruzafa-neighborhood",
