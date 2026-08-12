@@ -5,77 +5,77 @@
    light mode is handled inline per-element by the <El> wrapper. */
 
 [data-theme='dark'] {
-  color: #f5f6f4;
+  color: #ecf1f3;
 }
 [data-theme='dark'] [data-t='app'] {
-  background: #1b1d18 !important;
+  background: #0f1417 !important;
 }
 [data-theme='dark'] [data-t='panel'] {
-  background: #20221c !important;
-  border-color: #3a3e33 !important;
+  background: #182126 !important;
+  border-color: #33424a !important;
 }
 [data-theme='dark'] [data-t='panel2'] {
-  background: #1d1f1a !important;
-  border-color: #3a3e33 !important;
+  background: #131a1e !important;
+  border-color: #33424a !important;
 }
 [data-theme='dark'] [data-t='sidebar'] {
-  background: #17190f !important;
-  border-color: #33372c !important;
+  background: #0b1013 !important;
+  border-color: #26333a !important;
 }
 [data-theme='dark'] [data-t='card'] {
-  background: #26291f !important;
-  border-color: #3a3e33 !important;
+  background: #1e282d !important;
+  border-color: #33424a !important;
 }
 [data-theme='dark'] [data-t='input'] {
-  background: #292c25 !important;
-  border-color: #3a3e33 !important;
-  color: #f5f6f4 !important;
+  background: #243036 !important;
+  border-color: #33424a !important;
+  color: #ecf1f3 !important;
 }
 [data-theme='dark'] [data-t='ink'] {
-  color: #f5f6f4 !important;
+  color: #ecf1f3 !important;
 }
 [data-theme='dark'] [data-t='rule'] {
-  background: #3a3e33 !important;
+  background: #33424a !important;
 }
 [data-theme='dark'] [data-t='edge'] {
-  border-color: #3a3e33 !important;
+  border-color: #33424a !important;
 }
 [data-theme='dark'] [data-t='ghost'] {
-  background: #292c25 !important;
-  border-color: #3a3e33 !important;
-  color: #a9ac9e !important;
+  background: #243036 !important;
+  border-color: #33424a !important;
+  color: #a2b0b6 !important;
 }
 [data-theme='dark'] [data-t='ghost']:hover {
-  border-color: #93c193 !important;
-  color: #93c193 !important;
+  border-color: #6fd6a9 !important;
+  color: #6fd6a9 !important;
 }
 [data-theme='dark'] [data-t='accent'] {
-  color: #93c193 !important;
+  color: #6fd6a9 !important;
 }
 [data-theme='dark'] [data-t='accentbtn'] {
-  background: #93c193 !important;
-  border-color: #93c193 !important;
-  color: #1b1d18 !important;
+  background: #6fd6a9 !important;
+  border-color: #6fd6a9 !important;
+  color: #0f1417 !important;
 }
 [data-theme='dark'] [data-t='dashed'] {
-  border-color: #3a3e33 !important;
-  color: #96998a !important;
+  border-color: #33424a !important;
+  color: #8a99a0 !important;
 }
 [data-theme='dark'] [data-t='dashed']:hover {
-  border-color: #93c193 !important;
-  color: #93c193 !important;
+  border-color: #6fd6a9 !important;
+  color: #6fd6a9 !important;
 }
 [data-theme='dark'] [data-t='row']:hover {
-  background: #2b2e26 !important;
+  background: #17242a !important;
 }
 [data-theme='dark'] [data-t='row'] span[style*='8C9384'] {
-  color: #96998a !important;
+  color: #8a99a0 !important;
 }
 [data-theme='dark'] [data-t='media'] {
-  background: #2b2e26 !important;
+  background: #28353b !important;
 }
 [data-theme='dark'] ::-webkit-scrollbar-thumb {
-  background: #3a3e33;
+  background: #33424a;
 }
 
 /* The responsive revision renamed the header/toolbar roles (panel→hdr,
@@ -83,12 +83,12 @@
    still keys on the old role names, so re-assert the dark chrome backgrounds
    for the new names here. ~= matches the multi-token value data-t="pad toolbar". */
 [data-theme='dark'] [data-t~='hdr'] {
-  background: #20221c !important;
-  border-color: #3a3e33 !important;
+  background: #182126 !important;
+  border-color: #33424a !important;
 }
 [data-theme='dark'] [data-t~='toolbar'] {
-  background: #1d1f1a !important;
-  border-color: #3a3e33 !important;
+  background: #131a1e !important;
+  border-color: #33424a !important;
 }
 
 /* Mobile nav drawer, from the design helmet. The hamburger and backdrop are
@@ -99,6 +99,11 @@
 }
 [data-t~='drawer-backdrop'] {
   display: none;
+}
+[data-theme='dark'] [data-t~='hamburger'] {
+  background: #243036 !important;
+  border-color: #33424a !important;
+  color: #ecf1f3 !important;
 }
 
 /* Responsive: tablet (iPad-ish) and phone breakpoints, from the design helmet.
@@ -154,7 +159,7 @@
     z-index: 35 !important;
   }
   [data-theme='dark'] [data-t~='sidebar'] {
-    border-bottom-color: #33372c !important;
+    border-bottom-color: #26333a !important;
   }
 }
 @media (max-width: 720px) {
