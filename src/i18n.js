@@ -210,6 +210,8 @@ export const LANG_NAME = { en: 'English', hy: 'Հայերեն', ru: 'Русск�
 export const COUNTRY_NAMES = {
   spain: { hy: 'Իսպանիա', ru: 'Испания' },
   italy: { hy: 'Իտալիա', ru: 'Италия' },
+  poland: { hy: 'Լեհաստան', ru: 'Польша' },
+  greece: { hy: 'Հունաստան', ru: 'Греция' },
 }
 export const CITY_NAMES = {
   madrid: { hy: 'Մադրիդ', ru: 'Мадрид' },
