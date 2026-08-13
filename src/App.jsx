@@ -5,31 +5,20 @@ import { loadData, saveData } from './storage.js'
 import CityMap from './components/CityMap.jsx'
 import './design.css'
 
-// Verbatim port of the Trips.dc.html design component. The markup below mirrors
-// the design's <x-dc> template one-to-one: inline style strings are kept as
-// authored and turned into React style objects by css(); per-element
-// style-hover / style-focus becomes the <El> wrapper. All view-model values are
-// computed in renderVals(), a direct port of the design's DCLogic class. The
-// map slot delegates to the app's own enhanced CityMap.
+// Port of the Tripline.dc.html design component. The markup below mirrors the
+// design's <x-dc> template one-to-one; inline style strings are kept as authored
+// and turned into React style objects by css(), and per-element style-hover /
+// style-focus becomes the <El> wrapper. Every color is a CSS custom property
+// (var(--…)) defined in index.css, so dark mode is a variable swap — there are
+// no per-role remapping rules. View-model values come from renderVals(), a
+// direct port of the design's DCLogic class. The map slot delegates to the
+// app's own enhanced CityMap; data is loaded/saved through storage.js.
 
 const LANGS = { en: EN, hy: HY, ru: RU }
 
 // Google Maps directions accept at most 10 points on a single route, so the
 // selection is hard-capped here instead of silently dropping extras.
 const MAX_ROUTE = 10
-
-const PAL = {
-  light: {
-    pillOnBg: '#26291F', pillOnInk: '#FFFFFF', pillOffInk: '#7C8474', chipBg: '#93C193', chipInk: '#FFFFFF',
-    chipOffBg: '#FFFFFF', chipOffInk: '#7C8474', chipOffEdge: '#DCE3D6', cardBg: '#FFFFFF', cardEdge: '#E4EBDD',
-    seenBg: '#E4EBDD', seenEdge: '#B7DAB7', teal: '#93C193', accent: '#5FA05F', media: '#E4EBDD', pinRing: '#FFFFFF',
-  },
-  dark: {
-    pillOnBg: '#ECF1F3', pillOnInk: '#0F1417', pillOffInk: '#73838B', chipBg: '#6FD6A9', chipInk: '#0F1417',
-    chipOffBg: '#243036', chipOffInk: '#A2B0B6', chipOffEdge: '#33424A', cardBg: '#1E282D', cardEdge: '#33424A',
-    seenBg: '#16332C', seenEdge: '#2F6E58', teal: '#6FD6A9', accent: '#6FD6A9', media: '#28353B', pinRing: '#0F1417',
-  },
-}
 
 // Parse a design inline-style string ("a:1; b:2") into a React style object.
 // Later declarations win, which is how <El> layers hover/focus over the base.
@@ -73,7 +62,6 @@ export default class App extends React.Component {
     data: null,
     lang: 'en',
     theme: 'auto',
-    nav: 'tree',
     countryId: null, cityId: null, openCountry: null,
     query: '', view: 'grid',
     // Mobile nav drawer (sidebar slides in over content at ≤860px) and the
@@ -108,8 +96,6 @@ export default class App extends React.Component {
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   }
 
-  pal() { return PAL[this.mode()] }
-
   // "3 places" / "3 места" — delegates to the shared plural rules.
   pl = (n, key) => pluralize(this.state.lang, n, key)
 
@@ -132,10 +118,9 @@ export default class App extends React.Component {
   // Edit access is derived from where the page is served, not a client button —
   // anyone can click a UI toggle, so real gating needs a signal outside the page.
   // Locally-run (localhost / 127.0.0.1 / file:) = owner; anywhere else (e.g. the
-  // GitHub Pages deployment) = view-only. This isn't server-enforced security — a
-  // determined visitor could still edit the page's JS in devtools — but it stops
-  // accidental edits by guests and matches "I run it locally to edit, I publish a
-  // static copy for others to view."
+  // GitHub Pages deployment) = view-only. Not server-enforced security — it just
+  // stops accidental edits by guests and matches "I run it locally to edit, I
+  // publish a static copy for others to view."
   isOwner() {
     const h = window.location.hostname
     return h === 'localhost' || h === '127.0.0.1' || window.location.protocol === 'file:'
@@ -175,37 +160,38 @@ export default class App extends React.Component {
   }
 
   buildCard(lm, index, listMode, orderedIds, cityId) {
-    const p = this.pal(), visited = !!lm.visited, isOwner = this.isOwner()
+    const visited = !!lm.visited, isOwner = this.isOwner(), L = this.L()
+    const point = lm.coords || COORDS[lm.id]
     return {
       id: lm.id, name: lm.name, image: lm.image || '', description: this.pickDescription(lm),
       index: String(index + 1).padStart(2, '0'),
       // -webkit-touch-callout/user-select off so pressing a card to drag it on
       // a phone doesn't trigger the text-selection / copy popover instead.
       cardStyle: 'display:flex; flex-direction:' + (listMode ? 'row' : 'column') +
-        '; border:1px solid ' + (visited ? p.seenEdge : p.cardEdge) + '; border-radius:16px; overflow:hidden; background:' +
-        (visited ? p.seenBg : p.cardBg) + '; opacity:' + (this.state.dragIndex === index ? '0.45' : '1') +
+        '; border:1px solid ' + (visited ? 'var(--seen-edge)' : 'var(--border-soft)') +
+        '; border-radius:16px; overflow:hidden; background:' + (visited ? 'var(--seen-bg)' : 'var(--card)') +
+        '; opacity:' + (this.state.dragIndex === index ? '0.45' : '1') +
         '; transition:box-shadow .18s ease; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none',
-      mediaStyle: 'position:relative; flex:0 0 ' + (listMode ? '210px' : 'auto') + '; background:' + p.media + '; ' +
+      mediaStyle: 'position:relative; flex:0 0 ' + (listMode ? '210px' : 'auto') + '; background:var(--image-bg); ' +
         (listMode ? 'align-self:stretch; min-height:150px' : 'aspect-ratio:16/10'),
-      imgStyle: 'width:100%; height:100%; object-fit:cover; display:block; cursor:zoom-in',
       bodyStyle: 'display:flex; flex-direction:column; gap:8px; padding:' + (listMode ? '16px 20px' : '14px 16px 16px') + '; flex:1 1 auto; min-width:0',
       // A "View on Google Maps" deep link, shown only for places we have coordinates
       // for. Per-place coords entered in the dialog (lm.coords) win over the built-in
       // COORDS table keyed by landmark id. Useful to owners and view-only guests alike.
-      hasMapLink: !!(lm.coords || COORDS[lm.id]),
-      mapUrl: (lm.coords || COORDS[lm.id]) ? ('https://www.google.com/maps/search/?api=1&query=' + (lm.coords || COORDS[lm.id])[0] + ',' + (lm.coords || COORDS[lm.id])[1]) : '',
-      // Route selection: only places with coordinates can be added. routeIndex
-      // is the 1-based position (== selection order) shown on the pill when
-      // picked. Once the route is full, unpicked places are disabled.
-      inRoute: this.state.route.includes(lm.id),
-      routeIndex: String(this.state.route.indexOf(lm.id) + 1),
+      hasMapLink: !!point,
+      mapUrl: point ? ('https://www.google.com/maps/search/?api=1&query=' + point[0] + ',' + point[1]) : '',
+      // Route selection: only places with coordinates can be added. Once the
+      // route is full, unpicked places are disabled. routeText shows "✓ n" (the
+      // 1-based position == selection order) once picked, else "＋ Route".
       routeFull: !this.state.route.includes(lm.id) && this.state.route.length >= MAX_ROUTE,
+      routeText: this.state.route.includes(lm.id) ? ('✓ ' + (this.state.route.indexOf(lm.id) + 1)) : ('＋ ' + L.route),
+      routeTitle: this.state.route.includes(lm.id) ? '' : (this.state.route.length >= MAX_ROUTE ? L.routeCapped : L.routeHint),
       routeStyle: 'display:inline-flex; align-items:center; gap:5px; font-size:11.5px; white-space:nowrap; flex:0 0 auto; border-radius:999px; padding:5px 11px; transition:background .12s ease, color .12s ease; ' +
         (this.state.route.includes(lm.id)
-          ? 'cursor:pointer; border:1px solid ' + p.chipBg + '; background:' + p.chipBg + '; color:' + p.chipInk
+          ? 'cursor:pointer; border:1px solid var(--teal); background:var(--teal); color:var(--chip-on-ink)'
           : this.state.route.length >= MAX_ROUTE
-            ? 'cursor:not-allowed; border:1px solid ' + p.cardEdge + '; background:' + p.media + '; color:#B7BDB0; opacity:0.6'
-            : 'cursor:pointer; border:1px solid ' + p.cardEdge + '; background:' + p.media + '; color:#8C9384'),
+            ? 'cursor:not-allowed; border:1px solid var(--chip-off-edge); background:var(--chip-off-bg); color:var(--ink-fainter); opacity:0.6'
+            : 'cursor:pointer; border:1px solid var(--chip-off-edge); background:var(--chip-off-bg); color:var(--chip-off-ink)'),
       onToggleRoute: () => this.toggleRoute(lm.id),
       onPreview: () => lm.image && this.setState({ lightbox: { src: lm.image, alt: lm.name } }),
       onEdit: () => this.setState({ dialog: { kind: 'edit-landmark', id: lm.id, title: lm.name, name: lm.name, image: lm.image || '', description: lm.description || '', descriptionEn: lm.descriptionEn || '', descriptionRu: lm.descriptionRu || '', coordsText: lm.coordsText || '' } }),
@@ -215,6 +201,7 @@ export default class App extends React.Component {
       onToggleVisited: () => this.mutate((d) => {
         const t = this.findCity(d).landmarks.find((x) => x.id === lm.id); t.visited = !t.visited
       }),
+      dragTitle: isOwner ? L.drag : L.viewerOrderHint,
       // Position in the currently-displayed order — used by both the native
       // (mouse) drag and the pointer-based (touch) drag to resolve targets.
       pos: index,
@@ -440,14 +427,15 @@ export default class App extends React.Component {
   }
 
   renderVals() {
-    const s = this.state, L = this.L(), l = L, p = this.pal(), mode = this.mode()
-    const PILL_ON = 'border:none; border-radius:999px; padding:7px 15px; font-size:12.5px; font-weight:500; cursor:pointer; background:' + p.pillOnBg + '; color:' + p.pillOnInk
-    const PILL_OFF = 'border:none; border-radius:999px; padding:7px 15px; font-size:12.5px; cursor:pointer; background:none; color:' + p.pillOffInk
+    const s = this.state, L = this.L(), l = L, mode = this.mode()
+    const PILL_ON = 'border:none; border-radius:999px; padding:7px 15px; font-size:12.5px; font-weight:500; cursor:pointer; background:var(--pill-on-bg); color:var(--pill-on-ink)'
+    const PILL_OFF = 'border:none; border-radius:999px; padding:7px 15px; font-size:12.5px; cursor:pointer; background:none; color:var(--pill-off-ink)'
 
     const countries = s.data ? s.data.countries : []
     const sel = this.city()
     const q = s.query.trim().toLowerCase()
     const isSearching = q.length > 1
+    const isOwner = this.isOwner()
 
     const stats = (ci) => {
       const total = ci.landmarks.length
@@ -459,7 +447,7 @@ export default class App extends React.Component {
       id: c.id, name: c.name, flag: c.flag || '',
       count: this.pl(c.cities.length, 'cities'),
       open: s.openCountry === c.id,
-      rowBg: s.openCountry === c.id ? (mode === 'dark' ? '#1E2B31' : '#E4EBDD') : 'transparent',
+      rowBg: s.openCountry === c.id ? 'var(--row-open)' : 'transparent',
       onClick: () => this.setState({ openCountry: s.openCountry === c.id ? null : c.id }),
       onEdit: () => this.setState({ dialog: { kind: 'edit-country', id: c.id, title: c.name, name: c.name, image: c.flag || '' } }),
       onDelete: () => this.askDelete(c.name, () => this.mutate((d) => { d.countries = d.countries.filter((x) => x.id !== c.id) })),
@@ -469,8 +457,8 @@ export default class App extends React.Component {
         return {
           id: ci.id, name: ci.name, image: ci.image || '',
           meta: this.pl(st.total, 'places'),
-          ink: s.cityId === ci.id ? p.accent : (mode === 'dark' ? '#ECF1F3' : '#26291F'),
-          rowBg: s.cityId === ci.id ? (mode === 'dark' ? '#203A36' : '#E4EBDD') : 'transparent',
+          ink: s.cityId === ci.id ? 'var(--accent)' : 'var(--ink)',
+          rowBg: s.cityId === ci.id ? 'var(--accent-tint)' : 'transparent',
           onClick: () => this.setState({ countryId: c.id, cityId: ci.id, query: '', view: 'grid', route: [], drawerOpen: false }),
           onEdit: () => this.setState({ dialog: { kind: 'edit-city', id: ci.id, countryId: c.id, title: ci.name, name: ci.name, image: ci.image || '' } }),
           onDelete: () => this.askDelete(ci.name, () => this.mutate((d) => {
@@ -514,7 +502,14 @@ export default class App extends React.Component {
       results = results.slice(0, 40)
     }
 
-    let groups = [], cityVals = null
+    // Cards render as one flat grid/column (design flattened the old per-day
+    // grouping); groupDisplay/groupGap switch between the Cards and List views.
+    let landmarks = [], cityVals = null, groupDisplay = 'grid', groupGap = '22px'
+    let selectedCountry = { flag: '', name: '', meta: '', onAddCity: () => {}, cities: [] }
+    if (s.overviewCountry) {
+      const ch0 = chapters.find((c) => c.isSelected)
+      if (ch0) selectedCountry = ch0
+    }
     if (sel) {
       const st = stats(sel.city)
       cityVals = {
@@ -524,46 +519,45 @@ export default class App extends React.Component {
       }
       const orderedList = this.orderedLandmarks(sel.city)
       const orderedIds = orderedList.map((lm) => lm.id)
-      const items = orderedList.map((lm, i) => ({ lm, i }))
       const listMode = s.view === 'list'
-      const shell = { display: listMode ? 'flex' : 'grid', gap: listMode ? '12px' : '22px' }
-      groups = [{ title: '', showTitle: false, count: '', display: shell.display, gap: shell.gap,
-        items: items.map((x) => this.buildCard(x.lm, x.i, listMode, orderedIds, sel.city.id)) }]
+      groupDisplay = listMode ? 'flex' : 'grid'
+      groupGap = listMode ? '12px' : '22px'
+      landmarks = orderedList.map((lm, i) => this.buildCard(lm, i, listMode, orderedIds, sel.city.id))
     }
 
     const mapped = sel ? sel.city.landmarks.filter((lm) => lm.coords || COORDS[lm.id]).length : 0
     const missing = sel ? sel.city.landmarks.length - mapped : 0
     const routeCount = sel ? this.routePoints(sel.city).length : 0
+    const routeReady = routeCount >= 2
 
     return {
-      L, tree, chapters, results,
-      theme: mode, tealBar: p.teal,
+      L, tree, chapters, results, theme: mode,
       themeIcon: mode === 'dark' ? '☾' : '☀',
       toggleTheme: () => this.setTheme(mode === 'dark' ? 'light' : 'dark'),
       query: s.query, isSearching, noResults: isSearching && results.length === 0,
       resultsTitle: l.results + ' “' + s.query.trim() + '”',
-      showSidebar: s.nav === 'tree',
-      // Tags the sidebar while a city is open so the ≤860px breakpoint can hide it
-      // (the hero + city content take over the full width on phones).
-      sidebarInCityClass: (!isSearching && !!sel) ? 'in-city' : '',
+      showSidebar: true,
       // Mobile drawer: at ≤860px the sidebar becomes an off-canvas panel toggled
-      // by the header hamburger; 'drawer-open' slides it in and shows the
-      // backdrop. Only meaningful in tree nav, which is the only mode with a sidebar.
+      // by the header hamburger; 'drawer-open' slides it in and shows the backdrop.
       drawerOpenClass: s.drawerOpen ? 'drawer-open' : '',
-      showDrawerBackdrop: s.nav === 'tree',
+      showDrawerBackdrop: true,
       toggleDrawer: () => this.setState({ drawerOpen: !s.drawerOpen }),
       closeDrawer: () => this.setState({ drawerOpen: false }),
       showOverview: !isSearching && !sel,
       // Overview is two-level: a grid of country cards, then one country's cities.
       hasOverviewCountry: !!s.overviewCountry,
       showCountryGrid: !s.overviewCountry,
+      selectedCountry,
       clearOverviewCountry: () => this.setState({ overviewCountry: null }),
-      showCity: !isSearching && !!sel,
-      isOwner: this.isOwner(), notOwner: !this.isOwner(),
+      showCity: !isSearching && !!sel, isOwner,
       city: cityVals || { name: '', image: '', crumb: '', meta: '' },
       mapCity: sel ? sel.city : null,
-      groups, cityEmpty: !!sel && groups.every((g) => g.items.length === 0),
+      landmarks, cityEmpty: !!sel && landmarks.length === 0,
       isMap: !!sel && s.view === 'map', isCards: !!sel && s.view !== 'map',
+      viewGridStyle: s.view === 'grid' ? PILL_ON : PILL_OFF,
+      viewListStyle: s.view === 'list' ? PILL_ON : PILL_OFF,
+      viewMapStyle: s.view === 'map' ? PILL_ON : PILL_OFF,
+      groupDisplay, groupGap,
       mapNote: missing ? (this.pl(mapped, 'places') + ' ' + l.pinnedSuffix + ' · ' + missing + ' ' + l.needCoords) : l.allPinned,
       overviewSummary: countries.length
         ? countries.map((c) => c.name).join(' · ') + ' — ' +
@@ -577,10 +571,8 @@ export default class App extends React.Component {
       toggleLangMenu: () => this.setState({ langMenuOpen: !s.langMenuOpen }),
       langOptions: LANG_ORDER.map((code) => ({
         code, flag: LANG_FLAG[code], label: LANG_NAME[code],
-        // The menu sits in a data-t="card" surface (themed), so the item text
-        // and the current-language highlight must follow the theme too.
         style: 'display:flex; align-items:center; gap:8px; border:none; border-radius:8px; padding:8px 10px; font-size:13.5px; cursor:pointer; text-align:left; background:' +
-          (code === s.lang ? (mode === 'dark' ? '#203A36' : '#E4EBDD') : 'none') + '; color:' + (mode === 'dark' ? '#ECF1F3' : '#26291F'),
+          (code === s.lang ? 'var(--accent-tint)' : 'none') + '; color:var(--ink)',
         onClick: () => {
           this.setState({ lang: code, langMenuOpen: false })
           try { localStorage.setItem('trips.lang', code) } catch (e) {}
@@ -589,33 +581,24 @@ export default class App extends React.Component {
       goHome: () => this.setState({ cityId: null, countryId: null, query: '', route: [], overviewCountry: null }),
       onQuery: (e) => this.setState({ query: e.target.value }),
       clearQuery: () => this.setState({ query: '' }),
-      viewGridStyle: s.view === 'grid' ? PILL_ON : PILL_OFF,
-      viewListStyle: s.view === 'list' ? PILL_ON : PILL_OFF,
-      viewMapStyle: s.view === 'map' ? PILL_ON : PILL_OFF,
       setViewGrid: () => this.setState({ view: 'grid' }),
       setViewList: () => this.setState({ view: 'list' }),
       setViewMap: () => this.setState({ view: 'map' }),
       shareCity: () => this.shareCity(),
       // Directions route: count of picked places (with coords), whether it's
-      // routable (2+), and the handlers behind the toolbar button.
+      // routable (2+), and the handlers behind the toolbar button and the FAB.
       routeCount,
-      routeReady: routeCount >= 2,
-      routeCapped: routeCount >= MAX_ROUTE,
-      // Themed via the palette so the ready (accent) and disabled (muted ghost)
-      // states follow light/dark instead of the old hardcoded green/white pill.
-      directionsStyle: (routeCount >= 2)
-        ? 'border:1px solid ' + p.accent + '; background:' + p.accent + '; color:' + p.chipInk + '; border-radius:999px; padding:8px 16px; font-size:13px; font-weight:500; cursor:pointer'
-        : 'border:1px solid ' + p.chipOffEdge + '; background:' + p.chipOffBg + '; color:' + p.pillOffInk + '; border-radius:999px; padding:8px 16px; font-size:13px; cursor:not-allowed',
+      showClearRoute: !!sel && s.view !== 'map' && routeCount > 0,
+      clearRoute: () => this.setState({ route: [] }), clearRouteLabel: l.clearRoute,
+      routeDisabled: !routeReady,
+      routeTitle: !routeReady ? l.routeHint : (routeCount >= MAX_ROUTE ? l.routeCapped : ''),
+      routeBtnStyle: routeReady
+        ? 'border:1px solid var(--accent); background:var(--accent); color:var(--accent-btn-ink); border-radius:999px; padding:8px 16px; font-size:13px; font-weight:500; cursor:pointer'
+        : 'border:1px solid var(--border); background:var(--surface); color:var(--ink-fainter); border-radius:999px; padding:8px 16px; font-size:13px; cursor:not-allowed',
       routeLabel: l.directions + (routeCount ? ' (' + routeCount + ')' : ''),
-      routeHint: l.routeHint,
-      routeCappedNote: l.routeCapped,
-      clearRouteLabel: l.clearRoute,
       onDirections: () => this.openDirections(),
-      clearRoute: () => this.setState({ route: [] }),
-      // The "Print / PDF" button opens the browser's print dialog, from which
-      // the user can print on paper or save as PDF. The @media print stylesheet
-      // hides the app chrome (toolbar, sidebar, header) and lets the city's
-      // places flow across pages.
+      // The "Print / PDF" button opens the browser's print dialog. The @media
+      // print stylesheet hides the app chrome and lets places flow across pages.
       printCity: () => window.print(),
       addCountry: () => this.setState({ dialog: { kind: 'country', title: l.addCountry, name: '', image: '' } }),
       addLandmark: () => this.setState({ dialog: { kind: 'landmark', title: l.addPlace, name: '', image: '', description: '', descriptionEn: '', descriptionRu: '', coordsText: '' } }),
@@ -657,39 +640,39 @@ export default class App extends React.Component {
   render() {
     const V = this.renderVals()
     return (
-      <div data-theme={V.theme} data-t="app" style={css('display:flex; flex-direction:column; height:100vh; overflow:hidden; background:#F5F6F4')}>
-        <header data-t="hdr" className="trips-noprint" style={css('flex:0 0 auto; display:flex; align-items:center; gap:24px; padding:16px 28px; background:#FFFFFF; border-bottom:1px solid #DCE3D6')}>
+      <div data-theme={V.theme} data-t="app" style={css('display:flex; flex-direction:column; height:100vh; overflow:hidden; background:var(--paper); color:var(--ink); font-family:var(--sans)')}>
+        <header data-t="hdr" className="trips-noprint" style={css('flex:0 0 auto; display:flex; align-items:center; gap:24px; padding:16px 28px; background:var(--surface); border-bottom:1px solid var(--border)')}>
           {V.showSidebar && (
-            <button data-t="hamburger" type="button" onClick={V.toggleDrawer} title="Menu" style={css('align-items:center; justify-content:center; width:36px; height:36px; border:1px solid #DCE3D6; background:#FFFFFF; border-radius:10px; cursor:pointer; flex:0 0 auto; font-size:16px; color:#26291F')}>☰</button>
+            <button type="button" onClick={V.toggleDrawer} data-t="hamburger" title="Menu" style={css('align-items:center; justify-content:center; width:36px; height:36px; border:1px solid var(--border); background:var(--surface); border-radius:10px; cursor:pointer; flex:0 0 auto; font-size:16px; color:var(--ink)')}>☰</button>
           )}
-          <button type="button" onClick={V.goHome} style={css('display:flex; align-items:center; gap:10px; border:none; background:none; padding:0; cursor:pointer; text-align:left')}>
+
+          <button type="button" onClick={V.goHome} style={css('display:flex; align-items:center; gap:10px; border:none; background:none; padding:0; cursor:pointer; text-align:left; flex:0 0 auto')}>
             <svg width="26" height="26" viewBox="0 0 64 64" style={{ flex: '0 0 auto' }}>
-              <rect width="64" height="64" rx="14" fill="#5FA05F" />
-              <path d="M12 40 Q26 18 32 30 Q38 42 52 22" fill="none" stroke="#F5F6F4" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
-              <circle cx="12" cy="40" r="4" fill="#F5F6F4" />
-              <circle cx="52" cy="22" r="4" fill="#F5F6F4" />
+              <rect width="64" height="64" rx="14" fill="var(--accent)" />
+              <path d="M12 40 Q26 18 32 30 Q38 42 52 22" fill="none" stroke="var(--paper)" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+              <circle cx="12" cy="40" r="4" fill="var(--paper)" />
+              <circle cx="52" cy="22" r="4" fill="var(--paper)" />
             </svg>
-            <span data-t="ink" style={css("font-family:'Work Sans',sans-serif; font-weight:600; font-size:27px; letter-spacing:-0.01em; color:#26291F")}>Tripline</span>
-            <span style={css('font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#7C8474')}>{V.L.tagline}</span>
+            <span style={css("font-family:var(--sans); font-weight:600; font-size:27px; letter-spacing:-0.01em; color:var(--ink)")}>Tripline</span>
           </button>
 
           <div data-t="search" style={css('flex:1 1 auto; max-width:480px; position:relative')}>
-            <El as="input" data-t="input" type="text" value={V.query} onChange={V.onQuery} placeholder={V.L.search}
-              base="width:100%; box-sizing:border-box; padding:10px 14px 10px 36px; border:1px solid #DCE3D6; border-radius:999px; background:#FFFFFF; color:#26291F; font-size:14px; outline:none"
-              focus="border-color:#5FA05F" />
-            <span style={css('position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:13px; color:#7C8474')}>⌕</span>
+            <El as="input" type="text" value={V.query} onChange={V.onQuery} placeholder={V.L.search}
+              base="width:100%; box-sizing:border-box; padding:10px 14px 10px 36px; border:1px solid var(--border); border-radius:999px; background:var(--field); color:var(--ink); font-size:14px; outline:none"
+              focus="border-color:var(--accent)" />
+            <span style={css('position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:13px; color:var(--ink-faint)')}>⌕</span>
           </div>
 
-          <El as="button" data-t="ghost" type="button" onClick={V.toggleTheme} title="Theme"
-            base="border:1px solid #DCE3D6; background:#FFFFFF; border-radius:999px; width:38px; height:34px; font-size:14px; color:#7C8474; cursor:pointer"
-            hover="border-color:#5FA05F; color:#5FA05F">{V.themeIcon}</El>
+          <El as="button" type="button" onClick={V.toggleTheme} title="Theme" data-t="hdr-theme"
+            base="border:1px solid var(--border); background:var(--surface); border-radius:999px; width:38px; height:34px; font-size:14px; color:var(--ink-faint); cursor:pointer; flex:0 0 auto"
+            hover="border-color:var(--accent); color:var(--accent)">{V.themeIcon}</El>
 
-          <div style={css('position:relative')}>
-            <El as="button" data-t="ghost" type="button" onClick={V.toggleLangMenu} title="Language"
-              base="border:1px solid #DCE3D6; background:#FFFFFF; border-radius:999px; padding:7px 14px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#7C8474; cursor:pointer; min-width:56px; display:flex; align-items:center; gap:6px"
-              hover="border-color:#5FA05F; color:#5FA05F">{V.langFlag} {V.langLabel}</El>
+          <div data-t="hdr-lang" style={css('position:relative; flex:0 0 auto')}>
+            <El as="button" type="button" onClick={V.toggleLangMenu} title="Language"
+              base="border:1px solid var(--border); background:var(--surface); border-radius:999px; padding:7px 14px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-faint); cursor:pointer; min-width:56px; display:flex; align-items:center; gap:6px"
+              hover="border-color:var(--accent); color:var(--accent)">{V.langFlag} {V.langLabel}</El>
             {V.langMenuOpen && (
-              <div data-t="card" style={css('position:absolute; right:0; top:calc(100% + 6px); z-index:20; background:#FFFFFF; border:1px solid #DCE3D6; border-radius:12px; padding:6px; display:flex; flex-direction:column; gap:2px; min-width:150px; box-shadow:0 12px 30px rgba(26,29,22,0.16)')}>
+              <div style={css('position:absolute; right:0; top:calc(100% + 6px); z-index:20; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:6px; display:flex; flex-direction:column; gap:2px; min-width:150px; box-shadow:0 12px 30px rgba(26,29,22,0.16)')}>
                 {V.langOptions.map((lo) => (
                   <button key={lo.code} type="button" onClick={lo.onClick} style={css(lo.style)}>{lo.flag} {lo.label}</button>
                 ))}
@@ -703,54 +686,54 @@ export default class App extends React.Component {
             <div data-t="drawer-backdrop" className={V.drawerOpenClass} onClick={V.closeDrawer}></div>
           )}
           {V.showSidebar && (
-            <aside data-t="sidebar" className={('trips-noprint ' + V.sidebarInCityClass + ' ' + V.drawerOpenClass).replace(/\s+/g, ' ').trim()} style={css('flex:0 0 288px; border-right:1px solid #C7D0BC; box-shadow:1px 0 0 rgba(0,0,0,0.03); background:#EBEEE6; overflow-y:auto; padding:22px 18px 40px')}>
+            <aside data-t="sidebar" className={('trips-noprint ' + V.drawerOpenClass).replace(/\s+/g, ' ').trim()} style={css('flex:0 0 288px; border-right:1px solid var(--border); background:var(--surface-sunk); overflow-y:auto; padding:22px 18px 40px')}>
               <div style={css('display:flex; align-items:baseline; justify-content:space-between; margin-bottom:16px')}>
-                <span style={css('font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:#7C8474')}>{V.L.countries}</span>
+                <span style={css('font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:var(--ink-faint)')}>{V.L.countries}</span>
                 {V.isOwner && (
-                  <button data-t="accent" type="button" onClick={V.addCountry} style={css('border:none; background:none; color:#5FA05F; font-size:12px; cursor:pointer; padding:0')}>{V.L.add}</button>
+                  <button type="button" onClick={V.addCountry} style={css('border:none; background:none; color:var(--accent); font-size:12px; cursor:pointer; padding:0')}>{V.L.add}</button>
                 )}
               </div>
 
               <div style={css('display:flex; flex-direction:column; gap:4px')}>
                 {V.tree.map((c) => (
                   <div key={c.id} style={css('display:flex; flex-direction:column')}>
-                    <El data-t="row" base={'display:flex; align-items:center; gap:8px; border-radius:10px; padding:7px 8px; background:' + c.rowBg} hover="background:#F5F6F4">
+                    <El base={'display:flex; align-items:center; gap:8px; border-radius:10px; padding:7px 8px; background:' + c.rowBg} hover="background:var(--row-hover)">
                       <button type="button" onClick={c.onClick} style={css('flex:1 1 auto; display:flex; align-items:center; gap:10px; min-width:0; border:none; background:none; padding:0; cursor:pointer; text-align:left')}>
-                        <img src={c.flag} alt="" data-t="media" style={css('width:30px; height:21px; object-fit:cover; border-radius:3px; background:#E4EBDD; flex:0 0 auto')} />
-                        <span data-t="ink" style={css("flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:'Work Sans',sans-serif; font-weight:600; font-size:17px; color:#26291F")}>{c.name}</span>
-                        <span style={css('font-size:11px; color:#7C8474; flex:0 0 auto')}>{c.count}</span>
+                        <img src={c.flag} alt="" style={css('width:30px; height:21px; object-fit:cover; border-radius:3px; background:var(--image-bg); flex:0 0 auto')} />
+                        <span style={css("flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:var(--sans); font-weight:600; font-size:17px; color:var(--ink)")}>{c.name}</span>
+                        <span style={css('font-size:11px; color:var(--ink-faint); flex:0 0 auto')}>{c.count}</span>
                       </button>
                       {V.isOwner && (
-                        <span data-t="edge" style={css('display:inline-flex; align-items:center; border:1px solid #E4EBDD; border-radius:999px; overflow:hidden')}>
-                          <El as="button" type="button" onClick={c.onEdit} title="Edit" base="display:inline-flex; align-items:center; justify-content:center; width:24px; height:22px; border:none; background:none; color:#7C8474; cursor:pointer; font-size:11px" hover="background:#478047; color:#FFFFFF">✎</El>
-                          <span data-t="edge" style={css('width:1px; align-self:stretch; background:#E4EBDD')}></span>
-                          <El as="button" type="button" onClick={c.onDelete} title="Delete" base="display:inline-flex; align-items:center; justify-content:center; width:24px; height:22px; border:none; background:none; color:#7C8474; cursor:pointer; font-size:11px" hover="background:#B3543E; color:#FFFFFF">✕</El>
+                        <span style={css('display:inline-flex; align-items:center; border:1px solid var(--border-soft); border-radius:999px; overflow:hidden')}>
+                          <El as="button" type="button" onClick={c.onEdit} title="Edit" base="display:inline-flex; align-items:center; justify-content:center; width:24px; height:22px; border:none; background:none; color:var(--ink-faint); cursor:pointer; font-size:11px" hover="background:var(--accent-hover); color:#ffffff">✎</El>
+                          <span style={css('width:1px; align-self:stretch; background:var(--border-soft)')}></span>
+                          <El as="button" type="button" onClick={c.onDelete} title="Delete" base="display:inline-flex; align-items:center; justify-content:center; width:24px; height:22px; border:none; background:none; color:var(--ink-faint); cursor:pointer; font-size:11px" hover="background:#b3543e; color:#ffffff">✕</El>
                         </span>
                       )}
                     </El>
 
                     {c.open && (
-                      <div data-t="edge" style={css('display:flex; flex-direction:column; gap:2px; margin:4px 0 8px 20px; padding-left:12px; border-left:1px solid #E4EBDD')}>
+                      <div style={css('display:flex; flex-direction:column; gap:2px; margin:4px 0 8px 20px; padding-left:12px; border-left:1px solid var(--border-soft)')}>
                         {c.cities.map((ci) => (
-                          <El key={ci.id} data-t="row" base={'display:flex; align-items:center; gap:9px; border-radius:11px; padding:6px 8px; background:' + ci.rowBg} hover="background:#F5F6F4">
+                          <El key={ci.id} base={'display:flex; align-items:center; gap:9px; border-radius:11px; padding:6px 8px; background:' + ci.rowBg} hover="background:var(--row-hover)">
                             <button type="button" onClick={ci.onClick} style={css('flex:1 1 auto; display:flex; align-items:center; gap:10px; min-width:0; border:none; background:none; padding:0; cursor:pointer; text-align:left')}>
-                              <img src={ci.image} alt="" data-t="media" style={css('width:30px; height:30px; object-fit:cover; border-radius:8px; background:#E4EBDD; flex:0 0 auto')} />
+                              <img src={ci.image} alt="" style={css('width:30px; height:30px; object-fit:cover; border-radius:8px; background:var(--image-bg); flex:0 0 auto')} />
                               <span style={css('flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:1px')}>
                                 <span style={css('overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13.5px; font-weight:500; color:' + ci.ink)}>{ci.name}</span>
-                                <span style={css('font-size:10.5px; color:#8C9384')}>{ci.meta}</span>
+                                <span style={css('font-size:10.5px; color:var(--ink-fainter)')}>{ci.meta}</span>
                               </span>
                             </button>
                             {V.isOwner && (
-                              <span data-t="edge" style={css('display:inline-flex; align-items:center; border:1px solid #E4EBDD; border-radius:999px; overflow:hidden')}>
-                                <El as="button" type="button" onClick={ci.onEdit} title="Edit" base="display:inline-flex; align-items:center; justify-content:center; width:21px; height:20px; border:none; background:none; color:#7C8474; cursor:pointer; font-size:10px" hover="background:#478047; color:#FFFFFF">✎</El>
-                                <span data-t="edge" style={css('width:1px; align-self:stretch; background:#E4EBDD')}></span>
-                                <El as="button" type="button" onClick={ci.onDelete} title="Delete" base="display:inline-flex; align-items:center; justify-content:center; width:21px; height:20px; border:none; background:none; color:#7C8474; cursor:pointer; font-size:10px" hover="background:#B3543E; color:#FFFFFF">✕</El>
+                              <span style={css('display:inline-flex; align-items:center; border:1px solid var(--border-soft); border-radius:999px; overflow:hidden')}>
+                                <El as="button" type="button" onClick={ci.onEdit} title="Edit" base="display:inline-flex; align-items:center; justify-content:center; width:21px; height:20px; border:none; background:none; color:var(--ink-faint); cursor:pointer; font-size:10px" hover="background:var(--accent-hover); color:#ffffff">✎</El>
+                                <span style={css('width:1px; align-self:stretch; background:var(--border-soft)')}></span>
+                                <El as="button" type="button" onClick={ci.onDelete} title="Delete" base="display:inline-flex; align-items:center; justify-content:center; width:21px; height:20px; border:none; background:none; color:var(--ink-faint); cursor:pointer; font-size:10px" hover="background:#b3543e; color:#ffffff">✕</El>
                               </span>
                             )}
                           </El>
                         ))}
                         {V.isOwner && (
-                          <El as="button" type="button" onClick={c.onAddCity} base="margin-top:6px; display:flex; align-items:center; border:1px solid transparent; background:#E4EBDD; color:#478047; border-radius:11px; padding:7px 10px; font-size:12.5px; font-weight:500; text-align:left; cursor:pointer" hover="background:#DCE3D6; border-color:#B7DAB7">{V.L.addCity}</El>
+                          <El as="button" type="button" onClick={c.onAddCity} base="margin-top:6px; display:flex; align-items:center; border:1px solid transparent; background:var(--accent-tint); color:var(--accent-hover); border-radius:11px; padding:7px 10px; font-size:12.5px; font-weight:500; text-align:left; cursor:pointer" hover="border-color:var(--seen-edge)">{V.L.addCity}</El>
                         )}
                       </div>
                     )}
@@ -760,85 +743,83 @@ export default class App extends React.Component {
             </aside>
           )}
 
-          <main data-t="app" style={css('flex:1 1 auto; overflow-y:auto; min-width:0; background:#F5F6F4')}>
+          <main data-t="app" style={css('flex:1 1 auto; overflow-y:auto; min-width:0; background:var(--paper)')}>
             {V.isSearching && (
               <div style={css('padding:34px 40px 60px; animation:tripsFade 0.25s ease')}>
                 <div style={css('display:flex; align-items:baseline; gap:12px; margin-bottom:22px')}>
-                  <h2 data-t="ink" style={css("margin:0; font-family:'Work Sans',sans-serif; font-weight:400; font-size:30px; color:#26291F")}>{V.resultsTitle}</h2>
-                  <button data-t="accent" type="button" onClick={V.clearQuery} className="trips-noprint" style={css('border:none; background:none; color:#5FA05F; font-size:13px; cursor:pointer')}>{V.L.clear}</button>
+                  <h2 style={css("margin:0; font-family:var(--sans); font-weight:400; font-size:30px; color:var(--ink)")}>{V.resultsTitle}</h2>
+                  <button type="button" onClick={V.clearQuery} className="trips-noprint" style={css('border:none; background:none; color:var(--accent); font-size:13px; cursor:pointer')}>{V.L.clear}</button>
                 </div>
                 <div style={css('display:flex; flex-direction:column; gap:10px; max-width:900px')}>
                   {V.results.map((r) => (
-                    <El key={r.id} as="button" data-t="card" type="button" onClick={r.onClick} base="display:flex; align-items:center; gap:16px; text-align:left; border:1px solid #E4EBDD; background:#FFFFFF; border-radius:14px; padding:12px; cursor:pointer" hover="border-color:#5FA05F">
-                      <img src={r.image} alt="" data-t="media" style={css('width:88px; height:64px; object-fit:cover; border-radius:9px; background:#E4EBDD; flex:0 0 auto')} />
+                    <El key={r.id} as="button" type="button" onClick={r.onClick} base="display:flex; align-items:center; gap:16px; text-align:left; border:1px solid var(--border-soft); background:var(--card); border-radius:14px; padding:12px; cursor:pointer" hover="border-color:var(--accent)">
+                      <img src={r.image} alt="" style={css('width:88px; height:64px; object-fit:cover; border-radius:9px; background:var(--image-bg); flex:0 0 auto')} />
                       <span style={css('flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:4px')}>
-                        <span data-t="ink" style={css("font-family:'Work Sans',sans-serif; font-weight:600; font-size:19px; color:#26291F")}>{r.name}</span>
-                        <span style={css('font-size:12px; letter-spacing:0.06em; text-transform:uppercase; color:#7C8474')}>{r.where}</span>
-                        <span style={css('font-size:13px; color:#7C8474; line-height:1.5; overflow:hidden; display:block; max-height:40px')}>{r.snippet}</span>
+                        <span style={css("font-family:var(--sans); font-weight:600; font-size:19px; color:var(--ink)")}>{r.name}</span>
+                        <span style={css('font-size:12px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-faint)')}>{r.where}</span>
+                        <span style={css('font-size:13px; color:var(--ink-muted); line-height:1.5; overflow:hidden; display:block; max-height:40px')}>{r.snippet}</span>
                       </span>
                     </El>
                   ))}
                 </div>
-                {V.noResults && <p style={css('color:#7C8474; font-style:italic')}>{V.L.noResults}</p>}
+                {V.noResults && <p style={css('color:var(--ink-faint); font-style:italic')}>{V.L.noResults}</p>}
               </div>
             )}
 
             {V.showOverview && (
               <div style={css('padding:0 0 70px; animation:tripsFade 0.25s ease')}>
                 <div data-t="pad" style={css('padding:44px 40px 30px; max-width:760px')}>
-                  <p style={css('margin:0 0 10px; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#7C8474')}>{V.L.eyebrow}</p>
-                  <h1 data-t="ink" style={css("margin:0 0 14px; font-family:'Work Sans',sans-serif; font-weight:400; font-size:46px; line-height:1.05; letter-spacing:-0.015em; color:#26291F")}>{V.L.headline}</h1>
-                  <p style={css('margin:0; font-size:15.5px; line-height:1.6; color:#7C8474; text-wrap:pretty')}>{V.overviewSummary}</p>
+                  <p style={css('margin:0 0 10px; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:var(--ink-faint)')}>{V.L.eyebrow}</p>
+                  <h1 style={css("margin:0 0 14px; font-family:var(--sans); font-weight:400; font-size:46px; line-height:1.05; letter-spacing:-0.015em; color:var(--ink)")}>{V.L.headline}</h1>
+                  <p style={css('margin:0; font-size:15.5px; line-height:1.6; color:var(--ink-muted); text-wrap:pretty')}>{V.overviewSummary}</p>
                 </div>
 
-                {V.hasOverviewCountry && V.chapters.filter((ch) => ch.isSelected).map((ch) => (
-                  <section key={ch.id} data-t="pad" style={css('padding:8px 40px 34px')}>
-                    <div data-t="edge" style={css('display:flex; align-items:center; gap:14px; padding-bottom:12px; margin-bottom:20px; border-bottom:1px solid #DCE3D6')}>
-                      <El as="button" type="button" onClick={V.clearOverviewCountry} base="border:none; background:none; color:#7C8474; font-size:13px; cursor:pointer; padding:0" hover="color:#5FA05F">← {V.L.countries}</El>
-                      <img src={ch.flag} alt="" data-t="media" style={css('width:38px; height:26px; object-fit:cover; border-radius:3px; background:#E4EBDD')} />
-                      <h2 data-t="ink" style={css("margin:0; font-family:'Work Sans',sans-serif; font-weight:400; font-size:26px; color:#26291F")}>{ch.name}</h2>
-                      <span style={css('font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#7C8474')}>{ch.meta}</span>
+                {V.hasOverviewCountry && (
+                  <section data-t="pad" style={css('padding:8px 40px 34px')}>
+                    <div style={css('display:flex; align-items:center; gap:14px; padding-bottom:12px; margin-bottom:20px; border-bottom:1px solid var(--border)')}>
+                      <El as="button" type="button" onClick={V.clearOverviewCountry} base="border:none; background:none; color:var(--ink-faint); font-size:13px; cursor:pointer; padding:0" hover="color:var(--accent)">← {V.L.countries}</El>
+                      <img src={V.selectedCountry.flag} alt="" style={css('width:38px; height:26px; object-fit:cover; border-radius:3px; background:var(--image-bg)')} />
+                      <h2 style={css("margin:0; font-family:var(--sans); font-weight:400; font-size:26px; color:var(--ink)")}>{V.selectedCountry.name}</h2>
+                      <span style={css('font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-faint)')}>{V.selectedCountry.meta}</span>
                       <span style={css('flex:1 1 auto')}></span>
                       {V.isOwner && (
-                        <El as="button" data-t="ghost" type="button" onClick={ch.onAddCity} className="trips-noprint" base="border:1px solid #DCE3D6; background:#FFFFFF; border-radius:999px; padding:6px 14px; font-size:12.5px; color:#7C8474; cursor:pointer" hover="border-color:#5FA05F; color:#5FA05F">{V.L.addCity}</El>
+                        <El as="button" type="button" onClick={V.selectedCountry.onAddCity} className="trips-noprint" base="border:1px solid var(--border); background:var(--surface); border-radius:999px; padding:6px 14px; font-size:12.5px; color:var(--ink-muted); cursor:pointer" hover="border-color:var(--accent); color:var(--accent)">{V.L.addCity}</El>
                       )}
                     </div>
                     <div style={css('display:grid; grid-template-columns:repeat(auto-fill, minmax(268px, 1fr)); gap:22px')}>
-                      {ch.cities.map((ci) => (
-                        <El key={ci.id} as="button" data-t="card" type="button" onClick={ci.onClick} base="display:flex; flex-direction:column; text-align:left; padding:0; border:1px solid #E4EBDD; border-radius:16px; overflow:hidden; background:#FFFFFF; cursor:pointer; transition:transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease" hover="transform:translateY(-3px); box-shadow:0 14px 30px rgba(26,29,22,0.18)">
-                          <span data-t="media" style={css('display:block; position:relative; aspect-ratio:4/3; background:#E4EBDD')}>
+                      {V.selectedCountry.cities.map((ci) => (
+                        <El key={ci.id} as="button" type="button" onClick={ci.onClick} base="display:flex; flex-direction:column; text-align:left; padding:0; border:1px solid var(--border-soft); border-radius:16px; overflow:hidden; background:var(--card); cursor:pointer; transition:transform 0.18s ease, box-shadow 0.18s ease" hover="transform:translateY(-3px); box-shadow:0 14px 30px rgba(26,29,22,0.18)">
+                          <span style={css('display:block; position:relative; aspect-ratio:4/3; background:var(--image-bg)')}>
                             <img src={ci.image} alt="" style={css('width:100%; height:100%; object-fit:cover; display:block')} />
-                            <span style={css('position:absolute; left:12px; bottom:12px; display:flex; gap:6px')}>
-                              <span style={css('background:rgba(26,29,22,0.72); color:#FFFFFF; border-radius:999px; padding:4px 10px; font-size:11px; letter-spacing:0.06em; text-transform:uppercase')}>{ci.count}</span>
-                            </span>
+                            <span style={css('position:absolute; left:12px; bottom:12px; background:rgba(26,29,22,0.72); color:#ffffff; border-radius:999px; padding:4px 10px; font-size:11px; letter-spacing:0.06em; text-transform:uppercase')}>{ci.count}</span>
                           </span>
                           <span style={css('display:flex; flex-direction:column; gap:5px; padding:14px 16px 17px')}>
-                            <span data-t="ink" style={css("font-family:'Work Sans',sans-serif; font-weight:600; font-size:22px; line-height:1.15; color:#26291F")}>{ci.name}</span>
-                            <span data-t="rule" style={css('height:3px; border-radius:3px; background:#E4EBDD; display:block; overflow:hidden')}>
-                              <span style={css('display:block; height:100%; width:' + ci.progress + '; background:' + V.tealBar)}></span>
+                            <span style={css("font-family:var(--sans); font-weight:600; font-size:22px; line-height:1.15; color:var(--ink)")}>{ci.name}</span>
+                            <span style={css('height:3px; border-radius:3px; background:var(--image-bg); display:block; overflow:hidden')}>
+                              <span style={css('display:block; height:100%; width:' + ci.progress + '; background:var(--teal)')}></span>
                             </span>
                           </span>
                         </El>
                       ))}
                     </div>
                   </section>
-                ))}
+                )}
 
                 {V.showCountryGrid && (
                   <div data-t="pad" style={css('padding:8px 40px 34px')}>
                     <div style={css('display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:18px')}>
                       {V.chapters.map((ch) => (
-                        <El key={ch.id} as="button" data-t="card" type="button" onClick={ch.onSelect} base="display:flex; align-items:center; gap:14px; text-align:left; padding:14px 16px; border:1px solid #E4EBDD; border-radius:16px; background:#FFFFFF; cursor:pointer; transition:transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease" hover="transform:translateY(-3px); box-shadow:0 14px 30px rgba(26,29,22,0.14)">
-                          <img src={ch.flag} alt="" data-t="media" style={css('width:48px; height:34px; object-fit:cover; border-radius:5px; background:#E4EBDD; flex:0 0 auto')} />
+                        <El key={ch.id} as="button" type="button" onClick={ch.onSelect} base="display:flex; align-items:center; gap:14px; text-align:left; padding:14px 16px; border:1px solid var(--border-soft); border-radius:16px; background:var(--card); cursor:pointer; transition:transform 0.18s ease, box-shadow 0.18s ease" hover="transform:translateY(-3px); box-shadow:0 14px 30px rgba(26,29,22,0.14)">
+                          <img src={ch.flag} alt="" style={css('width:48px; height:34px; object-fit:cover; border-radius:5px; background:var(--image-bg); flex:0 0 auto')} />
                           <span style={css('flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:3px')}>
-                            <span data-t="ink" style={css("font-family:'Work Sans',sans-serif; font-weight:600; font-size:19px; color:#26291F")}>{ch.name}</span>
-                            <span style={css('font-size:12px; color:#7C8474')}>{ch.meta}</span>
+                            <span style={css("font-family:var(--sans); font-weight:600; font-size:19px; color:var(--ink)")}>{ch.name}</span>
+                            <span style={css('font-size:12px; color:var(--ink-faint)')}>{ch.meta}</span>
                           </span>
                         </El>
                       ))}
                     </div>
                     {V.isOwner && (
-                      <El as="button" data-t="dashed" type="button" onClick={V.addCountry} className="trips-noprint" base="margin-top:18px; border:1px dashed #DCE3D6; background:none; border-radius:14px; padding:16px 22px; font-size:13.5px; color:#7C8474; cursor:pointer" hover="border-color:#5FA05F; color:#5FA05F">{V.L.addCountry}</El>
+                      <El as="button" type="button" onClick={V.addCountry} className="trips-noprint" base="margin-top:18px; border:1px dashed var(--border-dashed); background:none; border-radius:14px; padding:16px 22px; font-size:13.5px; color:var(--ink-faint); cursor:pointer; width:100%; text-align:left" hover="border-color:var(--accent); color:var(--accent)">{V.L.addCountry}</El>
                     )}
                   </div>
                 )}
@@ -847,37 +828,35 @@ export default class App extends React.Component {
 
             {V.showCity && (
               <div style={css('animation:tripsFade 0.25s ease')}>
-                <div data-t="hero" style={css('position:relative; height:280px; background:#E4EBDD; overflow:hidden')}>
+                <div data-t="hero" style={css('position:relative; height:280px; background:var(--image-bg); overflow:hidden')}>
                   <img src={V.city.image} alt="" style={css('width:100%; height:100%; object-fit:cover; display:block')} />
                   <div style={css('position:absolute; inset:0; background:linear-gradient(to top, rgba(26,29,22,0.85) 0%, rgba(26,29,22,0.24) 55%, rgba(26,29,22,0.05) 100%)')}></div>
                   <div data-t="hero-in" style={css('position:absolute; left:40px; right:40px; bottom:24px; display:flex; align-items:flex-end; gap:20px')}>
                     <div style={css('flex:1 1 auto; min-width:0')}>
-                      <El as="button" type="button" onClick={V.goHome} className="trips-noprint" base="border:none; background:none; padding:0; color:rgba(255,255,255,0.8); font-size:11.5px; letter-spacing:0.14em; text-transform:uppercase; cursor:pointer; margin-bottom:8px" hover="color:#FFFFFF">{V.city.crumb}</El>
-                      <h1 data-t="hero-title" style={css("margin:0; font-family:'Work Sans',sans-serif; font-weight:400; font-size:52px; line-height:1; color:#FFFFFF; letter-spacing:-0.02em")}>{V.city.name}</h1>
+                      <El as="button" type="button" onClick={V.goHome} className="trips-noprint" base="border:none; background:none; padding:0; color:rgba(255,255,255,0.8); font-size:11.5px; letter-spacing:0.14em; text-transform:uppercase; cursor:pointer; margin-bottom:8px" hover="color:#ffffff">{V.city.crumb}</El>
+                      <h1 data-t="hero-title" style={css("margin:0; font-family:var(--sans); font-weight:400; font-size:52px; line-height:1; color:#ffffff; letter-spacing:-0.02em")}>{V.city.name}</h1>
                     </div>
-                    <div style={css('flex:0 0 auto; display:flex; align-items:center; gap:10px; color:#FFFFFF')}>
-                      <span style={css('font-size:13px; letter-spacing:0.06em; text-transform:uppercase; opacity:0.85')}>{V.city.meta}</span>
-                    </div>
+                    <span style={css('font-size:13px; letter-spacing:0.06em; text-transform:uppercase; color:#ffffff; opacity:0.85')}>{V.city.meta}</span>
                   </div>
                 </div>
 
-                <div data-t="pad toolbar" style={css('display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:16px 40px; border-bottom:1px solid #DCE3D6; background:#F5F6F4; position:sticky; top:0; z-index:4')}>
-                  <div data-t="panel" className="trips-noprint" style={css('display:flex; gap:4px; padding:3px; background:#F5F6F4; border:1px solid #E4EBDD; border-radius:999px')}>
+                <div data-t="pad toolbar" style={css('display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:16px 40px; border-bottom:1px solid var(--border); background:var(--paper); position:sticky; top:0; z-index:4')}>
+                  <div className="trips-noprint" style={css('display:flex; gap:4px; padding:3px; background:var(--paper); border:1px solid var(--border-soft); border-radius:999px')}>
                     <button type="button" onClick={V.setViewGrid} style={css(V.viewGridStyle)}>{V.L.grid}</button>
                     <button type="button" onClick={V.setViewList} style={css(V.viewListStyle)}>{V.L.list}</button>
                     <button type="button" onClick={V.setViewMap} style={css(V.viewMapStyle)}>{V.L.map}</button>
                   </div>
                   <span style={css('flex:1 1 auto')}></span>
-                  {V.isCards && V.routeCount > 0 && (
-                    <El as="button" data-t="ghost" type="button" onClick={V.clearRoute} className="trips-noprint" base="border:1px solid #DCE3D6; background:#FFFFFF; border-radius:999px; padding:8px 16px; font-size:13px; color:#7C8474; cursor:pointer" hover="border-color:#B3543E; color:#B3543E">{V.clearRouteLabel}</El>
+                  {V.showClearRoute && (
+                    <El as="button" type="button" onClick={V.clearRoute} className="trips-noprint" base="border:1px solid var(--border); background:var(--surface); border-radius:999px; padding:8px 16px; font-size:13px; color:var(--ink-muted); cursor:pointer" hover="border-color:#b3543e; color:#b3543e">{V.clearRouteLabel}</El>
                   )}
                   {V.isCards && (
-                    <button type="button" onClick={V.onDirections} disabled={!V.routeReady} title={!V.routeReady ? V.routeHint : (V.routeCapped ? V.routeCappedNote : '')} className="trips-noprint" style={css(V.directionsStyle)}>🧭 {V.routeLabel}</button>
+                    <button type="button" onClick={V.onDirections} disabled={V.routeDisabled} title={V.routeTitle} className="trips-noprint" style={css(V.routeBtnStyle)}>🧭 {V.routeLabel}</button>
                   )}
-                  <El as="button" data-t="ghost" type="button" onClick={V.shareCity} className="trips-noprint" base="border:1px solid #DCE3D6; background:#FFFFFF; border-radius:999px; padding:8px 16px; font-size:13px; color:#7C8474; cursor:pointer" hover="border-color:#5FA05F; color:#5FA05F">{V.L.share}</El>
-                  <El as="button" data-t="ghost" type="button" onClick={V.printCity} className="trips-noprint" base="border:1px solid #DCE3D6; background:#FFFFFF; border-radius:999px; padding:8px 16px; font-size:13px; color:#7C8474; cursor:pointer" hover="border-color:#5FA05F; color:#5FA05F">{V.L.pdf}</El>
+                  <El as="button" type="button" onClick={V.shareCity} className="trips-noprint" base="border:1px solid var(--border); background:var(--surface); border-radius:999px; padding:8px 16px; font-size:13px; color:var(--ink-muted); cursor:pointer" hover="border-color:var(--accent); color:var(--accent)">{V.L.share}</El>
+                  <El as="button" type="button" onClick={V.printCity} className="trips-noprint" base="border:1px solid var(--border); background:var(--surface); border-radius:999px; padding:8px 16px; font-size:13px; color:var(--ink-muted); cursor:pointer" hover="border-color:var(--accent); color:var(--accent)">{V.L.pdf}</El>
                   {V.isOwner && (
-                    <button data-t="accentbtn" type="button" onClick={V.addLandmark} className="trips-noprint" style={css('border:1px solid #5FA05F; background:#5FA05F; color:#FFFFFF; border-radius:999px; padding:8px 18px; font-size:13px; font-weight:500; cursor:pointer')}>{V.L.addPlace}</button>
+                    <button type="button" onClick={V.addLandmark} className="trips-noprint" style={css('border:1px solid var(--accent); background:var(--accent); color:var(--accent-btn-ink); border-radius:999px; padding:8px 18px; font-size:13px; font-weight:500; cursor:pointer')}>{V.L.addPlace}</button>
                   )}
                 </div>
 
@@ -888,57 +867,47 @@ export default class App extends React.Component {
                     )}
 
                     {V.isCards && (
-                      <div style={css('display:flex; flex-direction:column; gap:34px')}>
-                        {V.groups.map((g, gi) => (
-                          <section key={gi}>
-                            {g.showTitle && (
-                              <div style={css('display:flex; align-items:baseline; gap:12px; margin-bottom:16px')}>
-                                <h3 data-t="ink" style={css("margin:0; font-family:'Work Sans',sans-serif; font-weight:400; font-size:22px; color:#26291F")}>{g.title}</h3>
-                                <span data-t="rule" style={css('flex:1 1 auto; height:1px; background:#DCE3D6')}></span>
-                                <span style={css('font-size:11.5px; letter-spacing:0.1em; text-transform:uppercase; color:#7C8474')}>{g.count}</span>
-                              </div>
-                            )}
-
-                            <div style={css('display:' + g.display + '; grid-template-columns:repeat(auto-fill, minmax(290px, 1fr)); flex-direction:column; gap:' + g.gap)}>
-                              {g.items.map((lm) => (
-                                <article key={lm.id} data-t="card" data-lm-idx={lm.pos} draggable onDragStart={lm.onDragStart} onDragOver={lm.onDragOver} onDragEnd={lm.onDragEnd} style={css(lm.cardStyle)}>
-                                  <div data-t="media" style={css(lm.mediaStyle)}>
-                                    <img src={lm.image} alt={lm.name} onClick={lm.onPreview} style={css(lm.imgStyle)} />
-                                    {V.isOwner && (
-                                      <div className="trips-noprint" style={css('position:absolute; top:9px; right:9px; display:flex; gap:5px')}>
-                                        <El as="button" type="button" onClick={lm.onEdit} title="Edit" base="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border:none; border-radius:999px; background:#FFFFFF; color:#26291F; font-size:12px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.18); transition:transform .12s ease, color .12s ease" hover="color:#478047; transform:scale(1.08)">✎</El>
-                                        <El as="button" type="button" onClick={lm.onDelete} title="Delete" base="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border:none; border-radius:999px; background:#FFFFFF; color:#26291F; font-size:12px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.18); transition:transform .12s ease, color .12s ease" hover="color:#B3543E; transform:scale(1.08)">✕</El>
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div style={css(lm.bodyStyle)}>
-                                    <div style={css('display:flex; align-items:baseline; gap:10px')}>
-                                      <h4 data-t="ink" style={css("margin:0; font-family:'Work Sans',sans-serif; font-weight:400; font-size:19.5px; line-height:1.2; flex:1 1 auto; color:#26291F")}>{lm.name}</h4>
-                                      <span style={css('font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:#8C9384; flex:0 0 auto')}>{lm.index}</span>
-                                    </div>
-                                    <p style={css('margin:0; font-size:13.5px; line-height:1.6; color:#7C8474; text-wrap:pretty')}>{lm.description}</p>
-                                    <div style={css('display:flex; align-items:center; flex-wrap:wrap; column-gap:8px; row-gap:4px; margin-top:2px')}>
-                                      <span data-t="edge" className="trips-noprint" onPointerDown={lm.onHandleDown} title={V.isOwner ? V.L.drag : V.L.viewerOrderHint} style={css('display:inline-flex; align-items:center; gap:6px; font-size:11px; color:#8C9384; cursor:grab; white-space:nowrap; touch-action:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; padding:6px 12px; border:1px solid #E4EBDD; border-radius:999px; background:#F5F6F4')}><span style={css('font-size:14px; line-height:1')}>⠿</span> {V.isOwner ? V.L.drag : V.L.viewerOrderHint}</span>
-                                      <span style={css('flex:1 1 auto')}></span>
-                                      {lm.hasMapLink && (
-                                        <button type="button" onClick={lm.onToggleRoute} disabled={lm.routeFull} className="trips-noprint" title={lm.inRoute ? '' : (lm.routeFull ? V.routeCappedNote : V.routeHint)} style={css(lm.routeStyle)}>{lm.inRoute ? '✓ ' + lm.routeIndex : '＋ ' + V.L.route}</button>
-                                      )}
-                                      {lm.hasMapLink && (
-                                        <El as="a" href={lm.mapUrl} target="_blank" rel="noopener" base="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; color:#5FA05F; text-decoration:none; white-space:nowrap; flex:0 0 auto" hover="color:#478047">📍 {V.L.viewOnMap}</El>
-                                      )}
-                                    </div>
-                                  </div>
-                                </article>
-                              ))}
+                      <div style={css('display:' + V.groupDisplay + '; grid-template-columns:repeat(auto-fill, minmax(290px, 1fr)); flex-direction:column; gap:' + V.groupGap)}>
+                        {V.landmarks.map((lm) => (
+                          <article key={lm.id} data-t="card" data-lm-idx={lm.pos} draggable onDragStart={lm.onDragStart} onDragOver={lm.onDragOver} onDragEnd={lm.onDragEnd} style={css(lm.cardStyle)}>
+                            <div style={css(lm.mediaStyle)}>
+                              <img src={lm.image} alt={lm.name} onClick={lm.onPreview} style={css('width:100%; height:100%; object-fit:cover; display:block; cursor:zoom-in')} />
+                              {V.isOwner && (
+                                <div className="trips-noprint" style={css('position:absolute; top:9px; right:9px; display:flex; gap:5px')}>
+                                  <El as="button" type="button" onClick={lm.onEdit} title="Edit" base="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border:none; border-radius:999px; background:#ffffff; color:#26291f; font-size:12px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.18); transition:transform .12s ease, color .12s ease" hover="color:var(--accent-hover); transform:scale(1.08)">✎</El>
+                                  <El as="button" type="button" onClick={lm.onDelete} title="Delete" base="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border:none; border-radius:999px; background:#ffffff; color:#26291f; font-size:12px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.18); transition:transform .12s ease, color .12s ease" hover="color:#b3543e; transform:scale(1.08)">✕</El>
+                                </div>
+                              )}
                             </div>
-                          </section>
+                            <div style={css(lm.bodyStyle)}>
+                              <div style={css('display:flex; align-items:baseline; gap:10px')}>
+                                <h4 style={css("margin:0; font-family:var(--sans); font-weight:400; font-size:19.5px; line-height:1.2; flex:1 1 auto; color:var(--ink)")}>{lm.name}</h4>
+                                <span style={css('font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-fainter); flex:0 0 auto')}>{lm.index}</span>
+                              </div>
+                              <p style={css('margin:0; font-size:13.5px; line-height:1.6; color:var(--ink-muted); text-wrap:pretty')}>{lm.description}</p>
+                              <div style={css('display:flex; align-items:center; flex-wrap:wrap; column-gap:8px; row-gap:4px; margin-top:2px')}>
+                                <span className="trips-noprint" onPointerDown={lm.onHandleDown} title={lm.dragTitle} style={css('display:inline-flex; align-items:center; gap:6px; font-size:11px; color:var(--ink-fainter); cursor:grab; white-space:nowrap; touch-action:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; padding:6px 12px; border:1px solid var(--border-soft); border-radius:999px; background:var(--paper)')}><span style={css('font-size:14px; line-height:1')}>⠿</span> {lm.dragTitle}</span>
+                                <span style={css('flex:1 1 auto')}></span>
+                                {lm.hasMapLink && (
+                                  <button type="button" onClick={lm.onToggleRoute} disabled={lm.routeFull} className="trips-noprint" title={lm.routeTitle} style={css(lm.routeStyle)}>{lm.routeText}</button>
+                                )}
+                                {lm.hasMapLink && (
+                                  <a href={lm.mapUrl} target="_blank" rel="noopener" style={css('display:inline-flex; align-items:center; gap:5px; font-size:11.5px; color:var(--accent); text-decoration:none; white-space:nowrap; flex:0 0 auto')}>📍 {V.L.viewOnMap}</a>
+                                )}
+                              </div>
+                            </div>
+                          </article>
                         ))}
                       </div>
                     )}
 
-                    {V.cityEmpty && <p style={css('color:#7C8474; font-style:italic; padding:40px 0; text-align:center')}>{V.L.emptyCity}</p>}
+                    {V.cityEmpty && <p style={css('color:var(--ink-faint); font-style:italic; padding:40px 0; text-align:center')}>{V.L.emptyCity}</p>}
                   </div>
                 </div>
+
+                {V.showClearRoute && (
+                  <button type="button" onClick={V.onDirections} title={V.routeTitle} data-t="route-fab" className="trips-noprint" style={css('display:none; position:fixed; right:18px; bottom:18px; z-index:30; align-items:center; justify-content:center; width:52px; height:52px; border-radius:999px; border:none; background:var(--accent); color:var(--accent-btn-ink); font-size:16px; font-weight:600; cursor:pointer; box-shadow:0 8px 20px rgba(0,0,0,0.28)')}>{V.routeCount}</button>
+                )}
               </div>
             )}
           </main>
@@ -946,47 +915,47 @@ export default class App extends React.Component {
 
         {V.dialogOpen && (
           <div onClick={V.closeDialog} style={css('position:fixed; inset:0; background:rgba(26,29,22,0.6); display:flex; align-items:center; justify-content:center; padding:24px; z-index:50')}>
-            <div data-t="panel" onClick={V.stop} style={css('width:100%; max-width:460px; max-height:calc(100vh - 48px); overflow-y:auto; background:#FFFFFF; border:1px solid #DCE3D6; border-radius:20px; padding:26px 26px 22px; box-shadow:0 26px 60px rgba(26,29,22,0.4)')}>
-              <h2 data-t="ink" style={css("margin:0 0 18px; font-family:'Work Sans',sans-serif; font-weight:400; font-size:26px; color:#26291F")}>{V.dialog.title}</h2>
+            <div onClick={V.stop} style={css('width:100%; max-width:460px; max-height:calc(100vh - 48px); overflow-y:auto; background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:26px 26px 22px; box-shadow:0 26px 60px rgba(26,29,22,0.4)')}>
+              <h2 style={css("margin:0 0 18px; font-family:var(--sans); font-weight:400; font-size:26px; color:var(--ink)")}>{V.dialog.title}</h2>
               <label style={css('display:block; margin-bottom:14px')}>
-                <span style={css('display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#7C8474')}>{V.dialog.nameLabel}</span>
-                <El as="input" data-t="input" type="text" value={V.dialog.name} onChange={V.onDialogName} placeholder={V.dialog.namePlaceholder} base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #E4EBDD; border-radius:11px; background:#FFFFFF; color:#26291F; font-size:14px; outline:none" focus="border-color:#5FA05F" />
+                <span style={css('display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-faint)')}>{V.dialog.nameLabel}</span>
+                <El as="input" type="text" value={V.dialog.name} onChange={V.onDialogName} placeholder={V.dialog.namePlaceholder} base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid var(--border-soft); border-radius:11px; background:var(--field); color:var(--ink); font-size:14px; outline:none" focus="border-color:var(--accent)" />
               </label>
               <label style={css('display:block; margin-bottom:14px')}>
-                <span style={css('display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#7C8474')}>{V.dialog.imageLabel}</span>
-                <El as="input" data-t="input" type="url" value={V.dialog.image} onChange={V.onDialogImage} placeholder="https://…" base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #E4EBDD; border-radius:11px; background:#FFFFFF; color:#26291F; font-size:14px; outline:none" focus="border-color:#5FA05F" />
+                <span style={css('display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-faint)')}>{V.dialog.imageLabel}</span>
+                <El as="input" type="url" value={V.dialog.image} onChange={V.onDialogImage} placeholder="https://…" base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid var(--border-soft); border-radius:11px; background:var(--field); color:var(--ink); font-size:14px; outline:none" focus="border-color:var(--accent)" />
               </label>
               {V.dialog.withDescription && (
                 <>
                   <label style={css('display:block; margin-bottom:14px')}>
-                    <span style={css('display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#7C8474')}>{V.L.descriptionHy}</span>
-                    <El as="textarea" data-t="input" value={V.dialog.description} onChange={V.onDialogDescription} rows={3} base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #E4EBDD; border-radius:11px; background:#FFFFFF; color:#26291F; font-size:14px; line-height:1.55; resize:vertical; outline:none" focus="border-color:#5FA05F" />
+                    <span style={css('display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-faint)')}>{V.L.descriptionHy}</span>
+                    <El as="textarea" value={V.dialog.description} onChange={V.onDialogDescription} rows={3} base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid var(--border-soft); border-radius:11px; background:var(--field); color:var(--ink); font-size:14px; line-height:1.55; resize:vertical; outline:none" focus="border-color:var(--accent)" />
                   </label>
                   <label style={css('display:block; margin-bottom:14px')}>
-                    <span style={css('display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#7C8474')}>{V.L.descriptionEn}</span>
-                    <El as="textarea" data-t="input" value={V.dialog.descriptionEn} onChange={V.onDialogDescriptionEn} rows={3} base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #E4EBDD; border-radius:11px; background:#FFFFFF; color:#26291F; font-size:14px; line-height:1.55; resize:vertical; outline:none" focus="border-color:#5FA05F" />
+                    <span style={css('display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-faint)')}>{V.L.descriptionEn}</span>
+                    <El as="textarea" value={V.dialog.descriptionEn} onChange={V.onDialogDescriptionEn} rows={3} base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid var(--border-soft); border-radius:11px; background:var(--field); color:var(--ink); font-size:14px; line-height:1.55; resize:vertical; outline:none" focus="border-color:var(--accent)" />
                   </label>
                   <label style={css('display:block; margin-bottom:14px')}>
-                    <span style={css('display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#7C8474')}>{V.L.descriptionRu}</span>
-                    <El as="textarea" data-t="input" value={V.dialog.descriptionRu} onChange={V.onDialogDescriptionRu} rows={3} base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #E4EBDD; border-radius:11px; background:#FFFFFF; color:#26291F; font-size:14px; line-height:1.55; resize:vertical; outline:none" focus="border-color:#5FA05F" />
+                    <span style={css('display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-faint)')}>{V.L.descriptionRu}</span>
+                    <El as="textarea" value={V.dialog.descriptionRu} onChange={V.onDialogDescriptionRu} rows={3} base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid var(--border-soft); border-radius:11px; background:var(--field); color:var(--ink); font-size:14px; line-height:1.55; resize:vertical; outline:none" focus="border-color:var(--accent)" />
                   </label>
                   <label style={css('display:block; margin-bottom:14px')}>
-                    <span style={css('display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#7C8474')}>{V.L.coordinates}</span>
-                    <El as="input" data-t="input" type="text" value={V.dialog.coords} onChange={V.onDialogCoords} placeholder={'39°28\'12.0"N 0°22\'12.0"W'} base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #E4EBDD; border-radius:11px; background:#FFFFFF; color:#26291F; font-size:14px; outline:none" focus="border-color:#5FA05F" />
+                    <span style={css('display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-faint)')}>{V.L.coordinates}</span>
+                    <El as="input" type="text" value={V.dialog.coords} onChange={V.onDialogCoords} placeholder={'39°28\'12.0"N 0°22\'12.0"W'} base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid var(--border-soft); border-radius:11px; background:var(--field); color:var(--ink); font-size:14px; outline:none" focus="border-color:var(--accent)" />
                     {V.dialog.coordsError && (
-                      <span style={css('display:block; margin-top:5px; font-size:12px; color:#B3543E')}>{V.L.coordsInvalid}</span>
+                      <span style={css('display:block; margin-top:5px; font-size:12px; color:#b3543e')}>{V.L.coordsInvalid}</span>
                     )}
                   </label>
                 </>
               )}
               {V.dialog.hasPreview && (
-                <div data-t="media" style={css('margin-bottom:16px; border:1px solid #E4EBDD; border-radius:12px; overflow:hidden; background:#E4EBDD')}>
+                <div style={css('margin-bottom:16px; border:1px solid var(--border-soft); border-radius:12px; overflow:hidden; background:var(--image-bg)')}>
                   <img src={V.dialog.image} alt="" style={css('width:100%; max-height:170px; object-fit:cover; display:block')} />
                 </div>
               )}
               <div style={css('display:flex; justify-content:flex-end; gap:10px')}>
-                <El as="button" data-t="ghost" type="button" onClick={V.closeDialog} base="border:1px solid #DCE3D6; background:none; border-radius:999px; padding:9px 18px; font-size:13.5px; color:#7C8474; cursor:pointer" hover="border-color:#26291F; color:#26291F">{V.L.cancel}</El>
-                <button data-t="accentbtn" type="button" onClick={V.submitDialog} style={css('border:1px solid #5FA05F; background:#5FA05F; color:#FFFFFF; border-radius:999px; padding:9px 20px; font-size:13.5px; font-weight:500; cursor:pointer')}>{V.dialog.submitLabel}</button>
+                <El as="button" type="button" onClick={V.closeDialog} base="border:1px solid var(--border); background:none; border-radius:999px; padding:9px 18px; font-size:13.5px; color:var(--ink-muted); cursor:pointer" hover="border-color:var(--ink); color:var(--ink)">{V.L.cancel}</El>
+                <button type="button" onClick={V.submitDialog} style={css('border:1px solid var(--accent); background:var(--accent); color:var(--accent-btn-ink); border-radius:999px; padding:9px 20px; font-size:13.5px; font-weight:500; cursor:pointer')}>{V.dialog.submitLabel}</button>
               </div>
             </div>
           </div>
@@ -994,11 +963,11 @@ export default class App extends React.Component {
 
         {V.confirmOpen && (
           <div onClick={V.closeConfirm} style={css('position:fixed; inset:0; background:rgba(26,29,22,0.6); display:flex; align-items:center; justify-content:center; padding:24px; z-index:60')}>
-            <div data-t="panel" onClick={V.stop} style={css('width:100%; max-width:380px; background:#FFFFFF; border:1px solid #DCE3D6; border-radius:20px; padding:24px; box-shadow:0 26px 60px rgba(26,29,22,0.4)')}>
-              <p data-t="ink" style={css('margin:0 0 20px; font-size:15px; line-height:1.55; color:#26291F')}>{V.confirmMessage}</p>
+            <div onClick={V.stop} style={css('width:100%; max-width:380px; background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:24px; box-shadow:0 26px 60px rgba(26,29,22,0.4)')}>
+              <p style={css('margin:0 0 20px; font-size:15px; line-height:1.55; color:var(--ink)')}>{V.confirmMessage}</p>
               <div style={css('display:flex; justify-content:flex-end; gap:10px')}>
-                <El as="button" data-t="ghost" type="button" onClick={V.closeConfirm} base="border:1px solid #DCE3D6; background:none; border-radius:999px; padding:9px 18px; font-size:13.5px; color:#7C8474; cursor:pointer" hover="border-color:#26291F; color:#26291F">{V.L.cancel}</El>
-                <button data-t="accentbtn" type="button" onClick={V.runConfirm} style={css('border:1px solid #5FA05F; background:#5FA05F; color:#FFFFFF; border-radius:999px; padding:9px 20px; font-size:13.5px; font-weight:500; cursor:pointer')}>{V.L.delete}</button>
+                <El as="button" type="button" onClick={V.closeConfirm} base="border:1px solid var(--border); background:none; border-radius:999px; padding:9px 18px; font-size:13.5px; color:var(--ink-muted); cursor:pointer" hover="border-color:var(--ink); color:var(--ink)">{V.L.cancel}</El>
+                <button type="button" onClick={V.runConfirm} style={css('border:1px solid var(--accent); background:var(--accent); color:var(--accent-btn-ink); border-radius:999px; padding:9px 20px; font-size:13.5px; font-weight:500; cursor:pointer')}>{V.L.delete}</button>
               </div>
             </div>
           </div>
@@ -1007,7 +976,7 @@ export default class App extends React.Component {
         {V.lightboxOpen && (
           <div onClick={V.closeLightbox} style={css('position:fixed; inset:0; background:rgba(18,20,14,0.92); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:36px; z-index:70; cursor:zoom-out')}>
             <img src={V.lightbox.src} alt={V.lightbox.alt} style={css('max-width:88vw; max-height:80vh; object-fit:contain; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,0.6)')} />
-            <p style={css("margin:0; color:#FFFFFF; font-family:'Work Sans',sans-serif; font-weight:600; font-size:20px")}>{V.lightbox.alt}</p>
+            <p style={css("margin:0; color:#ffffff; font-family:var(--sans); font-weight:600; font-size:20px")}>{V.lightbox.alt}</p>
           </div>
         )}
       </div>
