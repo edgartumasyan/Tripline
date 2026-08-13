@@ -1,6 +1,6 @@
 import React from 'react'
 import { COORDS } from './coords.js'
-import { EN, HY, RU, LANG_ORDER, LANG_LABEL, LANG_FLAG, LANG_NAME, labelsFor, pluralize } from './i18n.js'
+import { EN, HY, RU, LANG_ORDER, LANG_LABEL, LANG_FLAG, LANG_NAME, COUNTRY_NAMES, CITY_NAMES, labelsFor, pluralize } from './i18n.js'
 import { loadData, saveData } from './storage.js'
 import CityMap from './components/CityMap.jsx'
 import './design.css'
@@ -63,11 +63,14 @@ export default class App extends React.Component {
     lang: 'en',
     theme: 'auto',
     countryId: null, cityId: null, openCountry: null,
-    query: '', view: 'grid',
-    // Mobile nav drawer (sidebar slides in over content at ≤860px) and the
+    view: 'grid',
+    // Mobile nav drawer (retained but unused now the sidebar is gone) and the
     // overview's selected country (null = show the country grid, else drill
     // into that country's cities). Both are ephemeral UI state, never persisted.
     drawerOpen: false, overviewCountry: null, langMenuOpen: false,
+    // Overview search boxes: filter the country grid and the selected country's
+    // city grid by (localized) name. Ephemeral, reset when leaving the overview.
+    countryQuery: '', cityQuery: '',
     dialog: null, confirm: null, lightbox: null, dragIndex: null,
     // Viewer-only reorder for Print/PDF, keyed by cityId — never persisted, resets on refresh.
     viewerOrder: {},
@@ -106,6 +109,21 @@ export default class App extends React.Component {
   }
 
   L() { return labelsFor(this.state.lang) }
+
+  // Country/city display name in the current language: a curated override
+  // (COUNTRY_NAMES / CITY_NAMES, keyed by id) wins for non-English, else the
+  // name as authored in data.json.
+  pickCountryName(c) {
+    const t = COUNTRY_NAMES[c.id]
+    if (t && this.state.lang !== 'en' && t[this.state.lang]) return t[this.state.lang]
+    return c.name
+  }
+
+  pickCityName(ci) {
+    const t = CITY_NAMES[ci.id]
+    if (t && this.state.lang !== 'en' && t[this.state.lang]) return t[this.state.lang]
+    return ci.name
+  }
 
   // English/Russian descriptions are optional translations; fall back to the
   // original Armenian text when a translation is absent.
@@ -433,8 +451,6 @@ export default class App extends React.Component {
 
     const countries = s.data ? s.data.countries : []
     const sel = this.city()
-    const q = s.query.trim().toLowerCase()
-    const isSearching = q.length > 1
     const isOwner = this.isOwner()
 
     const stats = (ci) => {
@@ -459,7 +475,7 @@ export default class App extends React.Component {
           meta: this.pl(st.total, 'places'),
           ink: s.cityId === ci.id ? 'var(--accent)' : 'var(--ink)',
           rowBg: s.cityId === ci.id ? 'var(--accent-tint)' : 'transparent',
-          onClick: () => this.setState({ countryId: c.id, cityId: ci.id, query: '', view: 'grid', route: [], drawerOpen: false }),
+          onClick: () => this.setState({ countryId: c.id, cityId: ci.id, view: 'grid', route: [], drawerOpen: false }),
           onEdit: () => this.setState({ dialog: { kind: 'edit-city', id: ci.id, countryId: c.id, title: ci.name, name: ci.name, image: ci.image || '' } }),
           onDelete: () => this.askDelete(ci.name, () => this.mutate((d) => {
             const cc = d.countries.find((x) => x.id === c.id); cc.cities = cc.cities.filter((x) => x.id !== ci.id)
@@ -469,38 +485,29 @@ export default class App extends React.Component {
     }))
 
     const chapters = countries.map((c) => ({
-      id: c.id, name: c.name, flag: c.flag || '',
+      id: c.id, name: this.pickCountryName(c), flag: c.flag || '',
       meta: this.pl(c.cities.length, 'cities') + ' · ' + this.pl(c.cities.reduce((n, ci) => n + ci.landmarks.length, 0), 'places'),
-      // Overview drill-down: the grid of country cards picks one (onSelect),
-      // then only that country's chapter (isSelected) renders its cities.
+      // Overview drill-down: the grid of country cards picks one (onSelect,
+      // which also resets the city filter), then only that country's chapter
+      // (isSelected) renders its cities — those filtered by the city search box.
       isSelected: s.overviewCountry === c.id,
-      onSelect: () => this.setState({ overviewCountry: c.id }),
+      onSelect: () => this.setState({ overviewCountry: c.id, cityQuery: '' }),
       onAddCity: () => this.setState({ dialog: { kind: 'city', countryId: c.id, title: l.addCity, name: '', image: '' } }),
-      cities: c.cities.map((ci) => {
-        const st = stats(ci)
-        return {
-          id: ci.id, name: ci.name, image: ci.image || '',
-          count: this.pl(st.total, 'places'),
-          progress: st.pct,
-          onClick: () => this.setState({ countryId: c.id, cityId: ci.id, openCountry: c.id, view: 'grid', route: [] }),
-        }
-      }),
+      cities: c.cities
+        .filter((ci) => this.pickCityName(ci).toLowerCase().indexOf(s.cityQuery.trim().toLowerCase()) > -1)
+        .map((ci) => {
+          const st = stats(ci)
+          return {
+            id: ci.id, name: this.pickCityName(ci), image: ci.image || '',
+            count: this.pl(st.total, 'places'),
+            progress: st.pct,
+            onClick: () => this.setState({ countryId: c.id, cityId: ci.id, openCountry: c.id, view: 'grid', route: [] }),
+          }
+        }),
     }))
-
-    let results = []
-    if (isSearching) {
-      countries.forEach((c) => c.cities.forEach((ci) => ci.landmarks.forEach((lm) => {
-        const hay = (lm.name + ' ' + (lm.description || '') + ' ' + (lm.descriptionEn || '') + ' ' + (lm.descriptionRu || '')).toLowerCase()
-        if (hay.indexOf(q) === -1) return
-        results.push({
-          id: c.id + ci.id + lm.id, name: lm.name, image: lm.image || '',
-          where: ci.name + ' · ' + c.name,
-          snippet: this.pickDescription(lm).slice(0, 150),
-          onClick: () => this.setState({ countryId: c.id, cityId: ci.id, openCountry: c.id, query: '', route: [] }),
-        })
-      })))
-      results = results.slice(0, 40)
-    }
+    // The country grid is filtered by the country search box (matched against
+    // the localized name).
+    const chaptersFiltered = chapters.filter((ch) => ch.name.toLowerCase().indexOf(s.countryQuery.trim().toLowerCase()) > -1)
 
     // Cards render as one flat grid/column (design flattened the old per-day
     // grouping); groupDisplay/groupGap switch between the Cards and List views.
@@ -513,8 +520,8 @@ export default class App extends React.Component {
     if (sel) {
       const st = stats(sel.city)
       cityVals = {
-        name: sel.city.name, image: sel.city.image || '',
-        crumb: '← ' + sel.country.name,
+        name: this.pickCityName(sel.city), image: sel.city.image || '',
+        crumb: '← ' + this.pickCountryName(sel.country),
         meta: this.pl(st.total, 'places') + ' · ' + st.seen + ' ' + l.visited,
       }
       const orderedList = this.orderedLandmarks(sel.city)
@@ -531,11 +538,12 @@ export default class App extends React.Component {
     const routeReady = routeCount >= 2
 
     return {
-      L, tree, chapters, results, theme: mode,
+      L, tree, chapters: chaptersFiltered, theme: mode,
+      countryQuery: s.countryQuery, onCountryQuery: (e) => this.setState({ countryQuery: e.target.value }),
+      cityQuery: s.cityQuery, onCityQuery: (e) => this.setState({ cityQuery: e.target.value }),
+      noCountryMatch: chaptersFiltered.length === 0 && s.countryQuery.trim().length > 0,
       themeIcon: mode === 'dark' ? '☾' : '☀',
       toggleTheme: () => this.setTheme(mode === 'dark' ? 'light' : 'dark'),
-      query: s.query, isSearching, noResults: isSearching && results.length === 0,
-      resultsTitle: l.results + ' “' + s.query.trim() + '”',
       showSidebar: true,
       // Mobile drawer: at ≤860px the sidebar becomes an off-canvas panel toggled
       // by the header hamburger; 'drawer-open' slides it in and shows the backdrop.
@@ -543,13 +551,13 @@ export default class App extends React.Component {
       showDrawerBackdrop: true,
       toggleDrawer: () => this.setState({ drawerOpen: !s.drawerOpen }),
       closeDrawer: () => this.setState({ drawerOpen: false }),
-      showOverview: !isSearching && !sel,
+      showOverview: !sel,
       // Overview is two-level: a grid of country cards, then one country's cities.
       hasOverviewCountry: !!s.overviewCountry,
       showCountryGrid: !s.overviewCountry,
       selectedCountry,
-      clearOverviewCountry: () => this.setState({ overviewCountry: null }),
-      showCity: !isSearching && !!sel, isOwner,
+      clearOverviewCountry: () => this.setState({ overviewCountry: null, cityQuery: '' }),
+      showCity: !!sel, isOwner,
       city: cityVals || { name: '', image: '', crumb: '', meta: '' },
       mapCity: sel ? sel.city : null,
       landmarks, cityEmpty: !!sel && landmarks.length === 0,
@@ -560,7 +568,7 @@ export default class App extends React.Component {
       groupDisplay, groupGap,
       mapNote: missing ? (this.pl(mapped, 'places') + ' ' + l.pinnedSuffix + ' · ' + missing + ' ' + l.needCoords) : l.allPinned,
       overviewSummary: countries.length
-        ? countries.map((c) => c.name).join(' · ') + ' — ' +
+        ? countries.map((c) => this.pickCountryName(c)).join(' · ') + ' — ' +
           this.pl(countries.reduce((n, c) => n + c.cities.reduce((m, ci) => m + ci.landmarks.length, 0), 0), 'places')
         : '',
       // Language picker: the button shows the flag + compact code; clicking it
@@ -578,9 +586,7 @@ export default class App extends React.Component {
           try { localStorage.setItem('trips.lang', code) } catch (e) {}
         },
       })),
-      goHome: () => this.setState({ cityId: null, countryId: null, query: '', route: [], overviewCountry: null }),
-      onQuery: (e) => this.setState({ query: e.target.value }),
-      clearQuery: () => this.setState({ query: '' }),
+      goHome: () => this.setState({ cityId: null, countryId: null, route: [], overviewCountry: null, countryQuery: '', cityQuery: '' }),
       setViewGrid: () => this.setState({ view: 'grid' }),
       setViewList: () => this.setState({ view: 'list' }),
       setViewMap: () => this.setState({ view: 'map' }),
@@ -642,8 +648,8 @@ export default class App extends React.Component {
     return (
       <div data-theme={V.theme} data-t="app" style={css('display:flex; flex-direction:column; height:100vh; overflow:hidden; background:var(--paper); color:var(--ink); font-family:var(--sans)')}>
         <header data-t="hdr" className="trips-noprint" style={css('flex:0 0 auto; display:flex; align-items:center; gap:24px; padding:16px 28px; background:var(--surface); border-bottom:1px solid var(--border)')}>
-          {V.showSidebar && (
-            <button type="button" onClick={V.toggleDrawer} data-t="hamburger" title="Menu" style={css('align-items:center; justify-content:center; width:36px; height:36px; border:1px solid var(--border); background:var(--surface); border-radius:10px; cursor:pointer; flex:0 0 auto; font-size:16px; color:var(--ink)')}>☰</button>
+          {V.isOwner && (
+            <button type="button" onClick={V.addCountry} data-t="hamburger" title="Add country" className="trips-noprint" style={css('align-items:center; justify-content:center; width:36px; height:36px; border:1px solid var(--border); background:var(--surface); border-radius:10px; cursor:pointer; flex:0 0 auto; font-size:18px; color:var(--ink)')}>+</button>
           )}
 
           <button type="button" onClick={V.goHome} style={css('display:flex; align-items:center; gap:10px; border:none; background:none; padding:0; cursor:pointer; text-align:left; flex:0 0 auto')}>
@@ -656,12 +662,7 @@ export default class App extends React.Component {
             <span style={css("font-family:var(--sans); font-weight:600; font-size:27px; letter-spacing:-0.01em; color:var(--ink)")}>Tripline</span>
           </button>
 
-          <div data-t="search" style={css('flex:1 1 auto; max-width:480px; position:relative')}>
-            <El as="input" type="text" value={V.query} onChange={V.onQuery} placeholder={V.L.search}
-              base="width:100%; box-sizing:border-box; padding:10px 14px 10px 36px; border:1px solid var(--border); border-radius:999px; background:var(--field); color:var(--ink); font-size:14px; outline:none"
-              focus="border-color:var(--accent)" />
-            <span style={css('position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:13px; color:var(--ink-faint)')}>⌕</span>
-          </div>
+          <span style={css('flex:1 1 auto')}></span>
 
           <El as="button" type="button" onClick={V.toggleTheme} title="Theme" data-t="hdr-theme"
             base="border:1px solid var(--border); background:var(--surface); border-radius:999px; width:38px; height:34px; font-size:14px; color:var(--ink-faint); cursor:pointer; flex:0 0 auto"
@@ -682,90 +683,7 @@ export default class App extends React.Component {
         </header>
 
         <div data-t="shell" style={css('flex:1 1 auto; display:flex; min-height:0')}>
-          {V.showDrawerBackdrop && (
-            <div data-t="drawer-backdrop" className={V.drawerOpenClass} onClick={V.closeDrawer}></div>
-          )}
-          {V.showSidebar && (
-            <aside data-t="sidebar" className={('trips-noprint ' + V.drawerOpenClass).replace(/\s+/g, ' ').trim()} style={css('flex:0 0 288px; border-right:1px solid var(--border); background:var(--surface-sunk); overflow-y:auto; padding:22px 18px 40px')}>
-              <div style={css('display:flex; align-items:baseline; justify-content:space-between; margin-bottom:16px')}>
-                <span style={css('font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:var(--ink-faint)')}>{V.L.countries}</span>
-                {V.isOwner && (
-                  <button type="button" onClick={V.addCountry} style={css('border:none; background:none; color:var(--accent); font-size:12px; cursor:pointer; padding:0')}>{V.L.add}</button>
-                )}
-              </div>
-
-              <div style={css('display:flex; flex-direction:column; gap:4px')}>
-                {V.tree.map((c) => (
-                  <div key={c.id} style={css('display:flex; flex-direction:column')}>
-                    <El base={'display:flex; align-items:center; gap:8px; border-radius:10px; padding:7px 8px; background:' + c.rowBg} hover="background:var(--row-hover)">
-                      <button type="button" onClick={c.onClick} style={css('flex:1 1 auto; display:flex; align-items:center; gap:10px; min-width:0; border:none; background:none; padding:0; cursor:pointer; text-align:left')}>
-                        <img src={c.flag} alt="" style={css('width:30px; height:21px; object-fit:cover; border-radius:3px; background:var(--image-bg); flex:0 0 auto')} />
-                        <span style={css("flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:var(--sans); font-weight:600; font-size:17px; color:var(--ink)")}>{c.name}</span>
-                        <span style={css('font-size:11px; color:var(--ink-faint); flex:0 0 auto')}>{c.count}</span>
-                      </button>
-                      {V.isOwner && (
-                        <span style={css('display:inline-flex; align-items:center; border:1px solid var(--border-soft); border-radius:999px; overflow:hidden')}>
-                          <El as="button" type="button" onClick={c.onEdit} title="Edit" base="display:inline-flex; align-items:center; justify-content:center; width:24px; height:22px; border:none; background:none; color:var(--ink-faint); cursor:pointer; font-size:11px" hover="background:var(--accent-hover); color:#ffffff">✎</El>
-                          <span style={css('width:1px; align-self:stretch; background:var(--border-soft)')}></span>
-                          <El as="button" type="button" onClick={c.onDelete} title="Delete" base="display:inline-flex; align-items:center; justify-content:center; width:24px; height:22px; border:none; background:none; color:var(--ink-faint); cursor:pointer; font-size:11px" hover="background:#b3543e; color:#ffffff">✕</El>
-                        </span>
-                      )}
-                    </El>
-
-                    {c.open && (
-                      <div style={css('display:flex; flex-direction:column; gap:2px; margin:4px 0 8px 20px; padding-left:12px; border-left:1px solid var(--border-soft)')}>
-                        {c.cities.map((ci) => (
-                          <El key={ci.id} base={'display:flex; align-items:center; gap:9px; border-radius:11px; padding:6px 8px; background:' + ci.rowBg} hover="background:var(--row-hover)">
-                            <button type="button" onClick={ci.onClick} style={css('flex:1 1 auto; display:flex; align-items:center; gap:10px; min-width:0; border:none; background:none; padding:0; cursor:pointer; text-align:left')}>
-                              <img src={ci.image} alt="" style={css('width:30px; height:30px; object-fit:cover; border-radius:8px; background:var(--image-bg); flex:0 0 auto')} />
-                              <span style={css('flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:1px')}>
-                                <span style={css('overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13.5px; font-weight:500; color:' + ci.ink)}>{ci.name}</span>
-                                <span style={css('font-size:10.5px; color:var(--ink-fainter)')}>{ci.meta}</span>
-                              </span>
-                            </button>
-                            {V.isOwner && (
-                              <span style={css('display:inline-flex; align-items:center; border:1px solid var(--border-soft); border-radius:999px; overflow:hidden')}>
-                                <El as="button" type="button" onClick={ci.onEdit} title="Edit" base="display:inline-flex; align-items:center; justify-content:center; width:21px; height:20px; border:none; background:none; color:var(--ink-faint); cursor:pointer; font-size:10px" hover="background:var(--accent-hover); color:#ffffff">✎</El>
-                                <span style={css('width:1px; align-self:stretch; background:var(--border-soft)')}></span>
-                                <El as="button" type="button" onClick={ci.onDelete} title="Delete" base="display:inline-flex; align-items:center; justify-content:center; width:21px; height:20px; border:none; background:none; color:var(--ink-faint); cursor:pointer; font-size:10px" hover="background:#b3543e; color:#ffffff">✕</El>
-                              </span>
-                            )}
-                          </El>
-                        ))}
-                        {V.isOwner && (
-                          <El as="button" type="button" onClick={c.onAddCity} base="margin-top:6px; display:flex; align-items:center; border:1px solid transparent; background:var(--accent-tint); color:var(--accent-hover); border-radius:11px; padding:7px 10px; font-size:12.5px; font-weight:500; text-align:left; cursor:pointer" hover="border-color:var(--seen-edge)">{V.L.addCity}</El>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </aside>
-          )}
-
           <main data-t="app" style={css('flex:1 1 auto; overflow-y:auto; min-width:0; background:var(--paper)')}>
-            {V.isSearching && (
-              <div style={css('padding:34px 40px 60px; animation:tripsFade 0.25s ease')}>
-                <div style={css('display:flex; align-items:baseline; gap:12px; margin-bottom:22px')}>
-                  <h2 style={css("margin:0; font-family:var(--sans); font-weight:400; font-size:30px; color:var(--ink)")}>{V.resultsTitle}</h2>
-                  <button type="button" onClick={V.clearQuery} className="trips-noprint" style={css('border:none; background:none; color:var(--accent); font-size:13px; cursor:pointer')}>{V.L.clear}</button>
-                </div>
-                <div style={css('display:flex; flex-direction:column; gap:10px; max-width:900px')}>
-                  {V.results.map((r) => (
-                    <El key={r.id} as="button" type="button" onClick={r.onClick} base="display:flex; align-items:center; gap:16px; text-align:left; border:1px solid var(--border-soft); background:var(--card); border-radius:14px; padding:12px; cursor:pointer" hover="border-color:var(--accent)">
-                      <img src={r.image} alt="" style={css('width:88px; height:64px; object-fit:cover; border-radius:9px; background:var(--image-bg); flex:0 0 auto')} />
-                      <span style={css('flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:4px')}>
-                        <span style={css("font-family:var(--sans); font-weight:600; font-size:19px; color:var(--ink)")}>{r.name}</span>
-                        <span style={css('font-size:12px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-faint)')}>{r.where}</span>
-                        <span style={css('font-size:13px; color:var(--ink-muted); line-height:1.5; overflow:hidden; display:block; max-height:40px')}>{r.snippet}</span>
-                      </span>
-                    </El>
-                  ))}
-                </div>
-                {V.noResults && <p style={css('color:var(--ink-faint); font-style:italic')}>{V.L.noResults}</p>}
-              </div>
-            )}
-
             {V.showOverview && (
               <div style={css('padding:0 0 70px; animation:tripsFade 0.25s ease')}>
                 <div data-t="pad" style={css('padding:44px 40px 30px; max-width:760px')}>
@@ -786,6 +704,7 @@ export default class App extends React.Component {
                         <El as="button" type="button" onClick={V.selectedCountry.onAddCity} className="trips-noprint" base="border:1px solid var(--border); background:var(--surface); border-radius:999px; padding:6px 14px; font-size:12.5px; color:var(--ink-muted); cursor:pointer" hover="border-color:var(--accent); color:var(--accent)">{V.L.addCity}</El>
                       )}
                     </div>
+                    <El as="input" type="text" value={V.cityQuery} onChange={V.onCityQuery} placeholder="Search cities" base="width:100%; max-width:320px; box-sizing:border-box; padding:9px 14px; margin-bottom:18px; border:1px solid var(--border); border-radius:999px; background:var(--field); color:var(--ink); font-size:14px; outline:none" focus="border-color:var(--accent)" />
                     <div style={css('display:grid; grid-template-columns:repeat(auto-fill, minmax(268px, 1fr)); gap:22px')}>
                       {V.selectedCountry.cities.map((ci) => (
                         <El key={ci.id} as="button" type="button" onClick={ci.onClick} base="display:flex; flex-direction:column; text-align:left; padding:0; border:1px solid var(--border-soft); border-radius:16px; overflow:hidden; background:var(--card); cursor:pointer; transition:transform 0.18s ease, box-shadow 0.18s ease" hover="transform:translateY(-3px); box-shadow:0 14px 30px rgba(26,29,22,0.18)">
@@ -807,6 +726,8 @@ export default class App extends React.Component {
 
                 {V.showCountryGrid && (
                   <div data-t="pad" style={css('padding:8px 40px 34px')}>
+                    <El as="input" type="text" value={V.countryQuery} onChange={V.onCountryQuery} placeholder="Search countries" base="width:100%; max-width:320px; box-sizing:border-box; padding:9px 14px; margin-bottom:18px; border:1px solid var(--border); border-radius:999px; background:var(--field); color:var(--ink); font-size:14px; outline:none" focus="border-color:var(--accent)" />
+                    {V.noCountryMatch && <p style={css('color:var(--ink-faint); font-style:italic')}>{V.L.noResults}</p>}
                     <div style={css('display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:18px')}>
                       {V.chapters.map((ch) => (
                         <El key={ch.id} as="button" type="button" onClick={ch.onSelect} base="display:flex; align-items:center; gap:14px; text-align:left; padding:14px 16px; border:1px solid var(--border-soft); border-radius:16px; background:var(--card); cursor:pointer; transition:transform 0.18s ease, box-shadow 0.18s ease" hover="transform:translateY(-3px); box-shadow:0 14px 30px rgba(26,29,22,0.14)">

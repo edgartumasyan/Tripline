@@ -13,8 +13,9 @@
   display: none;
 }
 
-/* ≤860px: the header items reflow (flex order) and the sidebar becomes an
-   off-canvas drawer that slides in from the right, toggled by the hamburger. */
+/* ≤860px: the header items reflow (flex order). The off-canvas sidebar/drawer
+   rules are retained from the design helmet but no longer have any elements to
+   act on — the sidebar was replaced by the overview's country/city grid. */
 @media (max-width: 860px) {
   [data-t~='shell'] {
     flex-direction: column !important;
@@ -22,17 +23,18 @@
   [data-t~='hamburger'] {
     display: flex !important;
     order: 5;
-  }
-  [data-t~='search'] {
-    order: 2;
-    flex: 1 1 auto;
-    max-width: none !important;
+    flex: 0 0 auto;
   }
   [data-t~='hdr-lang'] {
     order: 3;
+    flex: 0 0 auto;
   }
   [data-t~='hdr-theme'] {
     order: 4;
+    flex: 0 0 auto;
+  }
+  [data-t~='hdr'] {
+    gap: 8px !important;
   }
   [data-t~='sidebar'] {
     position: fixed !important;
@@ -63,7 +65,12 @@
 /* ≤720px: tighter chrome, a shorter hero, and the floating directions FAB. */
 @media (max-width: 720px) {
   [data-t~='hdr'] {
-    padding: 12px 16px !important;
+    padding: 12px 12px !important;
+    gap: 6px !important;
+  }
+  [data-t~='hdr-lang'] button {
+    min-width: 0 !important;
+    padding: 7px 10px !important;
   }
   [data-t~='pad'] {
     padding-left: 18px !important;

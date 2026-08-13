@@ -204,6 +204,19 @@ export const LANG_LABEL = { en: 'EN', hy: 'ՀԱՅ', ru: 'RU' }
 export const LANG_FLAG = { en: '🇬🇧', hy: '🇦🇲', ru: '🇷🇺' }
 export const LANG_NAME = { en: 'English', hy: 'Հայերեն', ru: 'Русский' }
 
+// Localized display names for specific countries/cities, keyed by their
+// data.json id. Only non-English names are listed; English (and any id not
+// listed here) falls back to the name authored in data.json.
+export const COUNTRY_NAMES = {
+  spain: { hy: 'Իսպանիա', ru: 'Испания' },
+  italy: { hy: 'Իտալիա', ru: 'Италия' },
+}
+export const CITY_NAMES = {
+  madrid: { hy: 'Մադրիդ', ru: 'Мадрид' },
+  valencia: { hy: 'Վալենսիա', ru: 'Валенсия' },
+  rome: { hy: 'Հռոմ', ru: 'Рим' },
+}
+
 // Word forms for "N cities / places / days" per language, so counts read
 // naturally instead of always using the English plural rule.
 const PLURALS = {
