@@ -71,6 +71,9 @@ export default class App extends React.Component {
     // Overview search boxes: filter the country grid and the selected country's
     // city grid by (localized) name. Ephemeral, reset when leaving the overview.
     countryQuery: '', cityQuery: '',
+    // Which overview card's ⋮ menu is open, encoded as 'country:<id>' / 'city:<id>'
+    // (null = none). One-at-a-time; a click-away backdrop closes it. Ephemeral.
+    cardMenuOpen: null,
     dialog: null, confirm: null, lightbox: null, dragIndex: null,
     // Viewer-only reorder for Print/PDF, keyed by cityId — never persisted, resets on refresh.
     viewerOrder: {},
@@ -85,11 +88,28 @@ export default class App extends React.Component {
     if (savedTheme) this.setState({ theme: savedTheme })
     const savedLang = localStorage.getItem('trips.lang')
     if (savedLang && LANGS[savedLang]) this.setState({ lang: savedLang })
+    // Restore where the user last was (country / city / overview / view) so a
+    // refresh or shared link lands back on the same screen. Ephemeral, in
+    // localStorage only — never part of the saved document.
+    try {
+      const savedNav = JSON.parse(localStorage.getItem('trips.nav') || 'null')
+      if (savedNav) this.setState(savedNav)
+    } catch (e) {}
     loadData().then((d) => this.setState({ data: d }))
     this.applyTheme()
   }
 
-  componentDidUpdate() { this.applyTheme() }
+  componentDidUpdate(prevProps) {
+    this.applyTheme()
+    // Persist navigation position whenever it changes (compared against a cached
+    // signature so unrelated re-renders don't rewrite localStorage).
+    const nav = { countryId: this.state.countryId, cityId: this.state.cityId, overviewCountry: this.state.overviewCountry, view: this.state.view }
+    const navStr = JSON.stringify(nav)
+    if (this._lastNavStr !== navStr) {
+      this._lastNavStr = navStr
+      try { localStorage.setItem('trips.nav', navStr) } catch (e) {}
+    }
+  }
 
   applyTheme() { document.documentElement.setAttribute('data-theme', this.mode()) }
 
@@ -511,6 +531,12 @@ export default class App extends React.Component {
       // (isSelected) renders its cities — those filtered by the city search box.
       isSelected: s.overviewCountry === c.id,
       onSelect: () => this.setState({ overviewCountry: c.id, cityQuery: '' }),
+      // Country card / country-header ⋮ menu (keyed 'country:<id>'). Editing or
+      // deleting from it closes the menu as it opens the dialog / confirm.
+      menuOpen: s.cardMenuOpen === 'country:' + c.id,
+      onToggleMenu: () => this.setState({ cardMenuOpen: s.cardMenuOpen === 'country:' + c.id ? null : 'country:' + c.id }),
+      onEdit: () => this.setState({ dialog: { kind: 'edit-country', id: c.id, title: c.name, name: c.name, image: c.flag || '' }, cardMenuOpen: null }),
+      onDelete: () => { this.setState({ cardMenuOpen: null }); this.askDelete(c.name, () => this.mutate((d) => { d.countries = d.countries.filter((x) => x.id !== c.id) })) },
       onAddCity: () => this.setState({ dialog: { kind: 'city', countryId: c.id, title: l.addCity, name: '', image: '' } }),
       cities: c.cities
         .filter((ci) => this.matchesQuery(this.cityNames(ci), s.cityQuery))
@@ -521,6 +547,13 @@ export default class App extends React.Component {
             count: this.pl(st.total, 'places'),
             progress: st.pct,
             onClick: () => this.setState({ countryId: c.id, cityId: ci.id, openCountry: c.id, view: 'grid', route: [] }),
+            // City card ⋮ menu (keyed 'city:<id>').
+            menuOpen: s.cardMenuOpen === 'city:' + ci.id,
+            onToggleMenu: () => this.setState({ cardMenuOpen: s.cardMenuOpen === 'city:' + ci.id ? null : 'city:' + ci.id }),
+            onEdit: () => this.setState({ dialog: { kind: 'edit-city', id: ci.id, countryId: c.id, title: ci.name, name: ci.name, image: ci.image || '' }, cardMenuOpen: null }),
+            onDelete: () => { this.setState({ cardMenuOpen: null }); this.askDelete(ci.name, () => this.mutate((d) => {
+              const cc = d.countries.find((x) => x.id === c.id); cc.cities = cc.cities.filter((x) => x.id !== ci.id)
+            })) },
           }
         }),
     }))
@@ -531,7 +564,7 @@ export default class App extends React.Component {
     // Cards render as one flat grid/column (design flattened the old per-day
     // grouping); groupDisplay/groupGap switch between the Cards and List views.
     let landmarks = [], cityVals = null, groupDisplay = 'grid', groupGap = '22px'
-    let selectedCountry = { flag: '', name: '', meta: '', onAddCity: () => {}, cities: [] }
+    let selectedCountry = { flag: '', name: '', meta: '', onAddCity: () => {}, cities: [], menuOpen: false, onToggleMenu: () => {}, onEdit: () => {}, onDelete: () => {} }
     if (s.overviewCountry) {
       const ch0 = chapters.find((c) => c.isSelected)
       if (ch0) selectedCountry = ch0
@@ -561,6 +594,8 @@ export default class App extends React.Component {
       countryQuery: s.countryQuery, onCountryQuery: (e) => this.setState({ countryQuery: e.target.value }),
       cityQuery: s.cityQuery, onCityQuery: (e) => this.setState({ cityQuery: e.target.value }),
       noCountryMatch: chaptersFiltered.length === 0 && s.countryQuery.trim().length > 0,
+      // Overview ⋮ menus: which is open, and a click-away backdrop to close it.
+      cardMenuOpen: s.cardMenuOpen, closeCardMenu: () => this.setState({ cardMenuOpen: null }),
       themeIcon: mode === 'dark' ? '☾' : '☀',
       toggleTheme: () => this.setTheme(mode === 'dark' ? 'light' : 'dark'),
       showSidebar: true,
@@ -605,7 +640,7 @@ export default class App extends React.Component {
           try { localStorage.setItem('trips.lang', code) } catch (e) {}
         },
       })),
-      goHome: () => this.setState({ cityId: null, countryId: null, route: [], overviewCountry: null, countryQuery: '', cityQuery: '' }),
+      goHome: () => { this.setState({ cityId: null, countryId: null, route: [], overviewCountry: null, countryQuery: '', cityQuery: '', view: 'grid' }); try { localStorage.removeItem('trips.nav') } catch (e) {} },
       setViewGrid: () => this.setState({ view: 'grid' }),
       setViewList: () => this.setState({ view: 'list' }),
       setViewMap: () => this.setState({ view: 'map' }),
@@ -618,8 +653,9 @@ export default class App extends React.Component {
       routeDisabled: !routeReady,
       routeTitle: !routeReady ? l.routeHint : (routeCount >= MAX_ROUTE ? l.routeCapped : ''),
       routeBtnStyle: routeReady
-        ? 'border:1px solid var(--accent); background:var(--accent); color:var(--accent-btn-ink); border-radius:999px; padding:8px 16px; font-size:13px; font-weight:500; cursor:pointer'
+        ? 'border:1px solid var(--accent); background:var(--accent); color:var(--accent-btn-ink); border-radius:999px; padding:8px 16px; font-size:13px; font-weight:600; cursor:pointer'
         : 'border:1px solid var(--border); background:var(--surface); color:var(--ink-fainter); border-radius:999px; padding:8px 16px; font-size:13px; cursor:not-allowed',
+      routeBtnHover: routeReady ? 'background:var(--accent-hover); border-color:var(--accent-hover)' : '',
       routeLabel: l.directions + (routeCount ? ' (' + routeCount + ')' : ''),
       onDirections: () => this.openDirections(),
       // The "Print / PDF" button opens the browser's print dialog. The @media
@@ -667,10 +703,6 @@ export default class App extends React.Component {
     return (
       <div data-theme={V.theme} data-t="app" style={css('display:flex; flex-direction:column; height:100vh; overflow:hidden; background:var(--paper); color:var(--ink); font-family:var(--sans)')}>
         <header data-t="hdr" className="trips-noprint" style={css('flex:0 0 auto; display:flex; align-items:center; gap:24px; padding:16px 28px; background:var(--surface); border-bottom:1px solid var(--border)')}>
-          {V.isOwner && (
-            <button type="button" onClick={V.addCountry} data-t="hamburger" title="Add country" className="trips-noprint" style={css('align-items:center; justify-content:center; width:36px; height:36px; border:1px solid var(--border); background:var(--surface); border-radius:10px; cursor:pointer; flex:0 0 auto; font-size:18px; color:var(--ink)')}>+</button>
-          )}
-
           <button type="button" onClick={V.goHome} style={css('display:flex; align-items:center; gap:10px; border:none; background:none; padding:0; cursor:pointer; text-align:left; flex:0 0 auto')}>
             <svg width="26" height="26" viewBox="0 0 64 64" style={{ flex: '0 0 auto' }}>
               <rect width="64" height="64" rx="14" fill="var(--accent)" />
@@ -703,6 +735,9 @@ export default class App extends React.Component {
 
         <div data-t="shell" style={css('flex:1 1 auto; display:flex; min-height:0')}>
           <main data-t="app" style={css('flex:1 1 auto; overflow-y:auto; min-width:0; background:var(--paper)')}>
+            {V.cardMenuOpen && (
+              <div className="trips-noprint" onClick={V.closeCardMenu} style={css('position:fixed; inset:0; z-index:20; background:none')}></div>
+            )}
             {V.showOverview && (
               <div style={css('padding:0 0 70px; animation:tripsFade 0.25s ease')}>
                 <div data-t="pad" style={css('padding:44px 40px 30px; max-width:760px')}>
@@ -713,30 +748,54 @@ export default class App extends React.Component {
 
                 {V.hasOverviewCountry && (
                   <section data-t="pad" style={css('padding:8px 40px 34px')}>
-                    <div style={css('display:flex; align-items:center; gap:14px; padding-bottom:12px; margin-bottom:20px; border-bottom:1px solid var(--border)')}>
+                    <div data-t="country-hdr" style={css('display:flex; align-items:center; gap:14px; padding-bottom:12px; margin-bottom:20px; border-bottom:1px solid var(--border); flex-wrap:wrap')}>
                       <El as="button" type="button" onClick={V.clearOverviewCountry} base="border:none; background:none; color:var(--ink-faint); font-size:13px; cursor:pointer; padding:0" hover="color:var(--accent)">← {V.L.countries}</El>
                       <img src={V.selectedCountry.flag} alt="" style={css('width:38px; height:26px; object-fit:cover; border-radius:3px; background:var(--image-bg)')} />
                       <h2 style={css("margin:0; font-family:var(--sans); font-weight:400; font-size:26px; color:var(--ink)")}>{V.selectedCountry.name}</h2>
-                      <span style={css('font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-faint)')}>{V.selectedCountry.meta}</span>
-                      <span style={css('flex:1 1 auto')}></span>
+                      <span data-t="country-meta" style={css('font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-faint); white-space:nowrap')}>{V.selectedCountry.meta}</span>
+                      <span data-t="country-hdr-spacer" style={css('flex:1 1 auto')}></span>
                       {V.isOwner && (
-                        <El as="button" type="button" onClick={V.selectedCountry.onAddCity} className="trips-noprint" base="border:1px solid var(--border); background:var(--surface); border-radius:999px; padding:6px 14px; font-size:12.5px; color:var(--ink-muted); cursor:pointer" hover="border-color:var(--accent); color:var(--accent)">{V.L.addCity}</El>
+                        <El as="button" type="button" onClick={V.selectedCountry.onAddCity} className="trips-noprint" base="border:1px solid var(--accent); background:var(--accent); color:var(--accent-btn-ink); border-radius:999px; padding:7px 16px; font-size:12.5px; font-weight:600; cursor:pointer; white-space:nowrap" hover="background:var(--accent-hover); border-color:var(--accent-hover)">+ {V.L.addCity}</El>
+                      )}
+                      {V.isOwner && (
+                        <div className="trips-noprint" style={css('position:relative')}>
+                          <El as="button" type="button" onClick={V.selectedCountry.onToggleMenu} title="More" base="display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border:1px solid var(--border-soft); border-radius:8px; background:var(--surface); color:var(--ink-faint); cursor:pointer; font-size:15px" hover="border-color:var(--accent); color:var(--accent)">⋮</El>
+                          {V.selectedCountry.menuOpen && (
+                            <div style={css('position:absolute; top:36px; right:0; z-index:21; min-width:130px; border:1px solid var(--border-soft); border-radius:10px; background:var(--surface); box-shadow:0 10px 24px rgba(0,0,0,0.28); overflow:hidden')}>
+                              <El as="button" type="button" onClick={V.selectedCountry.onEdit} base="display:block; width:100%; text-align:left; padding:9px 14px; border:none; background:none; color:var(--ink); font-size:13px; cursor:pointer" hover="background:var(--row-hover)">✎ {V.L.edit}</El>
+                              <El as="button" type="button" onClick={V.selectedCountry.onDelete} base="display:block; width:100%; text-align:left; padding:9px 14px; border:none; background:none; color:#c5695a; font-size:13px; cursor:pointer" hover="background:var(--row-hover)">✕ {V.L.delete}</El>
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
                     <El as="input" type="text" value={V.cityQuery} onChange={V.onCityQuery} placeholder="Search cities" base="width:100%; max-width:320px; box-sizing:border-box; padding:9px 14px; margin-bottom:18px; border:1px solid var(--border); border-radius:999px; background:var(--field); color:var(--ink); font-size:14px; outline:none" focus="border-color:var(--accent)" />
                     <div style={css('display:grid; grid-template-columns:repeat(auto-fill, minmax(268px, 1fr)); gap:22px')}>
                       {V.selectedCountry.cities.map((ci) => (
-                        <El key={ci.id} as="button" type="button" onClick={ci.onClick} base="display:flex; flex-direction:column; text-align:left; padding:0; border:1px solid var(--border-soft); border-radius:16px; overflow:hidden; background:var(--card); cursor:pointer; transition:transform 0.18s ease, box-shadow 0.18s ease" hover="transform:translateY(-3px); box-shadow:0 14px 30px rgba(26,29,22,0.18)">
-                          <span style={css('display:block; position:relative; aspect-ratio:4/3; background:var(--image-bg)')}>
-                            <img src={ci.image} alt="" style={css('width:100%; height:100%; object-fit:cover; display:block')} />
-                            <span style={css('position:absolute; left:12px; bottom:12px; background:rgba(26,29,22,0.72); color:#ffffff; border-radius:999px; padding:4px 10px; font-size:11px; letter-spacing:0.06em; text-transform:uppercase')}>{ci.count}</span>
-                          </span>
-                          <span style={css('display:flex; flex-direction:column; gap:5px; padding:14px 16px 17px')}>
-                            <span style={css("font-family:var(--sans); font-weight:600; font-size:22px; line-height:1.15; color:var(--ink)")}>{ci.name}</span>
-                            <span style={css('height:3px; border-radius:3px; background:var(--image-bg); display:block; overflow:hidden')}>
-                              <span style={css('display:block; height:100%; width:' + ci.progress + '; background:var(--teal)')}></span>
+                        <El key={ci.id} base="position:relative; border:1px solid var(--border-soft); border-radius:16px; overflow:hidden; background:var(--card); transition:transform 0.18s ease, box-shadow 0.18s ease" hover="transform:translateY(-3px); box-shadow:0 14px 30px rgba(26,29,22,0.18)">
+                          <button type="button" onClick={ci.onClick} style={css('display:flex; flex-direction:column; text-align:left; width:100%; padding:0; border:none; background:none; cursor:pointer')}>
+                            <span style={css('display:block; position:relative; aspect-ratio:4/3; overflow:hidden; min-height:0; background:var(--image-bg)')}>
+                              <img src={ci.image} alt="" style={css('width:100%; height:100%; object-fit:cover; display:block')} />
+                              <span style={css('position:absolute; left:12px; bottom:12px; background:rgba(26,29,22,0.72); color:#ffffff; border-radius:999px; padding:4px 10px; font-size:11px; letter-spacing:0.06em; text-transform:uppercase')}>{ci.count}</span>
                             </span>
-                          </span>
+                            <span style={css('display:flex; flex-direction:column; gap:5px; padding:14px 16px 17px')}>
+                              <span style={css("font-family:var(--sans); font-weight:600; font-size:22px; line-height:1.15; color:var(--ink)")}>{ci.name}</span>
+                              <span style={css('height:3px; border-radius:3px; background:var(--image-bg); display:block; overflow:hidden')}>
+                                <span style={css('display:block; height:100%; width:' + ci.progress + '; background:var(--teal)')}></span>
+                              </span>
+                            </span>
+                          </button>
+                          {V.isOwner && (
+                            <div className="trips-noprint" style={css('position:absolute; top:9px; right:9px')}>
+                              <El as="button" type="button" onClick={ci.onToggleMenu} title="More" base="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border:1px solid var(--border-soft); border-radius:8px; background:var(--surface); color:var(--ink-faint); cursor:pointer; font-size:14px" hover="border-color:var(--accent); color:var(--accent)">⋮</El>
+                              {ci.menuOpen && (
+                                <div style={css('position:absolute; top:30px; right:0; z-index:21; min-width:130px; border:1px solid var(--border-soft); border-radius:10px; background:var(--surface); box-shadow:0 10px 24px rgba(0,0,0,0.28); overflow:hidden')}>
+                                  <El as="button" type="button" onClick={ci.onEdit} base="display:block; width:100%; text-align:left; padding:9px 14px; border:none; background:none; color:var(--ink); font-size:13px; cursor:pointer" hover="background:var(--row-hover)">✎ {V.L.edit}</El>
+                                  <El as="button" type="button" onClick={ci.onDelete} base="display:block; width:100%; text-align:left; padding:9px 14px; border:none; background:none; color:#c5695a; font-size:13px; cursor:pointer" hover="background:var(--row-hover)">✕ {V.L.delete}</El>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </El>
                       ))}
                     </div>
@@ -745,22 +804,38 @@ export default class App extends React.Component {
 
                 {V.showCountryGrid && (
                   <div data-t="pad" style={css('padding:8px 40px 34px')}>
-                    <El as="input" type="text" value={V.countryQuery} onChange={V.onCountryQuery} placeholder="Search countries" base="width:100%; max-width:320px; box-sizing:border-box; padding:9px 14px; margin-bottom:18px; border:1px solid var(--border); border-radius:999px; background:var(--field); color:var(--ink); font-size:14px; outline:none" focus="border-color:var(--accent)" />
+                    <div style={css('display:flex; align-items:center; gap:12px; margin-bottom:18px')}>
+                      <El as="input" type="text" value={V.countryQuery} onChange={V.onCountryQuery} placeholder="Search countries" base="flex:1 1 auto; max-width:320px; box-sizing:border-box; padding:9px 14px; border:1px solid var(--border); border-radius:999px; background:var(--field); color:var(--ink); font-size:14px; outline:none" focus="border-color:var(--accent)" />
+                      <span style={css('flex:1 1 auto')}></span>
+                      {V.isOwner && (
+                        <El as="button" type="button" onClick={V.addCountry} className="trips-noprint" base="border:1px solid var(--accent); background:var(--accent); color:var(--accent-btn-ink); border-radius:999px; padding:9px 16px; font-size:12.5px; font-weight:600; cursor:pointer; flex:0 0 auto; white-space:nowrap" hover="background:var(--accent-hover); border-color:var(--accent-hover)">+ {V.L.addCountry}</El>
+                      )}
+                    </div>
                     {V.noCountryMatch && <p style={css('color:var(--ink-faint); font-style:italic')}>{V.L.noResults}</p>}
                     <div style={css('display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:18px')}>
                       {V.chapters.map((ch) => (
-                        <El key={ch.id} as="button" type="button" onClick={ch.onSelect} base="display:flex; align-items:center; gap:14px; text-align:left; padding:14px 16px; border:1px solid var(--border-soft); border-radius:16px; background:var(--card); cursor:pointer; transition:transform 0.18s ease, box-shadow 0.18s ease" hover="transform:translateY(-3px); box-shadow:0 14px 30px rgba(26,29,22,0.14)">
-                          <img src={ch.flag} alt="" style={css('width:48px; height:34px; object-fit:cover; border-radius:5px; background:var(--image-bg); flex:0 0 auto')} />
-                          <span style={css('flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:3px')}>
-                            <span style={css("font-family:var(--sans); font-weight:600; font-size:19px; color:var(--ink)")}>{ch.name}</span>
-                            <span style={css('font-size:12px; color:var(--ink-faint)')}>{ch.meta}</span>
-                          </span>
+                        <El key={ch.id} base="position:relative; display:flex; align-items:flex-start; border:1px solid var(--border-soft); border-radius:16px; background:var(--card); transition:transform 0.18s ease, box-shadow 0.18s ease" hover="transform:translateY(-3px); box-shadow:0 14px 30px rgba(26,29,22,0.14)">
+                          <button type="button" onClick={ch.onSelect} style={css('display:flex; align-items:center; gap:14px; text-align:left; flex:1 1 auto; min-width:0; padding:14px 16px; border:none; background:none; cursor:pointer')}>
+                            <img src={ch.flag} alt="" style={css('width:48px; height:34px; object-fit:cover; border-radius:5px; background:var(--image-bg); flex:0 0 auto')} />
+                            <span style={css('flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:3px')}>
+                              <span style={css("font-family:var(--sans); font-weight:600; font-size:19px; color:var(--ink); line-height:1.25")}>{ch.name}</span>
+                              <span style={css('font-size:12px; color:var(--ink-faint)')}>{ch.meta}</span>
+                            </span>
+                          </button>
+                          {V.isOwner && (
+                            <div className="trips-noprint" style={css('position:relative; flex:0 0 auto; padding:10px 10px 0 0')}>
+                              <El as="button" type="button" onClick={ch.onToggleMenu} title="More" base="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border:1px solid var(--border-soft); border-radius:8px; background:var(--surface); color:var(--ink-faint); cursor:pointer; font-size:14px" hover="border-color:var(--accent); color:var(--accent)">⋮</El>
+                              {ch.menuOpen && (
+                                <div style={css('position:absolute; top:30px; right:0; z-index:21; min-width:130px; border:1px solid var(--border-soft); border-radius:10px; background:var(--surface); box-shadow:0 10px 24px rgba(0,0,0,0.28); overflow:hidden')}>
+                                  <El as="button" type="button" onClick={ch.onEdit} base="display:block; width:100%; text-align:left; padding:9px 14px; border:none; background:none; color:var(--ink); font-size:13px; cursor:pointer" hover="background:var(--row-hover)">✎ {V.L.edit}</El>
+                                  <El as="button" type="button" onClick={ch.onDelete} base="display:block; width:100%; text-align:left; padding:9px 14px; border:none; background:none; color:#c5695a; font-size:13px; cursor:pointer" hover="background:var(--row-hover)">✕ {V.L.delete}</El>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </El>
                       ))}
                     </div>
-                    {V.isOwner && (
-                      <El as="button" type="button" onClick={V.addCountry} className="trips-noprint" base="margin-top:18px; border:1px dashed var(--border-dashed); background:none; border-radius:14px; padding:16px 22px; font-size:13.5px; color:var(--ink-faint); cursor:pointer; width:100%; text-align:left" hover="border-color:var(--accent); color:var(--accent)">{V.L.addCountry}</El>
-                    )}
                   </div>
                 )}
               </div>
@@ -791,12 +866,12 @@ export default class App extends React.Component {
                     <El as="button" type="button" onClick={V.clearRoute} className="trips-noprint" base="border:1px solid var(--border); background:var(--surface); border-radius:999px; padding:8px 16px; font-size:13px; color:var(--ink-muted); cursor:pointer" hover="border-color:#b3543e; color:#b3543e">{V.clearRouteLabel}</El>
                   )}
                   {V.isCards && (
-                    <button type="button" onClick={V.onDirections} disabled={V.routeDisabled} title={V.routeTitle} className="trips-noprint" style={css(V.routeBtnStyle)}>🧭 {V.routeLabel}</button>
+                    <El as="button" type="button" onClick={V.onDirections} disabled={V.routeDisabled} title={V.routeTitle} className="trips-noprint" base={V.routeBtnStyle} hover={V.routeBtnHover}>🧭 {V.routeLabel}</El>
                   )}
                   <El as="button" type="button" onClick={V.shareCity} className="trips-noprint" base="border:1px solid var(--border); background:var(--surface); border-radius:999px; padding:8px 16px; font-size:13px; color:var(--ink-muted); cursor:pointer" hover="border-color:var(--accent); color:var(--accent)">{V.L.share}</El>
                   <El as="button" type="button" onClick={V.printCity} className="trips-noprint" base="border:1px solid var(--border); background:var(--surface); border-radius:999px; padding:8px 16px; font-size:13px; color:var(--ink-muted); cursor:pointer" hover="border-color:var(--accent); color:var(--accent)">{V.L.pdf}</El>
                   {V.isOwner && (
-                    <button type="button" onClick={V.addLandmark} className="trips-noprint" style={css('border:1px solid var(--accent); background:var(--accent); color:var(--accent-btn-ink); border-radius:999px; padding:8px 18px; font-size:13px; font-weight:500; cursor:pointer')}>{V.L.addPlace}</button>
+                    <El as="button" type="button" onClick={V.addLandmark} className="trips-noprint" base="border:1px solid var(--accent); background:var(--accent); color:var(--accent-btn-ink); border-radius:999px; padding:8px 18px; font-size:13px; font-weight:600; cursor:pointer" hover="background:var(--accent-hover); border-color:var(--accent-hover)">{V.L.addPlace}</El>
                   )}
                 </div>
 
@@ -895,7 +970,7 @@ export default class App extends React.Component {
               )}
               <div style={css('display:flex; justify-content:flex-end; gap:10px')}>
                 <El as="button" type="button" onClick={V.closeDialog} base="border:1px solid var(--border); background:none; border-radius:999px; padding:9px 18px; font-size:13.5px; color:var(--ink-muted); cursor:pointer" hover="border-color:var(--ink); color:var(--ink)">{V.L.cancel}</El>
-                <button type="button" onClick={V.submitDialog} style={css('border:1px solid var(--accent); background:var(--accent); color:var(--accent-btn-ink); border-radius:999px; padding:9px 20px; font-size:13.5px; font-weight:500; cursor:pointer')}>{V.dialog.submitLabel}</button>
+                <El as="button" type="button" onClick={V.submitDialog} base="border:1px solid var(--accent); background:var(--accent); color:var(--accent-btn-ink); border-radius:999px; padding:9px 20px; font-size:13.5px; font-weight:600; cursor:pointer" hover="background:var(--accent-hover); border-color:var(--accent-hover)">{V.dialog.submitLabel}</El>
               </div>
             </div>
           </div>
@@ -907,7 +982,7 @@ export default class App extends React.Component {
               <p style={css('margin:0 0 20px; font-size:15px; line-height:1.55; color:var(--ink)')}>{V.confirmMessage}</p>
               <div style={css('display:flex; justify-content:flex-end; gap:10px')}>
                 <El as="button" type="button" onClick={V.closeConfirm} base="border:1px solid var(--border); background:none; border-radius:999px; padding:9px 18px; font-size:13.5px; color:var(--ink-muted); cursor:pointer" hover="border-color:var(--ink); color:var(--ink)">{V.L.cancel}</El>
-                <button type="button" onClick={V.runConfirm} style={css('border:1px solid var(--accent); background:var(--accent); color:var(--accent-btn-ink); border-radius:999px; padding:9px 20px; font-size:13.5px; font-weight:500; cursor:pointer')}>{V.L.delete}</button>
+                <El as="button" type="button" onClick={V.runConfirm} base="border:1px solid var(--accent); background:var(--accent); color:var(--accent-btn-ink); border-radius:999px; padding:9px 20px; font-size:13.5px; font-weight:600; cursor:pointer" hover="background:var(--accent-hover); border-color:var(--accent-hover)">{V.L.delete}</El>
               </div>
             </div>
           </div>
