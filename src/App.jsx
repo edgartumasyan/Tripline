@@ -209,8 +209,8 @@ export default class App extends React.Component {
         '; border-radius:16px; overflow:hidden; background:' + (visited ? 'var(--seen-bg)' : 'var(--card)') +
         '; opacity:' + (this.state.dragIndex === index ? '0.45' : '1') +
         '; transition:box-shadow .18s ease; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none',
-      mediaStyle: 'position:relative; flex:0 0 ' + (listMode ? '210px' : 'auto') + '; background:var(--image-bg); ' +
-        (listMode ? 'align-self:stretch; min-height:150px' : 'aspect-ratio:16/10'),
+      mediaStyle: 'position:relative; overflow:hidden; flex:0 0 ' + (listMode ? '210px' : '190px') + '; background:var(--image-bg); ' +
+        (listMode ? 'align-self:stretch; min-height:150px' : 'width:100%; min-height:0'),
       bodyStyle: 'display:flex; flex-direction:column; gap:8px; padding:' + (listMode ? '16px 20px' : '14px 16px 16px') + '; flex:1 1 auto; min-width:0',
       // A "View on Google Maps" deep link, shown only for places we have coordinates
       // for. Per-place coords entered in the dialog (lm.coords) win over the built-in
