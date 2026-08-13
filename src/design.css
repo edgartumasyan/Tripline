@@ -20,11 +20,6 @@
   [data-t~='shell'] {
     flex-direction: column !important;
   }
-  [data-t~='hamburger'] {
-    display: flex !important;
-    order: 5;
-    flex: 0 0 auto;
-  }
   [data-t~='hdr-lang'] {
     order: 3;
     flex: 0 0 auto;
@@ -93,6 +88,18 @@
   }
   [data-t~='route-fab'] {
     display: flex !important;
+  }
+  /* Country drill-down header wraps: the meta drops to its own full-width row
+     below the flag/name and the flex spacer collapses so nothing stretches. */
+  [data-t~='country-hdr'] {
+    row-gap: 8px !important;
+  }
+  [data-t~='country-hdr-spacer'] {
+    display: none !important;
+  }
+  [data-t~='country-meta'] {
+    flex: 0 0 100% !important;
+    order: 5;
   }
 }
 
