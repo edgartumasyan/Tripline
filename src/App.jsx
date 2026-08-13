@@ -71,8 +71,8 @@ export default class App extends React.Component {
     // Overview search boxes: filter the country grid and the selected country's
     // city grid by (localized) name. Ephemeral, reset when leaving the overview.
     countryQuery: '', cityQuery: '',
-    // Which overview card's ⋮ menu is open, encoded as 'country:<id>' / 'city:<id>'
-    // (null = none). One-at-a-time; a click-away backdrop closes it. Ephemeral.
+    // Whether the drilled-in country header's ⋮ menu is open, encoded as
+    // 'country:<id>' (null = none). A click-away backdrop closes it. Ephemeral.
     cardMenuOpen: null,
     dialog: null, confirm: null, lightbox: null, dragIndex: null,
     // Viewer-only reorder for Print/PDF, keyed by cityId — never persisted, resets on refresh.
@@ -547,13 +547,10 @@ export default class App extends React.Component {
             count: this.pl(st.total, 'places'),
             progress: st.pct,
             onClick: () => this.setState({ countryId: c.id, cityId: ci.id, openCountry: c.id, view: 'grid', route: [] }),
-            // City card ⋮ menu (keyed 'city:<id>').
-            menuOpen: s.cardMenuOpen === 'city:' + ci.id,
-            onToggleMenu: () => this.setState({ cardMenuOpen: s.cardMenuOpen === 'city:' + ci.id ? null : 'city:' + ci.id }),
-            onEdit: () => this.setState({ dialog: { kind: 'edit-city', id: ci.id, countryId: c.id, title: ci.name, name: ci.name, image: ci.image || '' }, cardMenuOpen: null }),
-            onDelete: () => { this.setState({ cardMenuOpen: null }); this.askDelete(ci.name, () => this.mutate((d) => {
+            onEdit: () => this.setState({ dialog: { kind: 'edit-city', id: ci.id, countryId: c.id, title: ci.name, name: ci.name, image: ci.image || '' } }),
+            onDelete: () => this.askDelete(ci.name, () => this.mutate((d) => {
               const cc = d.countries.find((x) => x.id === c.id); cc.cities = cc.cities.filter((x) => x.id !== ci.id)
-            })) },
+            })),
           }
         }),
     }))
@@ -786,14 +783,9 @@ export default class App extends React.Component {
                             </span>
                           </button>
                           {V.isOwner && (
-                            <div className="trips-noprint" style={css('position:absolute; top:9px; right:9px')}>
-                              <El as="button" type="button" onClick={ci.onToggleMenu} title="More" base="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border:1px solid var(--border-soft); border-radius:8px; background:var(--surface); color:var(--ink-faint); cursor:pointer; font-size:14px" hover="border-color:var(--accent); color:var(--accent)">⋮</El>
-                              {ci.menuOpen && (
-                                <div style={css('position:absolute; top:30px; right:0; z-index:21; min-width:130px; border:1px solid var(--border-soft); border-radius:10px; background:var(--surface); box-shadow:0 10px 24px rgba(0,0,0,0.28); overflow:hidden')}>
-                                  <El as="button" type="button" onClick={ci.onEdit} base="display:block; width:100%; text-align:left; padding:9px 14px; border:none; background:none; color:var(--ink); font-size:13px; cursor:pointer" hover="background:var(--row-hover)">✎ {V.L.edit}</El>
-                                  <El as="button" type="button" onClick={ci.onDelete} base="display:block; width:100%; text-align:left; padding:9px 14px; border:none; background:none; color:#c5695a; font-size:13px; cursor:pointer" hover="background:var(--row-hover)">✕ {V.L.delete}</El>
-                                </div>
-                              )}
+                            <div className="trips-noprint" style={css('position:absolute; top:9px; right:9px; display:flex; gap:5px')}>
+                              <El as="button" type="button" onClick={ci.onEdit} title="Edit" base="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border:1px solid var(--border-soft); border-radius:8px; background:var(--surface); color:var(--ink-faint); cursor:pointer; font-size:12px" hover="background:var(--accent-hover); color:#ffffff; border-color:var(--accent-hover)">✎</El>
+                              <El as="button" type="button" onClick={ci.onDelete} title="Delete" base="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border:1px solid var(--border-soft); border-radius:8px; background:var(--surface); color:var(--ink-faint); cursor:pointer; font-size:12px" hover="background:#b3543e; color:#ffffff; border-color:#b3543e">✕</El>
                             </div>
                           )}
                         </El>
@@ -814,25 +806,14 @@ export default class App extends React.Component {
                     {V.noCountryMatch && <p style={css('color:var(--ink-faint); font-style:italic')}>{V.L.noResults}</p>}
                     <div style={css('display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:18px')}>
                       {V.chapters.map((ch) => (
-                        <El key={ch.id} base="position:relative; display:flex; align-items:flex-start; border:1px solid var(--border-soft); border-radius:16px; background:var(--card); transition:transform 0.18s ease, box-shadow 0.18s ease" hover="transform:translateY(-3px); box-shadow:0 14px 30px rgba(26,29,22,0.14)">
-                          <button type="button" onClick={ch.onSelect} style={css('display:flex; align-items:center; gap:14px; text-align:left; flex:1 1 auto; min-width:0; padding:14px 16px; border:none; background:none; cursor:pointer')}>
+                        <El key={ch.id} base="position:relative; display:flex; align-items:center; border:1px solid var(--border-soft); border-radius:16px; background:var(--card); transition:transform 0.18s ease, box-shadow 0.18s ease" hover="transform:translateY(-3px); box-shadow:0 14px 30px rgba(26,29,22,0.14)">
+                          <button type="button" onClick={ch.onSelect} style={css('display:flex; align-items:center; gap:14px; text-align:left; width:100%; padding:14px 16px; border:none; background:none; cursor:pointer')}>
                             <img src={ch.flag} alt="" style={css('width:48px; height:34px; object-fit:cover; border-radius:5px; background:var(--image-bg); flex:0 0 auto')} />
                             <span style={css('flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:3px')}>
                               <span style={css("font-family:var(--sans); font-weight:600; font-size:19px; color:var(--ink); line-height:1.25")}>{ch.name}</span>
                               <span style={css('font-size:12px; color:var(--ink-faint)')}>{ch.meta}</span>
                             </span>
                           </button>
-                          {V.isOwner && (
-                            <div className="trips-noprint" style={css('position:relative; flex:0 0 auto; padding:10px 10px 0 0')}>
-                              <El as="button" type="button" onClick={ch.onToggleMenu} title="More" base="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border:1px solid var(--border-soft); border-radius:8px; background:var(--surface); color:var(--ink-faint); cursor:pointer; font-size:14px" hover="border-color:var(--accent); color:var(--accent)">⋮</El>
-                              {ch.menuOpen && (
-                                <div style={css('position:absolute; top:30px; right:0; z-index:21; min-width:130px; border:1px solid var(--border-soft); border-radius:10px; background:var(--surface); box-shadow:0 10px 24px rgba(0,0,0,0.28); overflow:hidden')}>
-                                  <El as="button" type="button" onClick={ch.onEdit} base="display:block; width:100%; text-align:left; padding:9px 14px; border:none; background:none; color:var(--ink); font-size:13px; cursor:pointer" hover="background:var(--row-hover)">✎ {V.L.edit}</El>
-                                  <El as="button" type="button" onClick={ch.onDelete} base="display:block; width:100%; text-align:left; padding:9px 14px; border:none; background:none; color:#c5695a; font-size:13px; cursor:pointer" hover="background:var(--row-hover)">✕ {V.L.delete}</El>
-                                </div>
-                              )}
-                            </div>
-                          )}
                         </El>
                       ))}
                     </div>
