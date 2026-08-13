@@ -125,6 +125,25 @@ export default class App extends React.Component {
     return ci.name
   }
 
+  // All name variants (English base + every localized override) so search can
+  // match a query against any language, not just the one currently selected.
+  countryNames(c) {
+    const t = COUNTRY_NAMES[c.id] || {}
+    return [c.name, ...LANG_ORDER.map((lang) => t[lang])].filter(Boolean)
+  }
+
+  cityNames(ci) {
+    const t = CITY_NAMES[ci.id] || {}
+    return [ci.name, ...LANG_ORDER.map((lang) => t[lang])].filter(Boolean)
+  }
+
+  // True when the query matches any language variant of the given names.
+  matchesQuery(names, query) {
+    const q = query.trim().toLowerCase()
+    if (!q) return true
+    return names.some((n) => n.toLowerCase().indexOf(q) > -1)
+  }
+
   // English/Russian descriptions are optional translations; fall back to the
   // original Armenian text when a translation is absent.
   pickDescription(lm) {
@@ -485,7 +504,7 @@ export default class App extends React.Component {
     }))
 
     const chapters = countries.map((c) => ({
-      id: c.id, name: this.pickCountryName(c), flag: c.flag || '',
+      id: c.id, name: this.pickCountryName(c), searchNames: this.countryNames(c), flag: c.flag || '',
       meta: this.pl(c.cities.length, 'cities') + ' · ' + this.pl(c.cities.reduce((n, ci) => n + ci.landmarks.length, 0), 'places'),
       // Overview drill-down: the grid of country cards picks one (onSelect,
       // which also resets the city filter), then only that country's chapter
@@ -494,7 +513,7 @@ export default class App extends React.Component {
       onSelect: () => this.setState({ overviewCountry: c.id, cityQuery: '' }),
       onAddCity: () => this.setState({ dialog: { kind: 'city', countryId: c.id, title: l.addCity, name: '', image: '' } }),
       cities: c.cities
-        .filter((ci) => this.pickCityName(ci).toLowerCase().indexOf(s.cityQuery.trim().toLowerCase()) > -1)
+        .filter((ci) => this.matchesQuery(this.cityNames(ci), s.cityQuery))
         .map((ci) => {
           const st = stats(ci)
           return {
@@ -505,9 +524,9 @@ export default class App extends React.Component {
           }
         }),
     }))
-    // The country grid is filtered by the country search box (matched against
-    // the localized name).
-    const chaptersFiltered = chapters.filter((ch) => ch.name.toLowerCase().indexOf(s.countryQuery.trim().toLowerCase()) > -1)
+    // The country grid is filtered by the country search box, matched against
+    // every language variant of the name (so "sp" finds Spain even in Armenian).
+    const chaptersFiltered = chapters.filter((ch) => this.matchesQuery(ch.searchNames, s.countryQuery))
 
     // Cards render as one flat grid/column (design flattened the old per-day
     // grouping); groupDisplay/groupGap switch between the Cards and List views.
