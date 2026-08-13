@@ -90,13 +90,25 @@ export default class App extends React.Component {
     if (savedLang && LANGS[savedLang]) this.setState({ lang: savedLang })
     // Restore where the user last was (country / city / overview / view) so a
     // refresh or shared link lands back on the same screen. Ephemeral, in
-    // localStorage only — never part of the saved document.
+    // localStorage only — never part of the saved document. List view needs
+    // more width than a phone has, so a restored 'list' downgrades to 'grid'
+    // below the same breakpoint the CSS hides the List toggle at.
     try {
       const savedNav = JSON.parse(localStorage.getItem('trips.nav') || 'null')
-      if (savedNav) this.setState(savedNav)
+      if (savedNav) {
+        if (savedNav.view === 'list' && window.innerWidth <= 720) savedNav.view = 'grid'
+        this.setState(savedNav)
+      }
     } catch (e) {}
+    window.addEventListener('resize', this.handleResize = () => {
+      if (this.state.view === 'list' && window.innerWidth <= 720) this.setState({ view: 'grid' })
+    })
     loadData().then((d) => this.setState({ data: d }))
     this.applyTheme()
+  }
+
+  componentWillUnmount() {
+    if (this.handleResize) window.removeEventListener('resize', this.handleResize)
   }
 
   componentDidUpdate(prevProps) {
@@ -669,7 +681,7 @@ export default class App extends React.Component {
         nameLabel: s.dialog.kind.indexOf('country') > -1 ? l.countryName
           : s.dialog.kind.indexOf('city') > -1 ? l.cityName : l.placeName,
         namePlaceholder: s.dialog.kind.indexOf('country') > -1 ? 'France'
-          : s.dialog.kind.indexOf('city') > -1 ? 'Barcelona' : 'Sagrada Família',
+          : s.dialog.kind.indexOf('city') > -1 ? 'Madrid' : 'Puerta del Sol',
         imageLabel: s.dialog.kind.indexOf('country') > -1 ? l.flagUrl : l.imageUrl,
         withDescription: s.dialog.kind.indexOf('landmark') > -1,
         hasPreview: !!(s.dialog.image && /^https?:|^data:/.test(s.dialog.image)),
@@ -839,7 +851,7 @@ export default class App extends React.Component {
                 <div data-t="pad toolbar" style={css('display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:16px 40px; border-bottom:1px solid var(--border); background:var(--paper); position:sticky; top:0; z-index:4')}>
                   <div className="trips-noprint" style={css('display:flex; gap:4px; padding:3px; background:var(--paper); border:1px solid var(--border-soft); border-radius:999px')}>
                     <button type="button" onClick={V.setViewGrid} style={css(V.viewGridStyle)}>{V.L.grid}</button>
-                    <button type="button" onClick={V.setViewList} style={css(V.viewListStyle)}>{V.L.list}</button>
+                    <button type="button" onClick={V.setViewList} data-t="view-list-btn" style={css(V.viewListStyle)}>{V.L.list}</button>
                     <button type="button" onClick={V.setViewMap} style={css(V.viewMapStyle)}>{V.L.map}</button>
                   </div>
                   <span style={css('flex:1 1 auto')}></span>

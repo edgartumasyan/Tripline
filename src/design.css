@@ -89,6 +89,11 @@
   [data-t~='route-fab'] {
     display: flex !important;
   }
+  /* List view needs the width Cards/Map don't; App.jsx forces the view back to
+     'grid' below this breakpoint, so the toggle button itself is hidden too. */
+  [data-t~='view-list-btn'] {
+    display: none !important;
+  }
   /* Country drill-down header wraps: the meta drops to its own full-width row
      below the flag/name and the flex spacer collapses so nothing stretches. */
   [data-t~='country-hdr'] {
