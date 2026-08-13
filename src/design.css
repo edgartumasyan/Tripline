@@ -94,6 +94,24 @@
   [data-t~='view-list-btn'] {
     display: none !important;
   }
+  /* Toolbar wraps to two rows: the Cards/List/Map switcher stays on top, the
+     spacer that pushed the actions right on desktop disappears, and the
+     action buttons (route, share, print, add) drop to a left-aligned second
+     row spanning the full width instead of wrapping mid-row. */
+  [data-t~='toolbar'] {
+    row-gap: 10px !important;
+  }
+  [data-t~='toolbar-view'] {
+    order: 1;
+  }
+  [data-t~='toolbar-spacer'] {
+    display: none !important;
+  }
+  [data-t~='toolbar-actions'] {
+    order: 2;
+    flex: 1 1 100% !important;
+    justify-content: flex-start !important;
+  }
   /* Country drill-down header wraps: the meta drops to its own full-width row
      below the flag/name and the flex spacer collapses so nothing stretches. */
   [data-t~='country-hdr'] {
