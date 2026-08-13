@@ -849,23 +849,25 @@ export default class App extends React.Component {
                 </div>
 
                 <div data-t="pad toolbar" style={css('display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:16px 40px; border-bottom:1px solid var(--border); background:var(--paper); position:sticky; top:0; z-index:4')}>
-                  <div className="trips-noprint" style={css('display:flex; gap:4px; padding:3px; background:var(--paper); border:1px solid var(--border-soft); border-radius:999px')}>
+                  <div data-t="toolbar-view" className="trips-noprint" style={css('display:flex; gap:4px; padding:3px; background:var(--paper); border:1px solid var(--border-soft); border-radius:999px')}>
                     <button type="button" onClick={V.setViewGrid} style={css(V.viewGridStyle)}>{V.L.grid}</button>
                     <button type="button" onClick={V.setViewList} data-t="view-list-btn" style={css(V.viewListStyle)}>{V.L.list}</button>
                     <button type="button" onClick={V.setViewMap} style={css(V.viewMapStyle)}>{V.L.map}</button>
                   </div>
-                  <span style={css('flex:1 1 auto')}></span>
-                  {V.showClearRoute && (
-                    <El as="button" type="button" onClick={V.clearRoute} className="trips-noprint" base="border:1px solid var(--border); background:var(--surface); border-radius:999px; padding:8px 16px; font-size:13px; color:var(--ink-muted); cursor:pointer" hover="border-color:#b3543e; color:#b3543e">{V.clearRouteLabel}</El>
-                  )}
-                  {V.isCards && (
-                    <El as="button" type="button" onClick={V.onDirections} disabled={V.routeDisabled} title={V.routeTitle} className="trips-noprint" base={V.routeBtnStyle} hover={V.routeBtnHover}>🧭 {V.routeLabel}</El>
-                  )}
-                  <El as="button" type="button" onClick={V.shareCity} className="trips-noprint" base="border:1px solid var(--border); background:var(--surface); border-radius:999px; padding:8px 16px; font-size:13px; color:var(--ink-muted); cursor:pointer" hover="border-color:var(--accent); color:var(--accent)">{V.L.share}</El>
-                  <El as="button" type="button" onClick={V.printCity} className="trips-noprint" base="border:1px solid var(--border); background:var(--surface); border-radius:999px; padding:8px 16px; font-size:13px; color:var(--ink-muted); cursor:pointer" hover="border-color:var(--accent); color:var(--accent)">{V.L.pdf}</El>
-                  {V.isOwner && (
-                    <El as="button" type="button" onClick={V.addLandmark} className="trips-noprint" base="border:1px solid var(--accent); background:var(--accent); color:var(--accent-btn-ink); border-radius:999px; padding:8px 18px; font-size:13px; font-weight:600; cursor:pointer" hover="background:var(--accent-hover); border-color:var(--accent-hover)">{V.L.addPlace}</El>
-                  )}
+                  <span data-t="toolbar-spacer" style={css('flex:1 1 auto')}></span>
+                  <div data-t="toolbar-actions" style={css('display:flex; align-items:center; gap:10px; flex-wrap:wrap')}>
+                    {V.showClearRoute && (
+                      <El as="button" type="button" onClick={V.clearRoute} className="trips-noprint" base="border:1px solid var(--border); background:var(--surface); border-radius:999px; padding:8px 16px; font-size:13px; color:var(--ink-muted); cursor:pointer" hover="border-color:#b3543e; color:#b3543e">{V.clearRouteLabel}</El>
+                    )}
+                    {V.isCards && (
+                      <El as="button" type="button" onClick={V.onDirections} disabled={V.routeDisabled} title={V.routeTitle} className="trips-noprint" base={V.routeBtnStyle} hover={V.routeBtnHover}>🧭 {V.routeLabel}</El>
+                    )}
+                    <El as="button" type="button" onClick={V.shareCity} className="trips-noprint" base="border:1px solid var(--border); background:var(--surface); border-radius:999px; padding:8px 16px; font-size:13px; color:var(--ink-muted); cursor:pointer" hover="border-color:var(--accent); color:var(--accent)">{V.L.share}</El>
+                    <El as="button" type="button" onClick={V.printCity} className="trips-noprint" base="border:1px solid var(--border); background:var(--surface); border-radius:999px; padding:8px 16px; font-size:13px; color:var(--ink-muted); cursor:pointer" hover="border-color:var(--accent); color:var(--accent)">{V.L.pdf}</El>
+                    {V.isOwner && (
+                      <El as="button" type="button" onClick={V.addLandmark} className="trips-noprint" base="border:1px solid var(--accent); background:var(--accent); color:var(--accent-btn-ink); border-radius:999px; padding:8px 18px; font-size:13px; font-weight:600; cursor:pointer" hover="background:var(--accent-hover); border-color:var(--accent-hover)">{V.L.addPlace}</El>
+                    )}
+                  </div>
                 </div>
 
                 <div data-t="pad city-row" style={css('display:flex; align-items:flex-start; gap:32px; padding:28px 40px 70px')}>
