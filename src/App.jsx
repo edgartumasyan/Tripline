@@ -84,7 +84,13 @@ export default class App extends React.Component {
     // True while printCity() is waiting on the print document's photos, so the
     // button can disable itself and swap in a "…" instead of double-firing.
     printing: false,
+    // The mobile print path's sheet markup while its overlay is open (null when
+    // closed), plus the PDF it builds in the background for that overlay's Share
+    // button. Desktop prints an off-screen iframe and never sets any of these.
+    printSheet: null, pdfFile: null, pdfError: null,
   }
+
+  printSheetRef = React.createRef()
 
   componentDidMount() {
     const savedTheme = localStorage.getItem('trips.theme')
@@ -473,21 +479,64 @@ export default class App extends React.Component {
     return 'https://wsrv.nl/?url=' + encodeURIComponent(url) + '&w=640&h=450&fit=cover&we&output=jpg&q=78'
   }
 
-  // The printable document for one city: the city name as the header, then one
-  // row per place — photo, number, name, description, and the same "View on
-  // Google Maps" deep link the app shows. Sized in pt against an A4 page, in
-  // the light palette only (a dark-theme PDF would be a wall of ink).
+  // The print sheet's stylesheet. Every rule is scoped under .tlp so this exact
+  // text works both in the stand-alone print document and injected into the live
+  // app for the mobile overlay, where a bare `h1` or `body` rule would repaint
+  // the whole UI. Sized in pt against an A4 page, light palette only (a
+  // dark-theme PDF would be a wall of ink).
+  //
+  // The screen-only blocks are what the mobile overlay reads: on paper the page
+  // box sets the width and @page sets the margins, so neither applies there.
+  printSheetCss() {
+    return '@page { size: A4; margin: 14mm 13mm 12mm; }' +
+      '.tlp, .tlp * { box-sizing: border-box; }' +
+      ".tlp { font-family: 'Work Sans', system-ui, -apple-system, sans-serif; color: #26291f;" +
+        ' background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }' +
+      '@media screen { .tlp { max-width: 522pt; margin: 0 auto; padding: 14pt 14pt 30pt; } }' +
+      '.tlp .eyebrow { margin: 0 0 5pt; font-size: 8.5pt; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; color: #8c9384; }' +
+      '.tlp h1 { margin: 0 0 5pt; font-size: 27pt; font-weight: 600; letter-spacing: -.015em; line-height: 1.1; }' +
+      '.tlp .meta { margin: 0 0 11pt; font-size: 9pt; color: #7c8474; }' +
+      // .head and .row are the blocks buildCityPdf captures and paginates one at
+      // a time, and it reads each one's margin-bottom as the gap that follows.
+      '.tlp .head { margin: 0 0 15pt; }' +
+      '.tlp .rule { height: 1px; margin: 0; background: #dce3d6; }' +
+      // break-inside:avoid keeps a photo and its text on one page; a row taller
+      // than the page still splits, which is the browser's call and correct.
+      '.tlp .row { display: flex; gap: 13pt; align-items: flex-start; margin: 0 0 13pt; padding: 0 0 13pt;' +
+        ' border-bottom: 1px solid #e4ebdd; break-inside: avoid; page-break-inside: avoid; }' +
+      '.tlp .row:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }' +
+      '.tlp .shot { flex: 0 0 148pt; width: 148pt; height: 104pt; object-fit: cover; display: block;' +
+        ' border-radius: 8pt; background: #e4ebdd; }' +
+      '.tlp .body { flex: 1 1 auto; min-width: 0; }' +
+      '.tlp .hd { display: flex; align-items: baseline; gap: 7pt; margin: 0 0 5pt; }' +
+      '.tlp .num { flex: 0 0 auto; font-size: 8.5pt; font-weight: 500; letter-spacing: .1em; color: #8c9384; }' +
+      '.tlp h2 { margin: 0; font-size: 13.5pt; font-weight: 600; line-height: 1.25; }' +
+      '.tlp .desc { margin: 0 0 6pt; font-size: 9.5pt; line-height: 1.55; color: #4d5347; }' +
+      '.tlp .map { font-size: 8.5pt; color: #478047; text-decoration: none; }' +
+      '.tlp .empty { margin: 0; font-size: 10pt; color: #7c8474; }' +
+      // A phone is narrower than the A4 column, so the preview shrinks the photo
+      // to leave the text room. Scoped to the overlay on purpose: buildCityPdf
+      // captures from an off-screen .tlp pinned to the A4 width, and that must
+      // keep the full-size layout even though the viewport is a phone's.
+      '@media screen and (max-width: 700px) {' +
+        " [data-t~='print-sheet'] .tlp h1 { font-size: 22pt; }" +
+        " [data-t~='print-sheet'] .tlp .shot { flex-basis: 100pt; width: 100pt; height: 70pt; }" +
+        " [data-t~='print-sheet'] .tlp .row { gap: 10pt; } }"
+  }
+
+  // The print sheet's content, to drop inside a .tlp element: the city name as
+  // the header, then one row per place — photo, number, name, description, and
+  // the same "View on Google Maps" deep link the app shows.
   //
   // Deliberately its own layout rather than a copy of the on-screen Cards: the
   // page is a fixed narrow column, so the two-per-row grid and the app chrome
   // (route chips, drag handles, ⋮ menus) have no place in it.
-  cityPrintHtml(sel) {
+  printSheetBody(sel) {
     const l = this.L()
     const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
     const city = sel.city
-    const places = this.orderedLandmarks(city)
 
-    const rows = places.map((lm, i) => {
+    const rows = this.orderedLandmarks(city).map((lm, i) => {
       const pt = this.pointFor(lm)
       const mapUrl = pt ? 'https://www.google.com/maps/search/?api=1&query=' + pt[0] + ',' + pt[1] : ''
       const desc = this.pickDescription(lm)
@@ -508,127 +557,248 @@ export default class App extends React.Component {
       '</article>'
     }).join('')
 
+    return '<header class="head">' +
+        '<p class="eyebrow">' + esc(this.pickCountryName(sel.country)) + '</p>' +
+        '<h1>' + esc(this.pickCityName(city)) + '</h1>' +
+        '<p class="meta">' + esc(this.pl(city.landmarks.length, 'places')) + '</p>' +
+        '<div class="rule"></div>' +
+      '</header>' +
+      (rows || '<p class="empty">' + esc(l.emptyCity) + '</p>')
+  }
+
+  // The same sheet as a stand-alone document, for the desktop iframe.
+  cityPrintHtml(sel) {
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
     return '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">' +
       // The document title is what Chrome and Safari prefill as the "Save as
       // PDF" filename, so it doubles as the download name.
-      '<title>' + esc(this.pickCityName(city)) + ' — Tripline</title>' +
+      '<title>' + esc(this.pickCityName(sel.city)) + ' — Tripline</title>' +
       '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' +
       '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600&display=swap">' +
-      '<style>' +
-      '@page { size: A4; margin: 14mm 13mm 12mm; }' +
-      '* { box-sizing: border-box; }' +
-      'html, body { margin: 0; padding: 0; background: #fff; }' +
-      "body { font-family: 'Work Sans', system-ui, -apple-system, sans-serif; color: #26291f;" +
-        ' -webkit-print-color-adjust: exact; print-color-adjust: exact; }' +
-      '.eyebrow { margin: 0 0 5pt; font-size: 8.5pt; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; color: #8c9384; }' +
-      'h1 { margin: 0 0 5pt; font-size: 27pt; font-weight: 600; letter-spacing: -.015em; line-height: 1.1; }' +
-      '.meta { margin: 0 0 11pt; font-size: 9pt; color: #7c8474; }' +
-      '.rule { height: 1px; margin: 0 0 15pt; background: #dce3d6; }' +
-      // break-inside:avoid keeps a photo and its text on one page; a row taller
-      // than the page still splits, which is the browser's call and correct.
-      '.row { display: flex; gap: 13pt; align-items: flex-start; margin: 0 0 13pt; padding: 0 0 13pt;' +
-        ' border-bottom: 1px solid #e4ebdd; break-inside: avoid; page-break-inside: avoid; }' +
-      '.row:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }' +
-      '.shot { flex: 0 0 148pt; width: 148pt; height: 104pt; object-fit: cover; display: block;' +
-        ' border-radius: 8pt; background: #e4ebdd; }' +
-      '.body { flex: 1 1 auto; min-width: 0; }' +
-      '.hd { display: flex; align-items: baseline; gap: 7pt; margin: 0 0 5pt; }' +
-      '.num { flex: 0 0 auto; font-size: 8.5pt; font-weight: 500; letter-spacing: .1em; color: #8c9384; }' +
-      'h2 { margin: 0; font-size: 13.5pt; font-weight: 600; line-height: 1.25; }' +
-      '.desc { margin: 0 0 6pt; font-size: 9.5pt; line-height: 1.55; color: #4d5347; }' +
-      '.map { font-size: 8.5pt; color: #478047; text-decoration: none; }' +
-      '.empty { margin: 0; font-size: 10pt; color: #7c8474; }' +
-      '</style></head><body>' +
-      '<p class="eyebrow">' + esc(this.pickCountryName(sel.country)) + '</p>' +
-      '<h1>' + esc(this.pickCityName(city)) + '</h1>' +
-      '<p class="meta">' + esc(this.pl(city.landmarks.length, 'places')) + '</p>' +
-      '<div class="rule"></div>' +
-      (rows || '<p class="empty">' + esc(l.emptyCity) + '</p>') +
-      '</body></html>'
+      '<style>html, body { margin: 0; padding: 0; background: #fff; }' + this.printSheetCss() + '</style>' +
+      '</head><body><div class="tlp">' + this.printSheetBody(sel) + '</div></body></html>'
   }
 
-  // Prints the city guide above through the browser's own print pipeline, which
-  // is what "Save as PDF" in that dialog then writes to a file.
+  // Print the current city's guide through the browser's own print pipeline,
+  // which is what "Save as PDF" in that dialog then writes to a file.
   //
   // Not a canvas screenshot of the live page: about half the image hosts in
   // data.json send no CORS headers, so canvas can never read those pixels and
   // the photos come out blank — whereas <img> in a print document renders every
-  // one of them. It also keeps the text vector-crisp, the Maps links clickable,
-  // and the live page untouched, so no toolbar chrome flashes away and back.
-  //
-  // The document renders in an off-screen iframe. iOS Safari can't print an
-  // iframe, so there it goes to a new tab instead — opened synchronously below,
-  // before any await, or the pop-up blocker eats it.
-  async printCity() {
+  // one of them. It also keeps the text vector-crisp and the Maps links
+  // clickable.
+  printCity() {
     const sel = this.city()
     if (!sel || this.state.printing) return
-    const html = this.cityPrintHtml(sel)
-    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    // Phones take the overlay path. Mobile browsers can't print an off-screen
+    // iframe (iOS ignores the call outright), and the new tab this used to open
+    // stranded people: cancelling the print dialog left them on the bare guide,
+    // which in the installed PWA has no tab bar and no back — the app had to be
+    // killed and relaunched. The overlay lives inside the app, so cancelling
+    // just leaves them looking at it with a Close button.
+    const mobile = /iPad|iPhone|iPod|Android/i.test(navigator.userAgent) ||
       (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-    const tab = iOS ? window.open('', '_blank') : null
-    if (iOS && !tab) return
+    return mobile ? this.printViaSheet(sel) : this.printViaFrame(sel)
+  }
 
-    this.setState({ printing: true })
-    let frame = null
+  // Mobile: show the sheet as a full-screen overlay in the app and build the PDF
+  // ourselves, because iOS's printer is no good to us here — it names whatever it
+  // saves after the app ("Safari.pdf") and flattens the page, so the Google Maps
+  // links arrive dead. Building the file ourselves is the only way to control the
+  // filename and keep the links clickable, and it only became possible once the
+  // photos started going through wsrv.nl, which serves them with CORS headers a
+  // canvas can read.
+  //
+  // The share sheet can't be chained onto the tap that opened the overlay: it
+  // needs user activation, which expires long before a 36-place PDF is built. So
+  // the file builds in the background here and the toolbar's Share button — a
+  // fresh tap — hands it over. design.css still maps body.tl-printing onto the
+  // overlay, so the browser's own print menu prints the sheet rather than the app.
+  async printViaSheet(sel) {
+    this.setState({ printing: true, printSheet: this.printSheetBody(sel), pdfFile: null, pdfError: null })
+    document.body.classList.add('tl-printing')
     try {
-      let win = tab
-      if (!win) {
-        frame = document.createElement('iframe')
-        frame.setAttribute('aria-hidden', 'true')
-        // Off-screen at a real A4-ish pixel size: the document has to lay out
-        // for the images to load, and a 0×0 frame lays out nothing.
-        frame.style.cssText = 'position:fixed; left:-10000px; top:0; width:794px; height:1123px; border:0; opacity:0; pointer-events:none'
-        document.body.appendChild(frame)
-        win = frame.contentWindow
-      }
-      const doc = win.document
-      doc.open(); doc.write(html); doc.close()
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
+      const host = this.printSheetRef.current
+      if (host) await this.awaitSheetImages(Array.from(host.querySelectorAll('img')))
+    } finally {
+      this.setState({ printing: false })
+    }
+    try {
+      const file = await this.buildCityPdf(sel)
+      // Bail if the overlay was closed while we were building.
+      if (this.state.printSheet) this.setState({ pdfFile: file })
+    } catch (e) {
+      if (this.state.printSheet) this.setState({ pdfError: String((e && e.message) || e) })
+    }
+  }
 
-      // Print only once the photos and the webfont have actually arrived —
-      // printing early yields empty boxes. A photo that came from the wsrv.nl
-      // proxy gets one retry against its original URL (data-fallback) before we
-      // give up on it. Capped overall, so one dead image host can't hang the
-      // button forever.
-      const settle = (img) => new Promise((res) => {
-        const retry = () => {
-          const original = img.getAttribute('data-fallback')
-          if (!original) return res()
-          img.removeAttribute('data-fallback')
-          img.addEventListener('load', res, { once: true })
-          img.addEventListener('error', res, { once: true })
-          img.src = original
+  // Hand the built file to the OS share sheet, which is how it reaches Gmail with
+  // the right name. Called straight from the button's click so the activation is
+  // fresh. Browsers that can't share a file (Android Firefox, desktop) download it.
+  sharePdf() {
+    const file = this.state.pdfFile
+    if (!file) return
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      // A dismissed share sheet rejects with AbortError; nothing to report.
+      navigator.share({ files: [file], title: file.name }).catch(() => {})
+      return
+    }
+    const url = URL.createObjectURL(file)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = file.name
+    a.click()
+    setTimeout(() => URL.revokeObjectURL(url), 4000)
+  }
+
+  // Build the city guide as a PDF: capture one block at a time (the header, then
+  // each place's row) and place them onto A4 pages, so a block never straddles a
+  // page — the same guarantee break-inside:avoid gives the print path. Capturing
+  // per block also keeps every canvas small; one bitmap of the whole guide would
+  // be ~28M pixels and blow past iOS Safari's canvas limit.
+  //
+  // The text ends up raster, which is the price of not embedding a font that
+  // covers Armenian and Cyrillic. The Maps links are re-added afterwards as real
+  // PDF link annotations over the pixels, so they stay tappable.
+  async buildCityPdf(sel) {
+    const [{ jsPDF }, h2c] = await Promise.all([import('jspdf'), import('html2canvas')])
+    const html2canvas = h2c.default
+    const PT = 0.75 // one CSS pixel at 96dpi, in points
+    const pdf = new jsPDF({ unit: 'pt', format: 'a4' })
+    const pageW = pdf.internal.pageSize.getWidth(), pageH = pdf.internal.pageSize.getHeight()
+    const mm = 2.834645
+    const mx = 13 * mm, mt = 14 * mm, mb = 12 * mm
+    const contentW = pageW - 2 * mx, printable = pageH - mt - mb
+
+    // Capture from an off-screen copy pinned to the A4 content width, not from
+    // the visible overlay: on a phone the overlay lays out narrow, and that would
+    // bake the phone's proportions into the page.
+    const box = document.createElement('div')
+    box.className = 'tlp'
+    box.setAttribute('aria-hidden', 'true')
+    box.style.cssText = 'position:fixed; left:-10000px; top:0; padding:0; max-width:none; background:#ffffff; width:' + (contentW / PT) + 'px'
+    box.innerHTML = this.printSheetBody(sel)
+    document.body.appendChild(box)
+    try {
+      await this.awaitSheetImages(Array.from(box.querySelectorAll('img')))
+      const blocks = Array.from(box.children)
+      let y = mt
+      for (const block of blocks) {
+        const canvas = await html2canvas(block, { scale: 2, useCORS: true, backgroundColor: '#ffffff' })
+        const hPt = (canvas.height / canvas.width) * contentW
+        const gap = (parseFloat(getComputedStyle(block).marginBottom) || 0)
+        // Start a fresh page unless the block (or its first page-full) still fits.
+        // Note this leaves `top` == mt whenever the block needs slicing, which is
+        // what lets the link maths below treat every slice after the first as a
+        // full printable page.
+        if (y > mt && y + Math.min(hPt, printable) > pageH - mb) { pdf.addPage(); y = mt }
+        const top = y, firstPage = pdf.getNumberOfPages()
+        // A block taller than the printable area can't be kept whole, so slice the
+        // bitmap across pages rather than silently clipping it.
+        const slices = Math.max(1, Math.ceil(hPt / printable - 0.001))
+        for (let i = 0; i < slices; i++) {
+          if (i > 0) { pdf.addPage(); y = mt }
+          const sliceHPt = Math.min(printable, hPt - i * printable)
+          const src = slices === 1 ? canvas : this.sliceCanvas(canvas, (i * printable) / hPt, sliceHPt / hPt)
+          pdf.addImage(src.toDataURL('image/jpeg', 0.9), 'JPEG', mx, y, contentW, sliceHPt)
+          y += sliceHPt
         }
-        if (img.complete) return img.naturalWidth ? res() : retry()
-        img.addEventListener('load', res, { once: true })
-        img.addEventListener('error', retry, { once: true })
-      })
-      await Promise.race([
-        Promise.all([
-          ...Array.from(doc.images).map(settle),
-          doc.fonts ? doc.fonts.ready : null,
-        ]),
-        // Generous, because a cold wsrv.nl has to fetch and transcode every
-        // photo before it answers the first request.
-        new Promise((res) => setTimeout(res, 20000)),
-      ])
+        // Real link annotations over the captured pixels, placed from each anchor's
+        // offset within its block.
+        const br = block.getBoundingClientRect()
+        for (const a of block.querySelectorAll('a[href]')) {
+          const r = a.getBoundingClientRect()
+          const dy = (r.top - br.top) * PT
+          const i = Math.min(slices - 1, Math.floor(dy / printable))
+          pdf.setPage(firstPage + i)
+          pdf.link(mx + (r.left - br.left) * PT, top + dy - i * printable, r.width * PT, r.height * PT, { url: a.href })
+        }
+        pdf.setPage(pdf.getNumberOfPages())
+        y += gap
+      }
+      pdf.setProperties({ title: this.pickCityName(sel.city) + ' — Tripline' })
+      return new File([pdf.output('blob')], sel.city.id + '-tripline.pdf', { type: 'application/pdf' })
+    } finally {
+      box.remove()
+    }
+  }
+
+  // A horizontal band of a canvas, given as fractions of its height.
+  sliceCanvas(canvas, from, height) {
+    const y = Math.round(canvas.height * from), h = Math.round(canvas.height * height)
+    const out = document.createElement('canvas')
+    out.width = canvas.width
+    out.height = h
+    out.getContext('2d').drawImage(canvas, 0, y, canvas.width, h, 0, 0, canvas.width, h)
+    return out
+  }
+
+  closePrintSheet() {
+    document.body.classList.remove('tl-printing')
+    this.setState({ printSheet: null, pdfFile: null, pdfError: null })
+  }
+
+  // Desktop: render the sheet as a stand-alone document in an off-screen iframe
+  // and print that, so the live page is never touched — no toolbar chrome
+  // flashing away and back.
+  async printViaFrame(sel) {
+    const html = this.cityPrintHtml(sel)
+    this.setState({ printing: true })
+    const frame = document.createElement('iframe')
+    try {
+      frame.setAttribute('aria-hidden', 'true')
+      // Off-screen at a real A4-ish pixel size: the document has to lay out for
+      // the images to load, and a 0×0 frame lays out nothing.
+      frame.style.cssText = 'position:fixed; left:-10000px; top:0; width:794px; height:1123px; border:0; opacity:0; pointer-events:none'
+      document.body.appendChild(frame)
+      const win = frame.contentWindow, doc = win.document
+      doc.open(); doc.write(html); doc.close()
+      await this.awaitSheetImages(Array.from(doc.images), doc)
 
       // afterprint is the signal that the frame is safe to drop — subscribed
       // before print(), which blocks until the dialog closes and would
       // otherwise fire it before we were listening.
-      if (frame) win.addEventListener('afterprint', () => this.dropPrintFrame(frame), { once: true })
+      win.addEventListener('afterprint', () => this.dropPrintFrame(frame), { once: true })
       win.focus()
       win.print()
     } finally {
       this.setState({ printing: false })
       // Backstop for a browser that fires no afterprint at all; removing the
-      // frame any earlier would cancel the print. The new-tab path is the
-      // user's own tab to close.
-      if (frame) setTimeout(() => this.dropPrintFrame(frame), 60000)
+      // frame any earlier would cancel the print.
+      setTimeout(() => this.dropPrintFrame(frame), 60000)
     }
   }
 
   dropPrintFrame(frame) {
     if (frame && frame.parentNode) frame.parentNode.removeChild(frame)
+  }
+
+  // Print only once the photos and the webfont have actually arrived — printing
+  // early yields empty boxes. A photo that came from the wsrv.nl proxy gets one
+  // retry against its original URL (data-fallback) before we give up on it.
+  // Capped overall, so one dead image host can't hang the button forever.
+  awaitSheetImages(images, doc) {
+    const settle = (img) => new Promise((res) => {
+      const retry = () => {
+        const original = img.getAttribute('data-fallback')
+        if (!original) return res()
+        img.removeAttribute('data-fallback')
+        img.addEventListener('load', res, { once: true })
+        img.addEventListener('error', res, { once: true })
+        img.src = original
+      }
+      if (img.complete) return img.naturalWidth ? res() : retry()
+      img.addEventListener('load', res, { once: true })
+      img.addEventListener('error', retry, { once: true })
+    })
+    const fonts = (doc || document).fonts
+    return Promise.race([
+      Promise.all([...images.map(settle), fonts ? fonts.ready : null]),
+      // Generous, because a cold wsrv.nl has to fetch and transcode every photo
+      // before it answers the first request.
+      new Promise((res) => setTimeout(res, 20000)),
+    ])
   }
 
   renderVals() {
@@ -793,6 +963,15 @@ export default class App extends React.Component {
       setViewMap: () => this.setState({ view: 'map' }),
       printCity: () => this.printCity(),
       printing: s.printing, printLabel: s.printing ? '…' : l.pdf,
+      // Mobile print overlay: the sheet, and its toolbar. The share button waits
+      // on the PDF still being built (it needs a tap of its own — see
+      // printViaSheet), and reports a build that failed outright.
+      printSheetOpen: !!s.printSheet, printSheet: s.printSheet || '',
+      printSheetCss: this.printSheetCss(),
+      closePrintSheet: () => this.closePrintSheet(),
+      sharePdf: () => this.sharePdf(),
+      pdfReady: !!s.pdfFile, pdfError: s.pdfError,
+      shareSheetLabel: s.pdfError ? l.pdfFailed : (s.pdfFile ? l.share : '…'),
       // Directions route: count of picked places (with coords), whether it's
       // routable (2+), and the handlers behind the toolbar button and the FAB.
       routeCount,
@@ -998,7 +1177,11 @@ export default class App extends React.Component {
                     {V.isCards && (
                       <El as="button" type="button" onClick={V.onDirections} disabled={V.routeDisabled} title={V.routeTitle} className="trips-noprint" base={V.routeBtnStyle} hover={V.routeBtnHover}>🧭 {V.routeLabel}</El>
                     )}
-                    <El as="button" type="button" onClick={V.printCity} disabled={V.printing} className="trips-noprint" base="border:1px solid var(--border); background:var(--surface); border-radius:999px; padding:8px 16px; font-size:13px; color:var(--ink-muted); cursor:pointer" hover="border-color:var(--accent); color:var(--accent)">{V.printLabel}</El>
+                    {/* border-* longhand rather than the `border` shorthand the
+                        other pills use: opening the print overlay pulls the
+                        pointer off this button, and React warns when it has to
+                        remove a hover borderColor from under a border shorthand. */}
+                    <El as="button" type="button" onClick={V.printCity} disabled={V.printing} className="trips-noprint" base="border-width:1px; border-style:solid; border-color:var(--border); background:var(--surface); border-radius:999px; padding:8px 16px; font-size:13px; color:var(--ink-muted); cursor:pointer" hover="border-color:var(--accent); color:var(--accent)">{V.printLabel}</El>
                     {V.isOwner && (
                       <El as="button" type="button" onClick={V.addLandmark} className="trips-noprint" base="border:1px solid var(--accent); background:var(--accent); color:var(--accent-btn-ink); border-radius:999px; padding:8px 18px; font-size:13px; font-weight:600; cursor:pointer" hover="background:var(--accent-hover); border-color:var(--accent-hover)">{V.L.addPlace}</El>
                     )}
@@ -1122,6 +1305,22 @@ export default class App extends React.Component {
           <div onClick={V.closeLightbox} style={css('position:fixed; inset:0; background:rgba(18,20,14,0.92); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:36px; z-index:70; cursor:zoom-out')}>
             <img src={V.lightbox.src} alt={V.lightbox.alt} style={css('max-width:88vw; max-height:80vh; object-fit:contain; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,0.6)')} />
             <p style={css("margin:0; color:#ffffff; font-family:var(--sans); font-weight:600; font-size:20px")}>{V.lightbox.alt}</p>
+          </div>
+        )}
+
+        {/* The mobile print sheet (printViaSheet). It stays put once the print
+            dialog closes, whether the user printed or cancelled, so Close is
+            their way back into the app — the old new-tab path had none. Always
+            the light palette: it is a preview of a printed page, not app UI. */}
+        {V.printSheetOpen && (
+          <div data-t="print-sheet" style={css('position:fixed; inset:0; z-index:80; background:#ffffff; overflow:auto; -webkit-overflow-scrolling:touch')}>
+            <style dangerouslySetInnerHTML={{ __html: V.printSheetCss }} />
+            <div data-t="print-bar" className="trips-noprint" style={css('position:sticky; top:0; z-index:1; display:flex; align-items:center; gap:10px; padding:10px 14px; background:#ffffff; border-bottom:1px solid #dce3d6')}>
+              <button type="button" onClick={V.closePrintSheet} style={css("border:1px solid #dce3d6; background:#ffffff; border-radius:999px; padding:8px 16px; font-family:var(--sans); font-size:13px; color:#7c8474; cursor:pointer")}>✕ {V.L.cancel}</button>
+              <span style={css('flex:1 1 auto')}></span>
+              <button type="button" onClick={V.sharePdf} disabled={!V.pdfReady} style={css("border:1px solid #5fa05f; background:" + (V.pdfReady ? '#5fa05f' : '#93c193') + "; border-radius:999px; padding:8px 18px; font-family:var(--sans); font-size:13px; font-weight:600; color:#ffffff; cursor:" + (V.pdfReady ? 'pointer' : 'default'))}>{V.shareSheetLabel}</button>
+            </div>
+            <div className="tlp" ref={this.printSheetRef} dangerouslySetInnerHTML={{ __html: V.printSheet }} />
           </div>
         )}
       </div>
