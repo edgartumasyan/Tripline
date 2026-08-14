@@ -81,6 +81,9 @@ export default class App extends React.Component {
     // directions link. Selection order = route order. Ephemeral: cleared when
     // navigating to another city, never persisted.
     route: [],
+    // True while printCity() is waiting on the print document's photos, so the
+    // button can disable itself and swap in a "…" instead of double-firing.
+    printing: false,
   }
 
   componentDidMount() {
@@ -454,45 +457,178 @@ export default class App extends React.Component {
     try { localStorage.setItem('trips.theme', v) } catch (e) {}
   }
 
-  // Builds a standalone, static, read-only HTML snapshot of the current city —
-  // no data source, no edit controls — and downloads it as a file to share.
-  shareCity() {
-    const sel = this.city()
-    if (!sel) return
-    const l = this.L(), esc = (s) => String(s || '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
-    const rows = sel.city.landmarks.map((lm, i) => {
-      // Same "View on Google Maps" deep link the live app shows — per-place
-      // coords win over the built-in COORDS table, and places we can't locate
-      // simply get no link.
-      const pt = lm.coords || COORDS[lm.id]
+  // Photos print into a 148×104pt box (~2in wide) but the sources are often
+  // 1600px+, and the browser embeds whatever it loaded at full resolution — a
+  // 27-place city came out around 50MB. wsrv.nl re-encodes them to roughly
+  // 300dpi for that box, which cuts most of it (a 1.6MB source lands near 40KB).
+  // 'we' stops it enlarging sources already smaller than the box.
+  //
+  // Only public http(s) sources go through it — an uploaded data: URI is already
+  // local and small, and handing it to a proxy would mean uploading the photo.
+  // Every proxied <img> carries the original URL in data-fallback, and
+  // printCity() re-points it there if the proxy misses, so a wsrv.nl outage or a
+  // host that rate-limits it costs file size, never the photo.
+  printImageSrc(url) {
+    if (!/^https?:\/\//i.test(url)) return url
+    return 'https://wsrv.nl/?url=' + encodeURIComponent(url) + '&w=640&h=450&fit=cover&we&output=jpg&q=78'
+  }
+
+  // The printable document for one city: the city name as the header, then one
+  // row per place — photo, number, name, description, and the same "View on
+  // Google Maps" deep link the app shows. Sized in pt against an A4 page, in
+  // the light palette only (a dark-theme PDF would be a wall of ink).
+  //
+  // Deliberately its own layout rather than a copy of the on-screen Cards: the
+  // page is a fixed narrow column, so the two-per-row grid and the app chrome
+  // (route chips, drag handles, ⋮ menus) have no place in it.
+  cityPrintHtml(sel) {
+    const l = this.L()
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
+    const city = sel.city
+    const places = this.orderedLandmarks(city)
+
+    const rows = places.map((lm, i) => {
+      const pt = this.pointFor(lm)
       const mapUrl = pt ? 'https://www.google.com/maps/search/?api=1&query=' + pt[0] + ',' + pt[1] : ''
-      return `
-      <article style="display:flex;gap:16px;border:1px solid #E4EBDD;border-radius:16px;overflow:hidden;background:#FFFFFF;margin-bottom:18px">
-        ${lm.image ? `<img src="${esc(lm.image)}" alt="" style="width:220px;height:160px;object-fit:cover;flex:0 0 auto"/>` : ''}
-        <div style="padding:16px 20px;display:flex;flex-direction:column;gap:6px;min-width:0">
-          <div style="display:flex;align-items:baseline;gap:10px">
-            <h3 style="margin:0;font-family:'Work Sans',sans-serif;font-weight:600;font-size:19px;color:#1B1D18">${esc(lm.name)}</h3>
-            <span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#9C9488">${String(i + 1).padStart(2, '0')}</span>
-          </div>
-          <p style="margin:0;font-size:13.5px;line-height:1.6;color:#7C8474">${esc(this.pickDescription(lm))}</p>
-          ${mapUrl ? `<a href="${mapUrl}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:#5FA05F;text-decoration:none;white-space:nowrap;margin-top:2px">📍 ${esc(l.viewOnMap)}</a>` : ''}
-        </div>
-      </article>`
+      const desc = this.pickDescription(lm)
+      const src = lm.image ? this.printImageSrc(lm.image) : ''
+      return '<article class="row">' +
+        (lm.image ? '<img class="shot" src="' + esc(src) + '" alt=""' +
+          (src === lm.image ? '' : ' data-fallback="' + esc(lm.image) + '"') + '/>' : '') +
+        '<div class="body">' +
+          '<div class="hd">' +
+            '<span class="num">' + String(i + 1).padStart(2, '0') + '</span>' +
+            '<h2>' + esc(lm.name) + '</h2>' +
+          '</div>' +
+          (desc ? '<p class="desc">' + esc(desc) + '</p>' : '') +
+          // Printed on paper the URL is dead, so the link text carries the
+          // coordinates — in a PDF the anchor itself stays clickable.
+          (mapUrl ? '<a class="map" href="' + esc(mapUrl) + '">📍 ' + esc(l.viewOnMap) + ' · ' + pt[0].toFixed(5) + ', ' + pt[1].toFixed(5) + '</a>' : '') +
+        '</div>' +
+      '</article>'
     }).join('')
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(sel.city.name)}</title>
-      <style>body{margin:0;background:#F5F6F4;color:#1B1D18;font-family:'Work Sans',system-ui,sans-serif}
-      .wrap{max-width:760px;margin:0 auto;padding:40px 24px 80px}</style></head><body>
-      <div class="wrap">
-        <p style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8C9384;margin:0 0 6px">${esc(sel.country.name)} · ${esc(l.share)}</p>
-        <h1 style="font-family:'Work Sans',sans-serif;font-weight:600;font-size:38px;margin:0 0 22px">${esc(sel.city.name)}</h1>
-        ${rows}
-      </div></body></html>`
-    const blob = new Blob([html], { type: 'text/html' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url; a.download = sel.city.id + '-view-only.html'
-    a.click()
-    setTimeout(() => URL.revokeObjectURL(url), 2000)
+
+    return '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">' +
+      // The document title is what Chrome and Safari prefill as the "Save as
+      // PDF" filename, so it doubles as the download name.
+      '<title>' + esc(this.pickCityName(city)) + ' — Tripline</title>' +
+      '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' +
+      '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600&display=swap">' +
+      '<style>' +
+      '@page { size: A4; margin: 14mm 13mm 12mm; }' +
+      '* { box-sizing: border-box; }' +
+      'html, body { margin: 0; padding: 0; background: #fff; }' +
+      "body { font-family: 'Work Sans', system-ui, -apple-system, sans-serif; color: #26291f;" +
+        ' -webkit-print-color-adjust: exact; print-color-adjust: exact; }' +
+      '.eyebrow { margin: 0 0 5pt; font-size: 8.5pt; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; color: #8c9384; }' +
+      'h1 { margin: 0 0 5pt; font-size: 27pt; font-weight: 600; letter-spacing: -.015em; line-height: 1.1; }' +
+      '.meta { margin: 0 0 11pt; font-size: 9pt; color: #7c8474; }' +
+      '.rule { height: 1px; margin: 0 0 15pt; background: #dce3d6; }' +
+      // break-inside:avoid keeps a photo and its text on one page; a row taller
+      // than the page still splits, which is the browser's call and correct.
+      '.row { display: flex; gap: 13pt; align-items: flex-start; margin: 0 0 13pt; padding: 0 0 13pt;' +
+        ' border-bottom: 1px solid #e4ebdd; break-inside: avoid; page-break-inside: avoid; }' +
+      '.row:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }' +
+      '.shot { flex: 0 0 148pt; width: 148pt; height: 104pt; object-fit: cover; display: block;' +
+        ' border-radius: 8pt; background: #e4ebdd; }' +
+      '.body { flex: 1 1 auto; min-width: 0; }' +
+      '.hd { display: flex; align-items: baseline; gap: 7pt; margin: 0 0 5pt; }' +
+      '.num { flex: 0 0 auto; font-size: 8.5pt; font-weight: 500; letter-spacing: .1em; color: #8c9384; }' +
+      'h2 { margin: 0; font-size: 13.5pt; font-weight: 600; line-height: 1.25; }' +
+      '.desc { margin: 0 0 6pt; font-size: 9.5pt; line-height: 1.55; color: #4d5347; }' +
+      '.map { font-size: 8.5pt; color: #478047; text-decoration: none; }' +
+      '.empty { margin: 0; font-size: 10pt; color: #7c8474; }' +
+      '</style></head><body>' +
+      '<p class="eyebrow">' + esc(this.pickCountryName(sel.country)) + '</p>' +
+      '<h1>' + esc(this.pickCityName(city)) + '</h1>' +
+      '<p class="meta">' + esc(this.pl(city.landmarks.length, 'places')) + '</p>' +
+      '<div class="rule"></div>' +
+      (rows || '<p class="empty">' + esc(l.emptyCity) + '</p>') +
+      '</body></html>'
+  }
+
+  // Prints the city guide above through the browser's own print pipeline, which
+  // is what "Save as PDF" in that dialog then writes to a file.
+  //
+  // Not a canvas screenshot of the live page: about half the image hosts in
+  // data.json send no CORS headers, so canvas can never read those pixels and
+  // the photos come out blank — whereas <img> in a print document renders every
+  // one of them. It also keeps the text vector-crisp, the Maps links clickable,
+  // and the live page untouched, so no toolbar chrome flashes away and back.
+  //
+  // The document renders in an off-screen iframe. iOS Safari can't print an
+  // iframe, so there it goes to a new tab instead — opened synchronously below,
+  // before any await, or the pop-up blocker eats it.
+  async printCity() {
+    const sel = this.city()
+    if (!sel || this.state.printing) return
+    const html = this.cityPrintHtml(sel)
+    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+    const tab = iOS ? window.open('', '_blank') : null
+    if (iOS && !tab) return
+
+    this.setState({ printing: true })
+    let frame = null
+    try {
+      let win = tab
+      if (!win) {
+        frame = document.createElement('iframe')
+        frame.setAttribute('aria-hidden', 'true')
+        // Off-screen at a real A4-ish pixel size: the document has to lay out
+        // for the images to load, and a 0×0 frame lays out nothing.
+        frame.style.cssText = 'position:fixed; left:-10000px; top:0; width:794px; height:1123px; border:0; opacity:0; pointer-events:none'
+        document.body.appendChild(frame)
+        win = frame.contentWindow
+      }
+      const doc = win.document
+      doc.open(); doc.write(html); doc.close()
+
+      // Print only once the photos and the webfont have actually arrived —
+      // printing early yields empty boxes. A photo that came from the wsrv.nl
+      // proxy gets one retry against its original URL (data-fallback) before we
+      // give up on it. Capped overall, so one dead image host can't hang the
+      // button forever.
+      const settle = (img) => new Promise((res) => {
+        const retry = () => {
+          const original = img.getAttribute('data-fallback')
+          if (!original) return res()
+          img.removeAttribute('data-fallback')
+          img.addEventListener('load', res, { once: true })
+          img.addEventListener('error', res, { once: true })
+          img.src = original
+        }
+        if (img.complete) return img.naturalWidth ? res() : retry()
+        img.addEventListener('load', res, { once: true })
+        img.addEventListener('error', retry, { once: true })
+      })
+      await Promise.race([
+        Promise.all([
+          ...Array.from(doc.images).map(settle),
+          doc.fonts ? doc.fonts.ready : null,
+        ]),
+        // Generous, because a cold wsrv.nl has to fetch and transcode every
+        // photo before it answers the first request.
+        new Promise((res) => setTimeout(res, 20000)),
+      ])
+
+      // afterprint is the signal that the frame is safe to drop — subscribed
+      // before print(), which blocks until the dialog closes and would
+      // otherwise fire it before we were listening.
+      if (frame) win.addEventListener('afterprint', () => this.dropPrintFrame(frame), { once: true })
+      win.focus()
+      win.print()
+    } finally {
+      this.setState({ printing: false })
+      // Backstop for a browser that fires no afterprint at all; removing the
+      // frame any earlier would cancel the print. The new-tab path is the
+      // user's own tab to close.
+      if (frame) setTimeout(() => this.dropPrintFrame(frame), 60000)
+    }
+  }
+
+  dropPrintFrame(frame) {
+    if (frame && frame.parentNode) frame.parentNode.removeChild(frame)
   }
 
   renderVals() {
@@ -583,7 +719,9 @@ export default class App extends React.Component {
       cityVals = {
         name: this.pickCityName(sel.city), image: sel.city.image || '',
         crumb: '← ' + this.pickCountryName(sel.country),
-        meta: this.pl(st.total, 'places') + ' · ' + st.seen + ' ' + l.visited,
+        // Places only. There is no way to mark a place visited in the UI, so a
+        // visited count here could only ever read 0.
+        meta: this.pl(st.total, 'places'),
       }
       const orderedList = this.orderedLandmarks(sel.city)
       const orderedIds = orderedList.map((lm) => lm.id)
@@ -653,7 +791,8 @@ export default class App extends React.Component {
       setViewGrid: () => this.setState({ view: 'grid' }),
       setViewList: () => this.setState({ view: 'list' }),
       setViewMap: () => this.setState({ view: 'map' }),
-      shareCity: () => this.shareCity(),
+      printCity: () => this.printCity(),
+      printing: s.printing, printLabel: s.printing ? '…' : l.pdf,
       // Directions route: count of picked places (with coords), whether it's
       // routable (2+), and the handlers behind the toolbar button and the FAB.
       routeCount,
@@ -667,9 +806,6 @@ export default class App extends React.Component {
       routeBtnHover: routeReady ? 'background:var(--accent-hover); border-color:var(--accent-hover)' : '',
       routeLabel: l.directions + (routeCount ? ' (' + routeCount + ')' : ''),
       onDirections: () => this.openDirections(),
-      // The "Print / PDF" button opens the browser's print dialog. The @media
-      // print stylesheet hides the app chrome and lets places flow across pages.
-      printCity: () => window.print(),
       addCountry: () => this.setState({ dialog: { kind: 'country', title: l.addCountry, name: '', image: '' } }),
       addLandmark: () => this.setState({ dialog: { kind: 'landmark', title: l.addPlace, name: '', image: '', description: '', descriptionEn: '', descriptionRu: '', coordsText: '' } }),
       dialogOpen: !!s.dialog,
@@ -862,8 +998,7 @@ export default class App extends React.Component {
                     {V.isCards && (
                       <El as="button" type="button" onClick={V.onDirections} disabled={V.routeDisabled} title={V.routeTitle} className="trips-noprint" base={V.routeBtnStyle} hover={V.routeBtnHover}>🧭 {V.routeLabel}</El>
                     )}
-                    <El as="button" type="button" onClick={V.shareCity} className="trips-noprint" base="border:1px solid var(--border); background:var(--surface); border-radius:999px; padding:8px 16px; font-size:13px; color:var(--ink-muted); cursor:pointer" hover="border-color:var(--accent); color:var(--accent)">{V.L.share}</El>
-                    <El as="button" type="button" onClick={V.printCity} className="trips-noprint" base="border:1px solid var(--border); background:var(--surface); border-radius:999px; padding:8px 16px; font-size:13px; color:var(--ink-muted); cursor:pointer" hover="border-color:var(--accent); color:var(--accent)">{V.L.pdf}</El>
+                    <El as="button" type="button" onClick={V.printCity} disabled={V.printing} className="trips-noprint" base="border:1px solid var(--border); background:var(--surface); border-radius:999px; padding:8px 16px; font-size:13px; color:var(--ink-muted); cursor:pointer" hover="border-color:var(--accent); color:var(--accent)">{V.printLabel}</El>
                     {V.isOwner && (
                       <El as="button" type="button" onClick={V.addLandmark} className="trips-noprint" base="border:1px solid var(--accent); background:var(--accent); color:var(--accent-btn-ink); border-radius:999px; padding:8px 18px; font-size:13px; font-weight:600; cursor:pointer" hover="background:var(--accent-hover); border-color:var(--accent-hover)">{V.L.addPlace}</El>
                     )}
