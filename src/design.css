@@ -171,6 +171,24 @@
   }
 }
 
+/* The mobile print path (App.printViaSheet) renders the city guide as an in-app
+   overlay and prints the top window, because phones can't print an off-screen
+   iframe. While that overlay is up, printing has to drop the entire app except
+   the sheet, and let the sheet out of its scroll container so it can paginate.
+   After the existing @media print block above so these win on tie. */
+@media print {
+  body.tl-printing [data-t='app'] > *:not([data-t~='print-sheet']) {
+    display: none !important;
+  }
+  body.tl-printing [data-t~='print-sheet'] {
+    position: static !important;
+    inset: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+}
+
 /* Numbered Leaflet marker (built by CityMap). */
 .map-pin {
   width: 34px;
