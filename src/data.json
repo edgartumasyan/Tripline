@@ -854,23 +854,10 @@
       "flag": "https://flagcdn.com/w320/it.png",
       "cities": [
         {
-          "id": "rome",
-          "name": "Rome",
-          "image": "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=400&q=80",
-          "landmarks": [
-            {
-              "id": "colosseum",
-              "name": "Colosseum",
-              "image": "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&q=80",
-              "description": "The largest ancient amphitheatre ever built, an iconic symbol of Imperial Rome."
-            },
-            {
-              "id": "test",
-              "name": "test",
-              "image": "",
-              "description": ""
-            }
-          ]
+          "id": "milan",
+          "name": "Milan",
+          "image": "https://images.openai.com/static-rsc-4/mFXyMJkM3TTX2o4qjFg_8jFTqQnU-PSprnKQDn5dvsgdtb1RP4g8TIfHVtbPIzokUa7AnHGPaW3yowtkp1R2c7C0Z30FwmNREvjfQcXbQXZNnnSjAKHjdn2aXQ9Gt4wC6dk8nW1LV03y5i7fUy6qKXFoTs0EZEtbgrY3CZh5VcPMra5SAghFR6dOnGEcvgmh?purpose=fullsize",
+          "landmarks": []
         }
       ]
     },
