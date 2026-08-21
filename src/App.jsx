@@ -2,6 +2,7 @@ import React from 'react'
 import { COORDS } from './coords.js'
 import { EN, HY, RU, LANG_ORDER, LANG_LABEL, LANG_FLAG, LANG_NAME, labelsFor, pluralize } from './i18n.js'
 import { loadData, saveData } from './storage.js'
+import { latinize } from './translit.js'
 import CityMap from './components/CityMap.jsx'
 import './design.css'
 
@@ -213,8 +214,11 @@ export default class App extends React.Component {
     this.persist(d)
   }
 
+  // Ids come from the English name, but nothing stops a non-Latin one being
+  // typed there — latinize() keeps those readable instead of collapsing the
+  // whole name to the 'item' placeholder.
   slug(name, list) {
-    let base = String(name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'item'
+    let base = latinize(name).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'item'
     let id = base, n = 2
     while (list.some((x) => x.id === id)) { id = base + '-' + n; n++ }
     return id
