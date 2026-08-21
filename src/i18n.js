@@ -55,8 +55,10 @@ export const EN = {
   plannedSuffix: 'planned',
   pinnedSuffix: 'pinned',
   notScheduled: 'Not scheduled yet',
-  countryName: 'Country name',
-  cityName: 'City name',
+  countryName: 'Country name (English)',
+  cityName: 'City name (English)',
+  nameHy: 'Name (Armenian)',
+  nameRu: 'Name (Russian)',
   placeName: 'Place name',
   flagUrl: 'Flag image URL',
   imageUrl: 'Image URL',
@@ -122,8 +124,10 @@ export const HY = {
   plannedSuffix: 'պլանավորված',
   pinnedSuffix: 'քարտեզի վրա',
   notScheduled: 'Դեռ չպլանավորված',
-  countryName: 'Երկրի անուն',
-  cityName: 'Քաղաքի անուն',
+  countryName: 'Երկրի անուն (անգլերեն)',
+  cityName: 'Քաղաքի անուն (անգլերեն)',
+  nameHy: 'Անուն (հայերեն)',
+  nameRu: 'Անուն (ռուսերեն)',
   placeName: 'Վայրի անուն',
   flagUrl: 'Դրոշի հասցե',
   imageUrl: 'Նկարի հասցե',
@@ -189,8 +193,10 @@ export const RU = {
   plannedSuffix: 'запланировано',
   pinnedSuffix: 'на карте',
   notScheduled: 'Ещё не запланировано',
-  countryName: 'Название страны',
-  cityName: 'Название города',
+  countryName: 'Название страны (английский)',
+  cityName: 'Название города (английский)',
+  nameHy: 'Название (армянский)',
+  nameRu: 'Название (русский)',
   placeName: 'Название места',
   flagUrl: 'Ссылка на флаг',
   imageUrl: 'Ссылка на фото',
@@ -209,21 +215,6 @@ export const LANG_LABEL = { en: 'EN', hy: 'ՀԱՅ', ru: 'RU' }
 // shown on the button itself).
 export const LANG_FLAG = { en: '🇬🇧', hy: '🇦🇲', ru: '🇷🇺' }
 export const LANG_NAME = { en: 'English', hy: 'Հայերեն', ru: 'Русский' }
-
-// Localized display names for specific countries/cities, keyed by their
-// data.json id. Only non-English names are listed; English (and any id not
-// listed here) falls back to the name authored in data.json.
-export const COUNTRY_NAMES = {
-  spain: { hy: 'Իսպանիա', ru: 'Испания' },
-  italy: { hy: 'Իտալիա', ru: 'Италия' },
-  poland: { hy: 'Լեհաստան', ru: 'Польша' },
-  greece: { hy: 'Հունաստան', ru: 'Греция' },
-}
-export const CITY_NAMES = {
-  madrid: { hy: 'Մադրիդ', ru: 'Мадрид' },
-  valencia: { hy: 'Վալենսիա', ru: 'Валенсия' },
-  rome: { hy: 'Հռոմ', ru: 'Рим' },
-}
 
 // Word forms for "N cities / places / days" per language, so counts read
 // naturally instead of always using the English plural rule.

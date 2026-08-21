@@ -1,6 +1,6 @@
 import React from 'react'
 import { COORDS } from './coords.js'
-import { EN, HY, RU, LANG_ORDER, LANG_LABEL, LANG_FLAG, LANG_NAME, COUNTRY_NAMES, CITY_NAMES, labelsFor, pluralize } from './i18n.js'
+import { EN, HY, RU, LANG_ORDER, LANG_LABEL, LANG_FLAG, LANG_NAME, labelsFor, pluralize } from './i18n.js'
 import { loadData, saveData } from './storage.js'
 import CityMap from './components/CityMap.jsx'
 import './design.css'
@@ -151,32 +151,28 @@ export default class App extends React.Component {
 
   L() { return labelsFor(this.state.lang) }
 
-  // Country/city display name in the current language: a curated override
-  // (COUNTRY_NAMES / CITY_NAMES, keyed by id) wins for non-English, else the
-  // name as authored in data.json.
-  pickCountryName(c) {
-    const t = COUNTRY_NAMES[c.id]
-    if (t && this.state.lang !== 'en' && t[this.state.lang]) return t[this.state.lang]
-    return c.name
+  // Country/city display name in the current language. Armenian and Russian
+  // names are optional fields on the entity itself (authored in the add/edit
+  // dialog); when one is blank the English `name` is used.
+  pickName(x) {
+    if (this.state.lang === 'hy' && x.nameHy) return x.nameHy
+    if (this.state.lang === 'ru' && x.nameRu) return x.nameRu
+    return x.name
   }
 
-  pickCityName(ci) {
-    const t = CITY_NAMES[ci.id]
-    if (t && this.state.lang !== 'en' && t[this.state.lang]) return t[this.state.lang]
-    return ci.name
+  pickCountryName(c) { return this.pickName(c) }
+
+  pickCityName(ci) { return this.pickName(ci) }
+
+  // All name variants (English base + whichever translations were filled in) so
+  // search can match a query against any language, not just the selected one.
+  allNames(x) {
+    return [x.name, x.nameHy, x.nameRu].filter(Boolean)
   }
 
-  // All name variants (English base + every localized override) so search can
-  // match a query against any language, not just the one currently selected.
-  countryNames(c) {
-    const t = COUNTRY_NAMES[c.id] || {}
-    return [c.name, ...LANG_ORDER.map((lang) => t[lang])].filter(Boolean)
-  }
+  countryNames(c) { return this.allNames(c) }
 
-  cityNames(ci) {
-    const t = CITY_NAMES[ci.id] || {}
-    return [ci.name, ...LANG_ORDER.map((lang) => t[lang])].filter(Boolean)
-  }
+  cityNames(ci) { return this.allNames(ci) }
 
   // True when the query matches any language variant of the given names.
   matchesQuery(names, query) {
@@ -432,6 +428,9 @@ export default class App extends React.Component {
     const d0 = this.state.dialog
     if (!d0 || !d0.name || !d0.name.trim()) return
     const name = d0.name.trim(), image = (d0.image || '').trim(), description = (d0.description || '').trim()
+    // Optional Armenian/Russian names for countries and cities. Blank means
+    // "fall back to the English name" rather than an empty label.
+    const nameHy = (d0.nameHy || '').trim(), nameRu = (d0.nameRu || '').trim()
     const descriptionEn = (d0.descriptionEn || '').trim(), descriptionRu = (d0.descriptionRu || '').trim()
     // Optional per-place coordinates, pasted from Google Maps in DMS form. When present
     // but unparseable, flag the field and keep the dialog open instead of saving.
@@ -439,15 +438,15 @@ export default class App extends React.Component {
     const coords = coordsText ? this.parseDMS(coordsText) : null
     if (coordsText && !coords) { this.setState({ dialog: { ...d0, coordsError: true } }); return }
     if (d0.kind === 'country') {
-      this.mutate((d) => { d.countries.push({ id: this.slug(name, d.countries), name, flag: image, cities: [] }) })
+      this.mutate((d) => { d.countries.push({ id: this.slug(name, d.countries), name, nameHy, nameRu, flag: image, cities: [] }) })
     } else if (d0.kind === 'edit-country') {
-      this.mutate((d) => { const c = d.countries.find((x) => x.id === d0.id); c.name = name; c.flag = image })
+      this.mutate((d) => { const c = d.countries.find((x) => x.id === d0.id); c.name = name; c.nameHy = nameHy; c.nameRu = nameRu; c.flag = image })
     } else if (d0.kind === 'city') {
       this.mutate((d) => { const c = d.countries.find((x) => x.id === d0.countryId)
-        c.cities.push({ id: this.slug(name, c.cities), name, image, landmarks: [] }) })
+        c.cities.push({ id: this.slug(name, c.cities), name, nameHy, nameRu, image, landmarks: [] }) })
     } else if (d0.kind === 'edit-city') {
       this.mutate((d) => { const c = d.countries.find((x) => x.id === d0.countryId)
-        const ci = c.cities.find((x) => x.id === d0.id); ci.name = name; ci.image = image })
+        const ci = c.cities.find((x) => x.id === d0.id); ci.name = name; ci.nameHy = nameHy; ci.nameRu = nameRu; ci.image = image })
     } else if (d0.kind === 'landmark') {
       this.mutate((d) => { const ci = this.findCity(d)
         ci.landmarks.push({ id: this.slug(name, ci.landmarks), name, image, description, descriptionEn, descriptionRu, coords, coordsText, day: null, visited: false }) })
@@ -817,24 +816,24 @@ export default class App extends React.Component {
     }
 
     const tree = countries.map((c) => ({
-      id: c.id, name: c.name, flag: c.flag || '',
+      id: c.id, name: this.pickCountryName(c), flag: c.flag || '',
       count: this.pl(c.cities.length, 'cities'),
       open: s.openCountry === c.id,
       rowBg: s.openCountry === c.id ? 'var(--row-open)' : 'transparent',
       onClick: () => this.setState({ openCountry: s.openCountry === c.id ? null : c.id }),
-      onEdit: () => this.setState({ dialog: { kind: 'edit-country', id: c.id, title: c.name, name: c.name, image: c.flag || '' } }),
-      onDelete: () => this.askDelete(c.name, () => this.mutate((d) => { d.countries = d.countries.filter((x) => x.id !== c.id) })),
-      onAddCity: () => this.setState({ dialog: { kind: 'city', countryId: c.id, title: l.addCity, name: '', image: '' } }),
+      onEdit: () => this.setState({ dialog: { kind: 'edit-country', id: c.id, title: this.pickCountryName(c), name: c.name, nameHy: c.nameHy || '', nameRu: c.nameRu || '', image: c.flag || '' } }),
+      onDelete: () => this.askDelete(this.pickCountryName(c), () => this.mutate((d) => { d.countries = d.countries.filter((x) => x.id !== c.id) })),
+      onAddCity: () => this.setState({ dialog: { kind: 'city', countryId: c.id, title: l.addCity, name: '', nameHy: '', nameRu: '', image: '' } }),
       cities: c.cities.map((ci) => {
         const st = stats(ci)
         return {
-          id: ci.id, name: ci.name, image: ci.image || '',
+          id: ci.id, name: this.pickCityName(ci), image: ci.image || '',
           meta: this.pl(st.total, 'places'),
           ink: s.cityId === ci.id ? 'var(--accent)' : 'var(--ink)',
           rowBg: s.cityId === ci.id ? 'var(--accent-tint)' : 'transparent',
           onClick: () => this.setState({ countryId: c.id, cityId: ci.id, view: 'grid', route: [], drawerOpen: false }),
-          onEdit: () => this.setState({ dialog: { kind: 'edit-city', id: ci.id, countryId: c.id, title: ci.name, name: ci.name, image: ci.image || '' } }),
-          onDelete: () => this.askDelete(ci.name, () => this.mutate((d) => {
+          onEdit: () => this.setState({ dialog: { kind: 'edit-city', id: ci.id, countryId: c.id, title: this.pickCityName(ci), name: ci.name, nameHy: ci.nameHy || '', nameRu: ci.nameRu || '', image: ci.image || '' } }),
+          onDelete: () => this.askDelete(this.pickCityName(ci), () => this.mutate((d) => {
             const cc = d.countries.find((x) => x.id === c.id); cc.cities = cc.cities.filter((x) => x.id !== ci.id)
           })),
         }
@@ -853,9 +852,9 @@ export default class App extends React.Component {
       // deleting from it closes the menu as it opens the dialog / confirm.
       menuOpen: s.cardMenuOpen === 'country:' + c.id,
       onToggleMenu: () => this.setState({ cardMenuOpen: s.cardMenuOpen === 'country:' + c.id ? null : 'country:' + c.id }),
-      onEdit: () => this.setState({ dialog: { kind: 'edit-country', id: c.id, title: c.name, name: c.name, image: c.flag || '' }, cardMenuOpen: null }),
-      onDelete: () => { this.setState({ cardMenuOpen: null }); this.askDelete(c.name, () => this.mutate((d) => { d.countries = d.countries.filter((x) => x.id !== c.id) })) },
-      onAddCity: () => this.setState({ dialog: { kind: 'city', countryId: c.id, title: l.addCity, name: '', image: '' } }),
+      onEdit: () => this.setState({ dialog: { kind: 'edit-country', id: c.id, title: this.pickCountryName(c), name: c.name, nameHy: c.nameHy || '', nameRu: c.nameRu || '', image: c.flag || '' }, cardMenuOpen: null }),
+      onDelete: () => { this.setState({ cardMenuOpen: null }); this.askDelete(this.pickCountryName(c), () => this.mutate((d) => { d.countries = d.countries.filter((x) => x.id !== c.id) })) },
+      onAddCity: () => this.setState({ dialog: { kind: 'city', countryId: c.id, title: l.addCity, name: '', nameHy: '', nameRu: '', image: '' } }),
       cities: c.cities
         .filter((ci) => this.matchesQuery(this.cityNames(ci), s.cityQuery))
         .map((ci) => {
@@ -865,8 +864,8 @@ export default class App extends React.Component {
             count: this.pl(st.total, 'places'),
             progress: st.pct,
             onClick: () => this.setState({ countryId: c.id, cityId: ci.id, openCountry: c.id, view: 'grid', route: [] }),
-            onEdit: () => this.setState({ dialog: { kind: 'edit-city', id: ci.id, countryId: c.id, title: ci.name, name: ci.name, image: ci.image || '' } }),
-            onDelete: () => this.askDelete(ci.name, () => this.mutate((d) => {
+            onEdit: () => this.setState({ dialog: { kind: 'edit-city', id: ci.id, countryId: c.id, title: this.pickCityName(ci), name: ci.name, nameHy: ci.nameHy || '', nameRu: ci.nameRu || '', image: ci.image || '' } }),
+            onDelete: () => this.askDelete(this.pickCityName(ci), () => this.mutate((d) => {
               const cc = d.countries.find((x) => x.id === c.id); cc.cities = cc.cities.filter((x) => x.id !== ci.id)
             })),
           }
@@ -985,11 +984,12 @@ export default class App extends React.Component {
       routeBtnHover: routeReady ? 'background:var(--accent-hover); border-color:var(--accent-hover)' : '',
       routeLabel: l.directions + (routeCount ? ' (' + routeCount + ')' : ''),
       onDirections: () => this.openDirections(),
-      addCountry: () => this.setState({ dialog: { kind: 'country', title: l.addCountry, name: '', image: '' } }),
+      addCountry: () => this.setState({ dialog: { kind: 'country', title: l.addCountry, name: '', nameHy: '', nameRu: '', image: '' } }),
       addLandmark: () => this.setState({ dialog: { kind: 'landmark', title: l.addPlace, name: '', image: '', description: '', descriptionEn: '', descriptionRu: '', coordsText: '' } }),
       dialogOpen: !!s.dialog,
       dialog: s.dialog ? {
         title: s.dialog.title, name: s.dialog.name || '', image: s.dialog.image || '',
+        nameHy: s.dialog.nameHy || '', nameRu: s.dialog.nameRu || '',
         description: s.dialog.description || '',
         descriptionEn: s.dialog.descriptionEn || '', descriptionRu: s.dialog.descriptionRu || '',
         coords: s.dialog.coordsText || '', coordsError: !!s.dialog.coordsError,
@@ -997,12 +997,19 @@ export default class App extends React.Component {
           : s.dialog.kind.indexOf('city') > -1 ? l.cityName : l.placeName,
         namePlaceholder: s.dialog.kind.indexOf('country') > -1 ? 'France'
           : s.dialog.kind.indexOf('city') > -1 ? 'Madrid' : 'Puerta del Sol',
+        namePlaceholderHy: s.dialog.kind.indexOf('country') > -1 ? 'Ֆրանսիա' : 'Մադրիդ',
+        namePlaceholderRu: s.dialog.kind.indexOf('country') > -1 ? 'Франция' : 'Мадрид',
         imageLabel: s.dialog.kind.indexOf('country') > -1 ? l.flagUrl : l.imageUrl,
         withDescription: s.dialog.kind.indexOf('landmark') > -1,
+        // Countries and cities carry their own Armenian/Russian names; places
+        // translate their description instead.
+        withNames: s.dialog.kind.indexOf('landmark') === -1,
         hasPreview: !!(s.dialog.image && /^https?:|^data:/.test(s.dialog.image)),
         submitLabel: s.dialog.kind.indexOf('edit') === 0 ? l.save : l.addBtn,
-      } : { title: '', name: '', image: '', description: '', descriptionEn: '', descriptionRu: '', coords: '', coordsError: false, nameLabel: '', namePlaceholder: '', imageLabel: '', withDescription: false, hasPreview: false, submitLabel: '' },
+      } : { title: '', name: '', nameHy: '', nameRu: '', image: '', description: '', descriptionEn: '', descriptionRu: '', coords: '', coordsError: false, nameLabel: '', namePlaceholder: '', namePlaceholderHy: '', namePlaceholderRu: '', imageLabel: '', withDescription: false, withNames: false, hasPreview: false, submitLabel: '' },
       onDialogName: (e) => this.setState({ dialog: { ...s.dialog, name: e.target.value } }),
+      onDialogNameHy: (e) => this.setState({ dialog: { ...s.dialog, nameHy: e.target.value } }),
+      onDialogNameRu: (e) => this.setState({ dialog: { ...s.dialog, nameRu: e.target.value } }),
       // Image is a plain URL typed/pasted by the user — stored as a string, no upload.
       onDialogImage: (e) => this.setState({ dialog: { ...s.dialog, image: e.target.value } }),
       onDialogDescription: (e) => this.setState({ dialog: { ...s.dialog, description: e.target.value } }),
@@ -1249,6 +1256,18 @@ export default class App extends React.Component {
                 <span style={css('display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-faint)')}>{V.dialog.nameLabel}</span>
                 <El as="input" type="text" value={V.dialog.name} onChange={V.onDialogName} placeholder={V.dialog.namePlaceholder} base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid var(--border-soft); border-radius:11px; background:var(--field); color:var(--ink); font-size:14px; outline:none" focus="border-color:var(--accent)" />
               </label>
+              {V.dialog.withNames && (
+                <>
+                  <label style={css('display:block; margin-bottom:14px')}>
+                    <span style={css('display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-faint)')}>{V.L.nameHy}</span>
+                    <El as="input" type="text" value={V.dialog.nameHy} onChange={V.onDialogNameHy} placeholder={V.dialog.namePlaceholderHy} base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid var(--border-soft); border-radius:11px; background:var(--field); color:var(--ink); font-size:14px; outline:none" focus="border-color:var(--accent)" />
+                  </label>
+                  <label style={css('display:block; margin-bottom:14px')}>
+                    <span style={css('display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-faint)')}>{V.L.nameRu}</span>
+                    <El as="input" type="text" value={V.dialog.nameRu} onChange={V.onDialogNameRu} placeholder={V.dialog.namePlaceholderRu} base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid var(--border-soft); border-radius:11px; background:var(--field); color:var(--ink); font-size:14px; outline:none" focus="border-color:var(--accent)" />
+                  </label>
+                </>
+              )}
               <label style={css('display:block; margin-bottom:14px')}>
                 <span style={css('display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-faint)')}>{V.dialog.imageLabel}</span>
                 <El as="input" type="url" value={V.dialog.image} onChange={V.onDialogImage} placeholder="https://…" base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid var(--border-soft); border-radius:11px; background:var(--field); color:var(--ink); font-size:14px; outline:none" focus="border-color:var(--accent)" />
