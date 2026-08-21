@@ -1116,10 +1116,13 @@ export default class App extends React.Component {
                               </span>
                             </span>
                           </button>
+                          {/* These sit on the card photo, so they keep the light palette in
+                              both themes: var(--surface) is near-black in dark mode and the
+                              buttons vanish into the image. Same as the place cards below. */}
                           {V.isOwner && (
                             <div className="trips-noprint" style={css('position:absolute; top:9px; right:9px; display:flex; gap:5px')}>
-                              <El as="button" type="button" onClick={ci.onEdit} title="Edit" base="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border:1px solid var(--border-soft); border-radius:8px; background:var(--surface); color:var(--ink-faint); cursor:pointer; font-size:12px" hover="background:var(--accent-hover); color:#ffffff; border-color:var(--accent-hover)">✎</El>
-                              <El as="button" type="button" onClick={ci.onDelete} title="Delete" base="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border:1px solid var(--border-soft); border-radius:8px; background:var(--surface); color:var(--ink-faint); cursor:pointer; font-size:12px" hover="background:#b3543e; color:#ffffff; border-color:#b3543e">✕</El>
+                              <El as="button" type="button" onClick={ci.onEdit} title="Edit" base="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border:1px solid #e4ebdd; border-radius:8px; background:#ffffff; color:#7c8474; cursor:pointer; font-size:12px" hover="background:#478047; color:#ffffff; border-color:#478047">✎</El>
+                              <El as="button" type="button" onClick={ci.onDelete} title="Delete" base="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border:1px solid #e4ebdd; border-radius:8px; background:#ffffff; color:#7c8474; cursor:pointer; font-size:12px" hover="background:#b3543e; color:#ffffff; border-color:#b3543e">✕</El>
                             </div>
                           )}
                         </El>
