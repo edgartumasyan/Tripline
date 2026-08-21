@@ -377,7 +377,9 @@
               "text": "new",
               "done": true
             }
-          ]
+          ],
+          "nameHy": "Մադրիդ",
+          "nameRu": "Мадрид"
         },
         {
           "id": "valencia",
@@ -844,9 +846,13 @@
               "coordsText": "39°28'13.6\"N 0°19'22.9\"W"
             }
           ],
-          "notes": "\n"
+          "notes": "\n",
+          "nameHy": "Վալենսիա",
+          "nameRu": "Валенсия"
         }
-      ]
+      ],
+      "nameHy": "Իսպանիա",
+      "nameRu": "Испания"
     },
     {
       "id": "italy",
@@ -857,21 +863,159 @@
           "id": "milan",
           "name": "Milan",
           "image": "https://images.openai.com/static-rsc-4/mFXyMJkM3TTX2o4qjFg_8jFTqQnU-PSprnKQDn5dvsgdtb1RP4g8TIfHVtbPIzokUa7AnHGPaW3yowtkp1R2c7C0Z30FwmNREvjfQcXbQXZNnnSjAKHjdn2aXQ9Gt4wC6dk8nW1LV03y5i7fUy6qKXFoTs0EZEtbgrY3CZh5VcPMra5SAghFR6dOnGEcvgmh?purpose=fullsize",
-          "landmarks": []
+          "landmarks": [],
+          "nameHy": "Միլան",
+          "nameRu": "Милан"
         }
-      ]
+      ],
+      "nameHy": "Իտալիա",
+      "nameRu": "Италия"
     },
     {
       "id": "poland",
       "name": "Poland",
       "flag": "https://flagcdn.com/w320/pl.png",
-      "cities": []
+      "cities": [
+        {
+          "id": "item",
+          "name": "Warsaw",
+          "image": "https://cdn.tickadoo.com/products/183c8b90733fc6c09746f6fe.jpg",
+          "landmarks": [
+            {
+              "id": "multimedia-fountain-park-multimedialny-park-fontann",
+              "name": "Multimedia Fountain Park (Multimedialny Park Fontann)",
+              "image": "https://images.openai.com/static-rsc-4/Kijw0teOPw8oruxQkE9BxNZk_ZyvACkaNZUzTY6VMFzQy2p3JWyyJSmtaFW6a_by2hkXKcuOYs4TziV55T79pfriGgNvmHw7i10LY7ybDG4Fwd2LaiL8S7pEb6f-AtMFYLPY6XN1v02Awxj-Fh-FwbXqeARx3sqVUXwauRwqqKrWDoDcdwLJINIxpM2Jqohs?purpose=fullsize",
+              "description": "Multimedia Fountain Park-ը Վարշավայի ամենահայտնի ժամանցային վայրերից է, որը գտնվում է Հին քաղաքի ստորոտում՝ Վիստուլա գետի հարևանությամբ։ Այն բացվել է 2011 թվականին և հատկապես հայտնի է իր տպավորիչ ջուր–լույս–երաժշտություն շոուներով։ Շոուի ընթացքում հարյուրավոր ջրային շիթեր բարձրանում են օդ, իսկ ջրի առաջացած մշուշի վրա ստեղծվում է մեծ ջրային էկրան, որի վրա ցուցադրվում են գունավոր պատկերներ և անիմացիաներ։ Դրանք ուղեկցվում են երաժշտությամբ, լազերային լուսավորությամբ և բարձրացող ջրային սյուներով։ Այգին հատկապես գեղեցիկ է երեկոյան, երբ ամբողջ տարածքը լուսավորվում է տարբեր գույներով։ Շոուները սովորաբար անցկացվում են մայիսից մինչև սեպտեմբեր, հիմնականում ուրբաթ և շաբաթ երեկոներին։",
+              "descriptionEn": "Multimedia Fountain Park is one of Warsaw's most popular entertainment attractions, located at the foot of the Old Town near the Vistula River. It opened in 2011 and is especially famous for its spectacular water, light, and music shows. During the shows, hundreds of water jets rise into the air while a large water screen is created from mist. Colorful images and animations are projected onto the screen, accompanied by music, laser effects, and illuminated columns of water. The park is especially impressive at night, when the fountains are illuminated in many different colors. Shows are generally held from May through September, mainly on Friday and Saturday evenings.",
+              "descriptionRu": "Multimedia Fountain Park — одна из самых известных развлекательных достопримечательностей Варшавы, расположенная у подножия Старого города, рядом с рекой Вислой. Парк открылся в 2011 году и особенно известен своими впечатляющими шоу воды, света и музыки. Во время представлений сотни струй воды поднимаются в воздух, а из водяного тумана создаётся большой водяной экран, на котором показывают красочные изображения и анимации. Всё это сопровождается музыкой, лазерными эффектами и подсвеченными струями воды. Особенно красиво здесь вечером, когда фонтаны подсвечиваются множеством цветов. Шоу обычно проходят с мая по сентябрь, главным образом по пятницам и субботам вечером.",
+              "coords": [
+                52.25425,
+                21.011083333333332
+              ],
+              "coordsText": "52°15'15.3\"N 21°00'39.9\"E",
+              "day": null,
+              "visited": false
+            },
+            {
+              "id": "warsaw-barbican-barbakan-warszawski",
+              "name": "Warsaw Barbican (Barbakan Warszawski)",
+              "image": "https://images.openai.com/static-rsc-4/B26JRmaAD8b9yo3NfIwh_eDhjZm-KL1MhgBjZ9cvvyAvdq_K9HDxxwDcHhr_En8TKZYfyJvtjJjt-BxaTZ5JBYJVV9KSymuJ8yRIb3J1LA9j4cVRQwFjykbq4DS5OO0KWE2efyWq4i1_uIw3BqzFbKbRAZ_QGy2BsgwWARl0S2gmwOEaiUNn2fHoPkrbrB79?purpose=fullsize",
+              "description": "Վարշավայի Բարբականը (Barbakan Warszawski) Հին քաղաքի ամենահայտնի միջնադարյան պաշտպանական կառույցներից է։ Այն կառուցվել է 16-րդ դարի կեսերին՝ մոտ 1548 թվականին, որպես քաղաքի պաշտպանական ամրությունների մաս և ծառայել է որպես անցում դեպի հին քաղաքի պաշտպանական համակարգ։\n\nԲարբականը ունի կիսաշրջանաձև աղյուսե կառուցվածք՝ չորս աշտարակներով և հաստ պաշտպանական պատերով։ Այն ժամանակին քաղաքի դարպասների և պարիսպների պաշտպանության կարևոր մասն էր։\n\nԱյսօր Բարբականը հիմնականում Վարշավայի պատմական խորհրդանիշ և զբոսաշրջային վայր է։ Այն գտնվում է անմիջապես Հին քաղաքի մուտքի մոտ և շատ գեղեցիկ է հատկապես այն փողոցից, որը անցնում է Բարբականի միջով։ Նրա շուրջը կարելի է տեսնել վերակառուցված քաղաքի պարիսպները և քայլել դեպի Old Town Market Square։\n\nԿարևոր է նշել, որ ներկայիս Բարբականը ամբողջությամբ բնօրինակ կառույց չէ․ Վարշավայի Երկրորդ համաշխարհային պատերազմի ժամանակ գրեթե ամբողջությամբ ավերվելուց հետո այն վերակառուցվել է պատմական տեսքին համապատասխան։",
+              "descriptionEn": "Warsaw Barbican (Barbakan Warszawski) is one of the most recognizable medieval defensive structures in Warsaw's Old Town. It was built around 1548 as part of the city's defensive fortifications and served as a passage within the old defensive system.\n\nThe Barbican has a distinctive semicircular brick structure with four towers and thick defensive walls. It was once an important part of the city's gates and fortifications.\n\nToday, the Barbican is mainly a historic landmark and popular tourist attraction. It stands at the entrance to Warsaw's Old Town, and visitors can walk through the passage and along the reconstructed city walls toward the Old Town Market Square.\n\nIt is important to note that the present Barbican is not entirely original. Like much of Warsaw's historic center, it was largely destroyed during World War II and subsequently reconstructed based on its historical appearance.",
+              "descriptionRu": "Варшавский Барбакан (Barbakan Warszawski) — одно из самых известных средневековых оборонительных сооружений Старого города Варшавы. Он был построен примерно в 1548 году как часть городской системы укреплений и служил проходом в оборонительной линии города.\n\nБарбакан имеет характерную полукруглую кирпичную конструкцию с четырьмя башнями и массивными оборонительными стенами. В прошлом он являлся важной частью городских ворот и оборонительных сооружений.\n\nСегодня Барбакан является прежде всего исторической достопримечательностью и популярным туристическим местом. Он расположен у входа в Старый город, а через его проход можно выйти к историческим городским стенам и направиться к Рыночной площади Старого города.\n\nВажно отметить, что современный Барбакан не является полностью оригинальным сооружением. Как и большая часть исторического центра Варшавы, он был почти полностью разрушен во время Второй мировой войны и впоследствии восстановлен по историческим чертежам и изображениям.",
+              "coords": [
+                52.25066666666667,
+                21.01002777777778
+              ],
+              "coordsText": "52°15'02.4\"N 21°00'36.1\"E",
+              "day": null,
+              "visited": false
+            },
+            {
+              "id": "old-town-marketplace-rynek-starego-miasta",
+              "name": "Old Town Marketplace (Rynek Starego Miasta)",
+              "image": "https://images.openai.com/static-rsc-4/Dr8eHkCNYyKg-XFYiEGCD0yF0R4WELe18OqTI4NXH7nk9GhOHNxELtvjwgTemCx0W-39N7acbpaflemZpSWFwuOdcO3I07K2BbZ-aDWwGOehvtYZ_2AP-c90zL6TsgMlaLTsCx6SUMIcgCCMn6fGpCHrntsjISI6bIp9ZtSQRrva2Bs9QnnzGpeCaUXCyOkE?purpose=fullsize",
+              "description": "Old Town Marketplace-ը (Rynek Starego Miasta) Վարշավայի Հին քաղաքի կենտրոնական և ամենահայտնի հրապարակն է և ամբողջ պատմական թաղամասի սիրտը։ Այն ձևավորվել է դեռևս 13–14-րդ դարերում և դարեր շարունակ եղել է քաղաքի առևտրային, հասարակական և մշակութային կյանքի կարևոր կենտրոնը։\n\nՀրապարակը շրջապատված է գունավոր պատմական քաղաքային տներով, իսկ կենտրոնում գտնվում է Վարշավայի ամենահայտնի խորհրդանիշներից մեկը՝ Warsaw Mermaid-ը (Syrenka)։ Ըստ լեգենդի՝ ջրահարսը քաղաքի պաշտպանն է, և նրա կերպարը դարձել է Վարշավայի կարևորագույն խորհրդանիշներից մեկը։\n\nՀրապարակի շրջակայքը շատ հարմար է զբոսնելու համար։ Այստեղ կան նեղ սալահատակ փողոցներ, փոքրիկ հրապարակներ, սրճարաններ, ռեստորաններ, խանութներ և փողոցային արվեստագետներ։ Հրապարակից կարելի է հեշտությամբ շարունակել զբոսանքը դեպի Barbican, St. John's Archcathedral, Royal Castle և Castle Square, որոնք գտնվում են Հին քաղաքի նույն պատմական տարածքում և միմյանցից քայլելու հեռավորության վրա։\n\nՎարշավայի Հին քաղաքը և հրապարակը գրեթե ամբողջությամբ ավերվել էին Երկրորդ համաշխարհային պատերազմի ժամանակ։ Պատերազմից հետո տարածքը մանրամասնորեն վերակառուցվեց՝ օգտագործելով հին լուսանկարներ, նկարներ, քարտեզներ և պահպանված պատմական փաստաթղթեր։\n\nՎերակառուցումն այնքան հաջող էր, որ 1980 թվականին Վարշավայի Հին քաղաքը ընդգրկվեց UNESCO-ի Համաշխարհային ժառանգության ցանկում։ Այն համարվում է պատմական քաղաքի գրեթե ամբողջական ոչնչացումից հետո իրականացված ամենանշանավոր վերակառուցման օրինակներից մեկը։",
+              "descriptionEn": "Old Town Marketplace (Rynek Starego Miasta) is the central and most famous square in Warsaw's Old Town and the heart of the entire historic district. It dates back to the 13th–14th centuries and for centuries served as an important center of Warsaw's commercial, social, and cultural life.\n\nThe square is surrounded by colorful historic townhouses, while its center features one of Warsaw's most recognizable symbols — the Warsaw Mermaid (Syrenka). According to legend, the mermaid protects the city, and her image has become one of Warsaw's most important symbols.\n\nThe area around the square is perfect for walking, with narrow cobblestone streets, small squares, cafés, restaurants, shops, and street artists. From the square, visitors can easily continue to nearby landmarks such as the Barbican, St. John's Archcathedral, Royal Castle, and Castle Square, all located within Warsaw's historic Old Town and within walking distance of each other.\n\nLike much of Warsaw's historic center, the Old Town was almost completely destroyed during World War II. After the war, it was carefully reconstructed using old photographs, paintings, maps, and surviving historical documents.\n\nThe reconstruction was so successful that in 1980, Warsaw's Old Town was added to the UNESCO World Heritage List. It is considered an exceptional example of the reconstruction of a historic city that had been almost completely destroyed.",
+              "descriptionRu": "Рыночная площадь Старого города (Rynek Starego Miasta) — центральная и самая известная площадь Старого города Варшавы, а также сердце всего исторического района. Она сформировалась ещё в XIII–XIV веках и на протяжении столетий была важным центром торговой, общественной и культурной жизни города.\n\nПлощадь окружена красочными историческими городскими домами, а в её центре находится один из самых узнаваемых символов Варшавы — Варшавская русалка (Syrenka). Согласно легенде, русалка является защитницей города, а её изображение стало одним из главных символов Варшавы.\n\nРайон вокруг площади прекрасно подходит для прогулок: здесь находятся узкие мощёные улицы, небольшие площади, кафе, рестораны, магазины и уличные художники. От площади можно легко продолжить прогулку к таким достопримечательностям, как Барбакан, Архикафедральный собор Святого Иоанна, Королевский замок и Замковая площадь. Все они находятся в пределах исторического Старого города и на небольшом расстоянии друг от друга.\n\nКак и большая часть исторического центра Варшавы, Старый город был почти полностью разрушен во время Второй мировой войны. После войны его тщательно восстановили, используя старые фотографии, картины, карты и сохранившиеся исторические документы.\n\nРеконструкция была настолько успешной, что в 1980 году Старый город Варшавы был включён в Список всемирного наследия ЮНЕСКО. Он считается выдающимся примером восстановления исторического города после почти полного разрушения.",
+              "coords": [
+                52.24986111111111,
+                21.012138888888888
+              ],
+              "coordsText": "52°14'59.5\"N 21°00'43.7\"E",
+              "day": null,
+              "visited": false
+            },
+            {
+              "id": "st-john-s-archcathedral-katedra-w-jana",
+              "name": "St. John's Archcathedral (Katedra Św. Jana)",
+              "image": "https://images.openai.com/static-rsc-4/YEkN-3naVtZ4P2uz4J-l1fwWXMa9H2_dEwqvtSM0WJ4a8etPbXh7S4U5UInLWANnovkEZnqqA3FGhG7vul6Q0szQzu6UHJO2oeE5WoeTZwXkLkVoI9Tv_8upQP-mNvxdkC40wsMzIX4ooK4A79x6NA_fNuHj2vrEYN_NGbANeSGM3DTh086XnNOYbODNnVtp?purpose=fullsize",
+              "description": "Սուրբ Հովհաննես Մկրտիչի Արքակաթեդրալը (Katedra Św. Jana) Վարշավայի Հին քաղաքի ամենակարևոր պատմական եկեղեցիներից է։ Այն գտնվում է Old Town Marketplace-ի հարևանությամբ և դարեր շարունակ կարևոր դեր է ունեցել քաղաքի կրոնական և քաղաքական կյանքում։\n\nԵկեղեցու պատմությունը սկսվում է դեռևս 14-րդ դարից։ Սկզբնական շրջանում այն կառուցված էր գոթական ոճով, սակայն դարերի ընթացքում բազմաթիվ փոփոխությունների է ենթարկվել։ Երկրորդ համաշխարհային պատերազմի ժամանակ տաճարը գրեթե ամբողջությամբ ավերվել է, իսկ պատերազմից հետո վերակառուցվել է՝ հնարավորինս մոտեցնելով իր միջնադարյան գոթական տեսքին։\n\nՏաճարի ներսում գտնվում է հայտնի Վարշավայի պատմական գերեզմանատան և հիշատակի վայրերի մի մասը։ Այստեղ թաղված են Լեհաստանի պատմության մի շարք կարևոր գործիչներ, իսկ տաճարում տեղի են ունեցել նաև կարևոր պետական և թագավորական արարողություններ։\n\nՀատկապես հետաքրքիր է տաճարի գոթական ինտերիերը, բարձր կամարները և պատմական մթնոլորտը։ Այստեղ է գտնվում նաև հայտնի մեծ երգեհոնը, որի համերգները տաճարը դարձնում են ոչ միայն կրոնական, այլև երաժշտական կարևոր վայր։",
+              "descriptionEn": "St. John's Archcathedral (Katedra Św. Jana) is one of the most important historic churches in Warsaw's Old Town. It stands next to the Old Town Marketplace and has played an important role in the city's religious and political history for centuries.\n\nThe cathedral's history dates back to the 14th century. Originally built in the Gothic style, it was modified several times over the centuries. During World War II, the cathedral was almost completely destroyed, and after the war it was reconstructed to closely reflect its medieval Gothic appearance.\n\nThe cathedral is associated with several important figures and events in Polish history. Important religious and state ceremonies have taken place here, and several prominent Polish figures are buried inside.\n\nThe interior is particularly impressive for its Gothic architecture, high vaulted ceilings, and historic atmosphere. The cathedral also has a famous large pipe organ and regularly hosts musical performances.",
+              "descriptionRu": "Архикафедральный собор Святого Иоанна Крестителя (Katedra Św. Jana) — одна из важнейших исторических церквей Старого города Варшавы. Он расположен рядом с Рыночной площадью Старого города и на протяжении веков играл важную роль в религиозной и политической жизни города.\n\nИстория собора начинается ещё в XIV веке. Первоначально он был построен в готическом стиле, однако на протяжении веков неоднократно перестраивался. Во время Второй мировой войны собор был почти полностью разрушен, а после войны восстановлен с максимально точным возвращением к его средневековому готическому облику.\n\nСобор связан со многими важными событиями польской истории. Здесь проходили значимые религиозные и государственные церемонии, а внутри похоронены некоторые известные польские деятели.\n\nОсобенно интересны готический интерьер, высокие сводчатые потолки и историческая атмосфера собора. Здесь также находится большой орган, благодаря которому собор является важным местом проведения музыкальных концертов.",
+              "coords": [
+                52.248694444444446,
+                21.013277777777777
+              ],
+              "coordsText": "52°14'55.3\"N 21°00'47.8\"E",
+              "day": null,
+              "visited": false
+            },
+            {
+              "id": "old-town-stare-miasto",
+              "name": "Plac Zamkowy (Castle Square)",
+              "image": "https://images.openai.com/static-rsc-4/xS721bsw-Uo9Vl0mf6KzYNL6C-7b7FKFEHQ4fXueGU-uGB0W4Ug1kldsq5TI6Hr6XKzrDq1hNj2sunOwbzOyYIt3VOEtuGDn1poX03WObnqmtswb6c0mtdFHE4uPHByICmjlmdl3yb-Vkb10H7HUl1zO1Qec-94z616czApdeW8AO4a66JROaisppk64vDZo?purpose=fullsize",
+              "description": "Plac Zamkowy-ն (Castle Square) Վարշավայի Հին քաղաքի ամենահայտնի հրապարակներից է և գտնվում է Royal Castle-ի անմիջապես դիմաց։ Այն միավորում է Հին քաղաքի պատմական հատվածը և նախկին թագավորական կենտրոնը։\n\nՀրապարակի ամենաճանաչելի տեսարժան վայրը Sigismund's Column-ն է (Կոլոնա Սիգիզմունդա)՝ Լեհաստանի թագավոր Սիգիզմունդ III Վազայի արձանով։ Սյունը կանգնեցվել է 1644 թվականին և համարվում է Վարշավայի ամենահայտնի խորհրդանիշներից մեկը։\n\nՀրապարակից բացվում է գեղեցիկ տեսարան դեպի Royal Castle-ի կարմիր ճակատը, իսկ մյուս կողմում սկսվում են Հին քաղաքի նեղ փողոցները։\n\nԵրկրորդ համաշխարհային պատերազմի ժամանակ տարածքը և Royal Castle-ը մեծապես ավերվել էին, սակայն պատերազմից հետո դրանք մանրամասնորեն վերակառուցվեցին՝ պահպանելով պատմական տեսքը։",
+              "descriptionEn": "Plac Zamkowy (Castle Square) is one of the most famous squares in Warsaw's Old Town, located directly in front of the Royal Castle. It connects the historic Old Town with the city's former royal center.\n\nThe square's most recognizable landmark is Sigismund's Column, topped by a statue of Polish King Sigismund III Vasa. The column was erected in 1644 and has become one of Warsaw's most famous symbols.\n\nThe square offers a beautiful view of the red façade of the Royal Castle, while the historic streets of the Old Town begin on the other side.\n\nDuring World War II, the area and the Royal Castle were heavily destroyed, but they were carefully reconstructed after the war while preserving their historic appearance.",
+              "descriptionRu": "Plac Zamkowy (Замковая площадь) — одна из самых известных площадей Старого города Варшавы, расположенная непосредственно перед Королевским замком. Она соединяет исторический Старый город с бывшим королевским центром города.\n\nГлавная достопримечательность площади — Колонна Сигизмунда, на вершине которой установлена статуя польского короля Сигизмунда III Вазы. Колонна была установлена в 1644 году и стала одним из самых узнаваемых символов Варшавы.\n\nС площади открывается красивый вид на красный фасад Королевского замка, а с другой стороны начинаются исторические улицы Старого города. \n\nВо время Второй мировой войны площадь и Королевский замок были сильно разрушены, однако после войны их тщательно восстановили, сохранив исторический облик.",
+              "coords": [
+                52.24780555555556,
+                21.013666666666666
+              ],
+              "coordsText": "52°14'52.1\"N 21°00'49.2\"E",
+              "day": null,
+              "visited": false
+            },
+            {
+              "id": "royal-castle-zamek-kr-lewski",
+              "name": "Royal Castle (Zamek Królewski)",
+              "image": "https://images.immediate.co.uk/production/volatile/sites/63/2024/08/zamek-krolewski-w-warszawie-niezrealizowane-plany-przebudowy-jak-miala-wygladac-siedziba-krolow-polski-fot-marcin-bialek-wikimedia-commons-cc-by-sa-3-0-2-5-2-0-1-0-cd874ed.jpg",
+              "description": "Royal Castle-ը (Zamek Królewski) Վարշավայի ամենակարևոր պատմական շենքերից է և Լեհաստանի նախկին թագավորական նստավայրն ու քաղաքական կենտրոնը։ Այն գտնվում է Plac Zamkowy-ի արևելյան կողմում և դարեր շարունակ եղել է Լեհաստանի թագավորների նստավայրը։\n\nԱմրոցի պատմությունը կապված է հատկապես 16-րդ դարի հետ, երբ Վարշավան դարձավ Լեհաստանի մայրաքաղաքը։ Այստեղ էին գտնվում թագավորական բնակարանները, պետական սրահները, իսկ ամրոցում նաև անցկացվում էին Լեհաստանի խորհրդարանի՝ Sejm-ի նիստերը։\n\nRoyal Castle-ը Երկրորդ համաշխարհային պատերազմի ժամանակ գրեթե ամբողջությամբ ավերվեց։ Պատերազմից հետո այն մանրամասնորեն վերակառուցվեց՝ օգտագործելով պատմական փաստաթղթեր, նկարներ և պահպանված ճարտարապետական տարրեր։ Վերականգնված ամրոցը պաշտոնապես բացվեց հանրության համար 1984 թվականին։\n\nԱյսօր Royal Castle-ը թանգարան է, որտեղ կարելի է տեսնել թագավորական բնակարանները, հանդիսությունների սրահները, պատմական կահավորանքը և արվեստի հավաքածուները։ Հատկապես հետաքրքիր են Royal Route-ի հետ կապված պատմական սրահները և Canaletto-ի Վարշավայի տեսարանները։",
+              "descriptionEn": "The Royal Castle (Zamek Królewski) is one of Warsaw's most important historic buildings and the former royal residence and political center of Poland. It stands on Castle Square (Plac Zamkowy) and served as the residence of Polish kings for centuries.\n\nThe castle became particularly important in the 16th century, when Warsaw became the capital of Poland. It contained the royal apartments and state rooms, and the Polish Parliament (Sejm) also held sessions here.\n\nThe Royal Castle was almost completely destroyed during World War II. After the war, it was carefully reconstructed using historical documents, paintings, and surviving architectural elements. The restored castle was officially opened to the public in 1984.\n\nToday, the Royal Castle is a museum where visitors can explore royal apartments, ceremonial rooms, historic furnishings, and art collections. Highlights include the historic state rooms and Canaletto's famous paintings of Warsaw, which were particularly valuable in helping reconstruct the city's historic appearance.",
+              "descriptionRu": "Королевский замок (Zamek Królewski) — одно из важнейших исторических зданий Варшавы, бывшая королевская резиденция и политический центр Польши. Он расположен на Замковой площади (Plac Zamkowy) и на протяжении веков служил резиденцией польских королей.\n\nОсобенно важное значение замок приобрёл в XVI веке, когда Варшава стала столицей Польши. Здесь находились королевские апартаменты и государственные залы, а также проходили заседания польского парламента — Сейма.\n\nВо время Второй мировой войны Королевский замок был почти полностью разрушен. После войны его тщательно восстановили, используя исторические документы, картины и сохранившиеся архитектурные элементы. Восстановленный замок официально открылся для посетителей в 1984 году.\n\nСегодня Королевский замок является музеем, где можно увидеть королевские апартаменты, парадные залы, историческую мебель и коллекции произведений искусства. Среди интересных экспонатов — исторические государственные залы и знаменитые картины Каналетто с видами Варшавы, которые также помогли восстановить исторический облик города.",
+              "coords": [
+                52.247638888888886,
+                21.014055555555554
+              ],
+              "coordsText": "52°14'51.5\"N 21°00'50.6\"E",
+              "day": null,
+              "visited": false
+            },
+            {
+              "id": "royal-castle-gardens-ogrody-zamkowe",
+              "name": "Royal Castle Gardens (Ogrody Zamkowe)",
+              "image": "https://images.openai.com/static-rsc-4/BsVlyleFg-dWUn3acks6MsCeyEedb4ZhUvsSvLiNapiqzayF0o9MlzdoJA_ypfdC87Zau-kbDxd5kxAgrGWaDRqRaANUTlf6hBo4WCOiKCutDKbp_7twriuddLJFQp2eQYZkl0YZvc1Z7IwGcLbSSdypr5d4lsGjAdi383L4YDqkPiKyqzE0COfzpZFD3eG_?purpose=fullsize",
+              "description": "Royal Castle Gardens-ը (Ogrody Zamkowe) Վարշավայի Հին քաղաքի ամենագեղեցիկ կանաչ տարածքներից մեկն է։ Այգիները գտնվում են Royal Castle-ի անմիջապես հետևում և ներքևում, և համատեղում են պաշտոնական երկրաչափական այգիներն ու ավելի ազատ, կանաչապատ տարածքները։\n\nԱյգիների վերին հատվածում կարելի է տեսնել ֆրանսիական ոճի երկրաչափական ձևավորում, խնամված սիզամարգեր, ծաղկային հատվածներ և դեկորատիվ ծառեր։ Այստեղից բացվում են գեղեցիկ տեսարաններ դեպի Royal Castle-ը և Վիստուլա գետի ուղղությունը։\n\nԱյգիների ստորին հատվածը ավելի հանգիստ և բնական մթնոլորտ ունի։ Այն հատկապես հաճելի է զբոսանքի և հանգստի համար՝ հեռու Հին քաղաքի մարդաշատ փողոցներից։\n\nԱյգիների պատմությունը կապված է Royal Castle-ի հետ և դրանց ներկայիս տեսքը ձևավորվել է պատմական այգիների վերականգնման ծրագրի շրջանակում։ Երկրորդ համաշխարհային պատերազմից հետո տարածքը նույնպես վերականգնվեց՝ վերականգնելով թագավորական նստավայրի պատմական այգիների գաղափարը։",
+              "descriptionEn": "The Royal Castle Gardens (Ogrody Zamkowe) are one of the most attractive green spaces in Warsaw's Old Town. The gardens are located directly behind and below the Royal Castle, combining formal geometric gardens with more natural green areas.\n\nThe upper gardens feature a French-style geometric design, with carefully maintained lawns, flower beds, and decorative trees. They also offer beautiful views toward the Royal Castle and the Vistula River.\n\nThe lower gardens have a quieter and more natural atmosphere, making them a pleasant place for walking and relaxing away from the busier streets of the Old Town.\n\nThe gardens are closely connected with the history of the Royal Castle. Their present appearance is the result of a historic garden restoration project, recreating the character of the royal gardens that once surrounded the residence. Like the castle itself, the gardens were restored after the destruction of World War II.",
+              "descriptionRu": "Королевские сады (Ogrody Zamkowe) — одно из самых красивых зелёных пространств Старого города Варшавы. Сады расположены непосредственно за Королевским замком и ниже него, сочетая регулярные геометрические сады с более естественными зелёными зонами.\n\nВ верхней части садов можно увидеть геометрическую планировку во французском стиле, ухоженные газоны, цветочные клумбы и декоративные деревья. Отсюда открываются красивые виды на Королевский замок и в сторону реки Вислы.\n\nНижняя часть садов более спокойная и естественная. Это хорошее место для прогулки и отдыха вдали от оживлённых улиц Старого города.\n\nСады тесно связаны с историей Королевского замка. Их современный облик является результатом проекта восстановления исторических королевских садов, который воссоздаёт характер садов, окружавших резиденцию. Как и сам замок, сады были восстановлены после разрушений Второй мировой войны.",
+              "coords": [
+                52.2485,
+                21.016416666666668
+              ],
+              "coordsText": "52°14'54.6\"N 21°00'59.1\"E",
+              "day": null,
+              "visited": false
+            },
+            {
+              "id": "st-anne-s-church-ko-ci-w-anny",
+              "name": "St. Anne's Church (Kościół św. Anny)",
+              "image": "https://images.openai.com/static-rsc-4/tyjcRIsLmZJiueMCkuR-pCRsDNNWuLuQ59mnjkDv1QVhF8OBAoiBWYvm94Mkxw5UQA4D2QqNR7OiZQ7RRwz9PAn2seI8y9ELFv5hm_QmAPjsdlnb2Ys5NPjFLGikSH9HCG96rSxSr7NguALY6xiyqVrYHmcaW-SZONJBh9AdQQ9FG41Iny7nMaML-9llJi6y?purpose=fullsize",
+              "description": "Սուրբ Աննայի եկեղեցին (Kościół św. Anny) Վարշավայի ամենահայտնի և պատմական եկեղեցիներից է։ Այն գտնվում է Krakowskie Przedmieście փողոցի վրա, հենց Castle Square-ի մոտ, և իր դիրքի շնորհիվ հիանալի կապ է ստեղծում Հին քաղաքի և Royal Route-ի միջև։\n\nԵկեղեցու պատմությունը սկսվում է 15-րդ դարից։ Դարերի ընթացքում այն մի քանի անգամ վերակառուցվել է, ինչի արդյունքում այսօր շենքում կարելի է տեսնել տարբեր ճարտարապետական ոճերի համադրություն։ Հատկապես աչքի է ընկնում նրա ուշ բարոկկո ճակատը, իսկ ներսում պահպանվել է հարուստ բարոկկո և ռոկոկո ձևավորում։\n\nԵկեղեցու ամենահայտնի հատվածներից մեկը նրա զանգակատունն է, որտեղից բացվում է Վարշավայի Հին քաղաքի գեղեցիկ համայնապատկերը։ Վերև բարձրանալու համար պետք է հաղթահարել բազմաթիվ աստիճաններ, սակայն տեսարանը հատկապես գեղեցիկ է Castle Square-ի, Royal Castle-ի և Old Town-ի ուղղությամբ։\n\nԵկեղեցին նաև կապված է Վարշավայի ակադեմիական կյանքի հետ․ այն ավանդաբար կապվում է Վարշավայի համալսարանի ուսանողների և դասախոսների հետ։",
+              "descriptionEn": "St. Anne's Church (Kościół św. Anny) is one of Warsaw's most historic and recognizable churches. It stands on Krakowskie Przedmieście, very close to Castle Square, creating a natural connection between the Old Town and the Royal Route.\n\nThe church dates back to the 15th century and has been rebuilt several times over the centuries. As a result, its architecture combines several styles. The most striking feature is its late Baroque façade, while the interior contains rich Baroque and Rococo decoration.\n\nOne of the church's highlights is its bell tower, which offers one of the best elevated views over Warsaw's historic center. After climbing the stairs, visitors can enjoy views toward Castle Square, the Royal Castle, and the Old Town.\n\nThe church also has a strong connection with Warsaw's academic life and has traditionally been associated with students and professors of the University of Warsaw.",
+              "descriptionRu": "Костёл Святой Анны (Kościół św. Anny) — одна из самых известных и исторически значимых церквей Варшавы. Он расположен на улице Krakowskie Przedmieście, совсем рядом с Замковой площадью, соединяя Старый город с Королевским трактом.\n\nИстория костёла начинается ещё в XV веке. На протяжении столетий его неоднократно перестраивали, поэтому в современной архитектуре можно увидеть сочетание разных стилей. Особенно выделяется позднебарочный фасад, а внутри сохранилось богатое барочное и рокайльное оформление.\n\nОдна из главных особенностей костёла — его колокольня, с которой открывается один из лучших панорамных видов на исторический центр Варшавы. Поднявшись по лестнице, можно увидеть Замковую площадь, Королевский замок и Старый город.\n\nКостёл также тесно связан с академической жизнью Варшавы и традиционно связан со студентами и преподавателями Варшавского университета.",
+              "coords": [
+                52.24608333333333,
+                21.013972222222222
+              ],
+              "coordsText": "52°14'45.9\"N 21°00'50.3\"E",
+              "day": null,
+              "visited": false
+            }
+          ],
+          "nameHy": "Վարշավա",
+          "nameRu": "Варшава"
+        }
+      ],
+      "nameHy": "Լեհաստան",
+      "nameRu": "Польша"
     },
     {
       "id": "greece",
       "name": "Greece",
       "flag": "https://flagcdn.com/w320/gr.png",
-      "cities": []
+      "cities": [],
+      "nameHy": "Հունաստան",
+      "nameRu": "Греция"
     }
   ]
 }
