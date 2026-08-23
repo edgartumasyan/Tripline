@@ -21,6 +21,22 @@ const LANGS = { en: EN, hy: HY, ru: RU }
 // selection is hard-capped here instead of silently dropping extras.
 const MAX_ROUTE = 10
 
+// Descriptions in data.json range from one line to several paragraphs, which
+// left the cards wildly uneven. Cards show at most this many characters and a
+// "Show more" toggle reveals the rest; the print sheet always prints it whole.
+const DESC_LIMIT = 240
+
+// Cut at the last word break before the limit so the clipped text doesn't end
+// mid-word. Only trims when there is enough left over to be worth a toggle —
+// hiding a dozen trailing characters behind a button helps nobody.
+function clipDescription(text, limit) {
+  const s = String(text || '')
+  if (s.length <= limit + 40) return { short: s, clipped: false }
+  const head = s.slice(0, limit)
+  const cut = Math.max(head.lastIndexOf(' '), head.lastIndexOf('\n'))
+  return { short: (cut > limit * 0.6 ? head.slice(0, cut) : head).replace(/[\s.,;:—-]+$/, '') + '…', clipped: true }
+}
+
 // Parse a design inline-style string ("a:1; b:2") into a React style object.
 // Later declarations win, which is how <El> layers hover/focus over the base.
 function css(str) {
@@ -82,6 +98,10 @@ export default class App extends React.Component {
     // directions link. Selection order = route order. Ephemeral: cleared when
     // navigating to another city, never persisted.
     route: [],
+    // Ids of the places whose description is expanded past DESC_LIMIT. Cards
+    // start collapsed so they stay a uniform height; ephemeral, cleared when
+    // navigating to another city.
+    expanded: {},
     // True while printCity() is waiting on the print document's photos, so the
     // button can disable itself and swap in a "…" instead of double-firing.
     printing: false,
@@ -240,8 +260,15 @@ export default class App extends React.Component {
   buildCard(lm, index, listMode, orderedIds, cityId) {
     const visited = !!lm.visited, isOwner = this.isOwner(), L = this.L()
     const point = lm.coords || COORDS[lm.id]
+    const full = this.pickDescription(lm), clip = clipDescription(full, DESC_LIMIT)
+    const descOpen = !!this.state.expanded[lm.id]
     return {
-      id: lm.id, name: lm.name, image: lm.image || '', description: this.pickDescription(lm),
+      id: lm.id, name: lm.name, image: lm.image || '',
+      // description is what the card paints — the clipped head while collapsed,
+      // the whole text once expanded. descToggle is null when it all fits.
+      description: descOpen ? full : clip.short,
+      descToggle: clip.clipped ? (descOpen ? L.showLess : L.showMore) : null,
+      onToggleDesc: () => this.setState((st) => ({ expanded: { ...st.expanded, [lm.id]: !st.expanded[lm.id] } })),
       index: String(index + 1).padStart(2, '0'),
       // -webkit-touch-callout/user-select off so pressing a card to drag it on
       // a phone doesn't trigger the text-selection / copy popover instead.
@@ -835,7 +862,7 @@ export default class App extends React.Component {
           meta: this.pl(st.total, 'places'),
           ink: s.cityId === ci.id ? 'var(--accent)' : 'var(--ink)',
           rowBg: s.cityId === ci.id ? 'var(--accent-tint)' : 'transparent',
-          onClick: () => this.setState({ countryId: c.id, cityId: ci.id, view: 'grid', route: [], drawerOpen: false }),
+          onClick: () => this.setState({ countryId: c.id, cityId: ci.id, view: 'grid', route: [], expanded: {}, drawerOpen: false }),
           onEdit: () => this.setState({ dialog: { kind: 'edit-city', id: ci.id, countryId: c.id, title: this.pickCityName(ci), name: ci.name, nameHy: ci.nameHy || '', nameRu: ci.nameRu || '', image: ci.image || '' } }),
           onDelete: () => this.askDelete(this.pickCityName(ci), () => this.mutate((d) => {
             const cc = d.countries.find((x) => x.id === c.id); cc.cities = cc.cities.filter((x) => x.id !== ci.id)
@@ -867,7 +894,7 @@ export default class App extends React.Component {
             id: ci.id, name: this.pickCityName(ci), image: ci.image || '',
             count: this.pl(st.total, 'places'),
             progress: st.pct,
-            onClick: () => this.setState({ countryId: c.id, cityId: ci.id, openCountry: c.id, view: 'grid', route: [] }),
+            onClick: () => this.setState({ countryId: c.id, cityId: ci.id, openCountry: c.id, view: 'grid', route: [], expanded: {} }),
             onEdit: () => this.setState({ dialog: { kind: 'edit-city', id: ci.id, countryId: c.id, title: this.pickCityName(ci), name: ci.name, nameHy: ci.nameHy || '', nameRu: ci.nameRu || '', image: ci.image || '' } }),
             onDelete: () => this.askDelete(this.pickCityName(ci), () => this.mutate((d) => {
               const cc = d.countries.find((x) => x.id === c.id); cc.cities = cc.cities.filter((x) => x.id !== ci.id)
@@ -1226,7 +1253,15 @@ export default class App extends React.Component {
                                 <h4 style={css("margin:0; font-family:var(--sans); font-weight:400; font-size:19.5px; line-height:1.2; flex:1 1 auto; color:var(--ink)")}>{lm.name}</h4>
                                 <span style={css('font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-fainter); flex:0 0 auto')}>{lm.index}</span>
                               </div>
-                              <p style={css('margin:0; font-size:13.5px; line-height:1.6; color:var(--ink-muted); text-wrap:pretty')}>{lm.description}</p>
+                              {/* flex:1 so the row of chips below stays pinned to
+                                  the card's bottom edge whatever the text length —
+                                  that is what keeps a grid of cards aligned. */}
+                              <div style={css('flex:1 1 auto')}>
+                                <p style={css('margin:0; font-size:13.5px; line-height:1.6; color:var(--ink-muted); text-wrap:pretty; white-space:pre-line')}>{lm.description}</p>
+                                {lm.descToggle && (
+                                  <El as="button" type="button" onClick={lm.onToggleDesc} className="trips-noprint" base="margin-top:7px; padding:0; border:none; background:none; font-family:inherit; font-size:12.5px; font-weight:500; color:var(--accent); cursor:pointer" hover="color:var(--accent-hover)">{lm.descToggle}</El>
+                                )}
+                              </div>
                               <div style={css('display:flex; align-items:center; flex-wrap:wrap; column-gap:8px; row-gap:4px; margin-top:2px')}>
                                 <span className="trips-noprint" onPointerDown={lm.onHandleDown} title={lm.dragTitle} style={css('display:inline-flex; align-items:center; gap:6px; font-size:11px; color:var(--ink-fainter); cursor:grab; white-space:nowrap; touch-action:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; padding:6px 12px; border:1px solid var(--border-soft); border-radius:999px; background:var(--paper)')}><span style={css('font-size:14px; line-height:1')}>⠿</span> {lm.dragTitle}</span>
                                 <span style={css('flex:1 1 auto')}></span>
