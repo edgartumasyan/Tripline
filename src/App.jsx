@@ -109,6 +109,9 @@ export default class App extends React.Component {
     // closed), plus the PDF it builds in the background for that overlay's Share
     // button. Desktop prints an off-screen iframe and never sets any of these.
     printSheet: null, pdfFile: null, pdfError: null,
+    // Transient result of the toolbar's "Copy names" button: 'ok' or 'fail',
+    // shown on the button itself for a moment and then cleared. Ephemeral.
+    copied: null,
   }
 
   printSheetRef = React.createRef()
@@ -139,6 +142,7 @@ export default class App extends React.Component {
 
   componentWillUnmount() {
     if (this.handleResize) window.removeEventListener('resize', this.handleResize)
+    if (this.copiedTimer) clearTimeout(this.copiedTimer)
   }
 
   componentDidUpdate(prevProps) {
@@ -403,6 +407,54 @@ export default class App extends React.Component {
     const out = order.map((id) => byId.get(id)).filter(Boolean)
     city.landmarks.forEach((lm) => { if (!order.includes(lm.id)) out.push(lm) })
     return out
+  }
+
+  // Copy the city's place names to the clipboard, one per line, in the order
+  // they are shown on screen (so a viewer's own reordering carries over). Names
+  // are not translated in data.json, so there is only ever one form to copy.
+  //
+  // navigator.clipboard needs a secure context, which rules it out over plain
+  // http on a phone on the LAN — the hidden-textarea + execCommand path is the
+  // fallback for exactly that case, and it must stay inside the click handler
+  // to keep the user activation the command needs.
+  async copyNames() {
+    const sel = this.city()
+    if (!sel) return
+    const text = this.orderedLandmarks(sel.city).map((lm) => lm.name).join('\n')
+    if (!text) return
+    let ok = false
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text)
+        ok = true
+      }
+    } catch (e) {}
+    if (!ok) ok = this.copyViaTextarea(text)
+    this.flashCopied(ok ? 'ok' : 'fail')
+  }
+
+  copyViaTextarea(text) {
+    const ta = document.createElement('textarea')
+    ta.value = text
+    // Off-screen but still focusable: display:none or visibility:hidden would
+    // make the selection — and so the copy — a no-op.
+    ta.setAttribute('readonly', '')
+    ta.style.cssText = 'position:fixed; top:-1000px; left:-1000px; opacity:0'
+    document.body.appendChild(ta)
+    let ok = false
+    try {
+      ta.select()
+      ta.setSelectionRange(0, ta.value.length)
+      ok = document.execCommand('copy')
+    } catch (e) {}
+    document.body.removeChild(ta)
+    return ok
+  }
+
+  flashCopied(result) {
+    if (this.copiedTimer) clearTimeout(this.copiedTimer)
+    this.setState({ copied: result })
+    this.copiedTimer = setTimeout(() => this.setState({ copied: null }), 1900)
   }
 
   // The coordinate for a landmark, if any: per-place coords entered in the
@@ -993,6 +1045,19 @@ export default class App extends React.Component {
       setViewMap: () => this.setState({ view: 'map' }),
       printCity: () => this.printCity(),
       printing: s.printing, printLabel: s.printing ? '…' : l.pdf,
+      // "Copy names": one place name per line, in the on-screen order. The
+      // label reports the result for a moment (see flashCopied) rather than
+      // opening a toast the rest of the app doesn't have.
+      copyNames: () => this.copyNames(),
+      copyDisabled: landmarks.length === 0,
+      copyLabel: s.copied === 'ok' ? '✓ ' + l.copied : s.copied === 'fail' ? l.copyFailed : '⧉ ' + l.copyNames,
+      // border-* longhand for the same reason as the Print pill below: the
+      // hover border-color is removed from under it when the pointer leaves.
+      copyBtnStyle: 'border-width:1px; border-style:solid; border-radius:999px; padding:8px 16px; font-size:13px; background:var(--surface); ' +
+        (landmarks.length === 0
+          ? 'border-color:var(--border); color:var(--ink-fainter); cursor:not-allowed'
+          : 'border-color:' + (s.copied === 'ok' ? 'var(--accent)' : 'var(--border)') + '; color:' + (s.copied === 'ok' ? 'var(--accent)' : 'var(--ink-muted)') + '; cursor:pointer'),
+      copyBtnHover: landmarks.length === 0 ? '' : 'border-color:var(--accent); color:var(--accent)',
       // Mobile print overlay: the sheet, and its toolbar. The share button waits
       // on the PDF still being built (it needs a tap of its own — see
       // printViaSheet), and reports a build that failed outright.
@@ -1217,6 +1282,9 @@ export default class App extends React.Component {
                     )}
                     {V.isCards && (
                       <El as="button" type="button" onClick={V.onDirections} disabled={V.routeDisabled} title={V.routeTitle} className="trips-noprint" base={V.routeBtnStyle} hover={V.routeBtnHover}>🧭 {V.routeLabel}</El>
+                    )}
+                    {V.isCards && (
+                      <El as="button" type="button" onClick={V.copyNames} disabled={V.copyDisabled} className="trips-noprint" base={V.copyBtnStyle} hover={V.copyBtnHover}>{V.copyLabel}</El>
                     )}
                     {/* border-* longhand rather than the `border` shorthand the
                         other pills use: opening the print overlay pulls the
