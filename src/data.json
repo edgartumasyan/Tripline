@@ -2109,7 +2109,16 @@
       "id": "greece",
       "name": "Greece",
       "flag": "https://flagcdn.com/w320/gr.png",
-      "cities": [],
+      "cities": [
+        {
+          "id": "rhodes",
+          "name": "Rhodes",
+          "nameHy": "Հռոդոս",
+          "nameRu": "Родос",
+          "image": "https://images.openai.com/static-rsc-4/mYCc3SfKL2JA1EwxJo232fJFCyVWJBh4YVHD54GMttdq8gDta1GAgq8k5KW8Na6RP8rY0uTPg3S44Aq1BbWykZKBrfdpvyq9Hd9SXWNf9YOc3QMLbdi0e1jQn-3h3it88WDGeydTz2U-kB2PROfm7PVp-rK9TjM8mO46KQN7T5OdR5wzA9vELhToovKY5Dq1?purpose=fullsize",
+          "landmarks": []
+        }
+      ],
       "nameHy": "Հունաստան",
       "nameRu": "Греция"
     }
