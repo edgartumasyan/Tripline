@@ -1,4 +1,10 @@
-import bundled from './data.json'
+// '?url' rather than a plain import on purpose: importing the JSON inlines all
+// ~430 KB of it into the main JS chunk, where it was the single largest thing in
+// the bundle. As a URL, Vite emits it as its own content-hashed asset that is
+// fetched at runtime and precached by the service worker (see globPatterns in
+// vite.config.js), so offline still works and editing data no longer
+// invalidates the app's JS.
+import dataUrl from './data.json?url'
 
 // All data lives in src/data.json, served and persisted by the dev-server API
 // in vite.config.js. No browser storage is used.
@@ -21,16 +27,22 @@ export function makeId(name, existing = []) {
   return id
 }
 
-// Load the data from the dev API. Falls back to the JSON bundled at build time
-// (e.g. in a production preview where the dev API isn't running).
+// Load the data. In dev that means the writable dev-server API, which serves the
+// live src/data.json; in a build it means the emitted data.json asset. The API
+// is only tried under DEV because it is a dev-server middleware — in production
+// the request could only ever 404.
 export async function loadData() {
-  try {
-    const res = await fetch(API)
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    return await res.json()
-  } catch {
-    return structuredClone(bundled)
+  if (import.meta.env.DEV) {
+    try {
+      const res = await fetch(API)
+      if (res.ok) return await res.json()
+    } catch {
+      // Dev server gone mid-session; fall through to the built asset.
+    }
   }
+  const res = await fetch(dataUrl)
+  if (!res.ok) throw new Error(`Could not load data.json: HTTP ${res.status}`)
+  return await res.json()
 }
 
 // Persist the full dataset back to src/data.json via the dev API.
