@@ -83,7 +83,10 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,woff,woff2}'],
+        // 'json' matters: data.json is emitted as its own asset now (see
+        // storage.js) rather than inlined into the JS, so it has to be
+        // precached explicitly or the app would have no data offline.
+        globPatterns: ['**/*.{js,css,html,svg,png,woff,woff2,json}'],
         navigateFallback: 'index.html',
         cleanupOutdatedCaches: true,
         clientsClaim: true,

@@ -3,7 +3,10 @@ import { COORDS } from './coords.js'
 import { EN, HY, RU, LANG_ORDER, LANG_LABEL, LANG_FLAG, LANG_NAME, labelsFor, pluralize } from './i18n.js'
 import { loadData, saveData } from './storage.js'
 import { latinize } from './translit.js'
-import CityMap from './components/CityMap.jsx'
+// Lazy: leaflet and its CSS are ~150 KB that only the map view ever needs, and
+// the app opens on the country grid. Split out, they load on the first switch
+// to map view and are cached from then on.
+const CityMap = React.lazy(() => import('./components/CityMap.jsx'))
 import './design.css'
 
 // Port of the Tripline.dc.html design component. The markup below mirrors the
@@ -136,7 +139,10 @@ export default class App extends React.Component {
     window.addEventListener('resize', this.handleResize = () => {
       if (this.state.view === 'list' && window.innerWidth <= 720) this.setState({ view: 'grid' })
     })
-    loadData().then((d) => this.setState({ data: d }))
+    loadData().then(
+      (d) => this.setState({ data: d }),
+      (e) => console.error('Tripline: could not load data', e),
+    )
     this.applyTheme()
   }
 
@@ -1300,7 +1306,9 @@ export default class App extends React.Component {
                 <div data-t="pad city-row" style={css('display:flex; align-items:flex-start; gap:32px; padding:28px 40px 70px')}>
                   <div style={css('flex:1 1 auto; min-width:0')}>
                     {V.isMap && (
-                      <CityMap L={V.L} pl={this.pl} mode={V.theme} city={V.mapCity} />
+                      <React.Suspense fallback={<div className="map-wrap"><div className="map-canvas" /></div>}>
+                        <CityMap L={V.L} pl={this.pl} mode={V.theme} city={V.mapCity} />
+                      </React.Suspense>
                     )}
 
                     {V.isCards && (
