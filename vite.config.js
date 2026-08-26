@@ -62,7 +62,11 @@ export default defineConfig({
     // so the dataApi middleware above keeps working normally while developing.
     VitePWA({
       registerType: 'autoUpdate',
-      injectRegister: 'auto',
+      // null, not 'auto': main.jsx registers the worker itself via
+      // virtual:pwa-register so it can hold the registration and trigger an
+      // update check when the app is resumed. The script 'auto' would inject
+      // registers once on load and never checks again.
+      injectRegister: null,
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'Tripline',
