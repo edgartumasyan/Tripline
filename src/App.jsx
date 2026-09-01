@@ -176,8 +176,38 @@ export default class App extends React.Component {
 
   persist(data) {
     this.setState({ data })
+    // The pending copy is kept on the instance rather than only in the timer's
+    // closure so goHome can flush it early (see below) without having to wait
+    // for a setState that may not have landed yet.
+    this._pendingData = data
     clearTimeout(this._saveTimer)
-    this._saveTimer = setTimeout(() => saveData(data), 400)
+    this._saveTimer = setTimeout(() => {
+      this._saveTimer = null
+      this._saving = saveData(this._pendingData)
+    }, 400)
+  }
+
+  // The logo (and the city breadcrumb) return to the country grid and pull a
+  // fresh copy of the data, so cities added since page load — an external edit
+  // to src/data.json, a git pull, another tab — appear without a browser
+  // reload. Any debounced save is flushed and awaited first, otherwise the
+  // refetch could read the file back before this session's own edit landed and
+  // silently undo it. A failed fetch leaves the data already in memory alone:
+  // the grid should never blank out because the network hiccuped.
+  goHome = async () => {
+    this.setState({ cityId: null, countryId: null, route: [], overviewCountry: null, countryQuery: '', cityQuery: '', view: 'grid' })
+    try { localStorage.removeItem('trips.nav') } catch (e) {}
+    if (this._saveTimer) {
+      clearTimeout(this._saveTimer)
+      this._saveTimer = null
+      this._saving = saveData(this._pendingData)
+    }
+    await this._saving
+    try {
+      this.setState({ data: await loadData() })
+    } catch (e) {
+      console.error('Tripline: could not refresh data', e)
+    }
   }
 
   L() { return labelsFor(this.state.lang) }
@@ -1045,7 +1075,7 @@ export default class App extends React.Component {
           try { localStorage.setItem('trips.lang', code) } catch (e) {}
         },
       })),
-      goHome: () => { this.setState({ cityId: null, countryId: null, route: [], overviewCountry: null, countryQuery: '', cityQuery: '', view: 'grid' }); try { localStorage.removeItem('trips.nav') } catch (e) {} },
+      goHome: this.goHome,
       setViewGrid: () => this.setState({ view: 'grid' }),
       setViewList: () => this.setState({ view: 'list' }),
       setViewMap: () => this.setState({ view: 'map' }),
