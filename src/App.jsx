@@ -94,6 +94,9 @@ export default class App extends React.Component {
     // Whether the drilled-in country header's ⋮ menu is open, encoded as
     // 'country:<id>' (null = none). A click-away backdrop closes it. Ephemeral.
     cardMenuOpen: null,
+    // lightbox holds { id } — the place whose photo is open. The gallery it
+    // pages through is derived from the city's current order at render time,
+    // so it stays right when places are reordered, edited or deleted.
     dialog: null, confirm: null, lightbox: null, dragIndex: null,
     // Viewer-only reorder for Print/PDF, keyed by cityId — never persisted, resets on refresh.
     viewerOrder: {},
@@ -139,6 +142,18 @@ export default class App extends React.Component {
     window.addEventListener('resize', this.handleResize = () => {
       if (this.state.view === 'list' && window.innerWidth <= 720) this.setState({ view: 'grid' })
     })
+    // Keyboard for the photo lightbox: ← / → page through the city's photos,
+    // Esc closes. Only ever acts while the lightbox is open.
+    window.addEventListener('keydown', this.handleKey = (e) => {
+      // The gallery check also covers a stale lightbox id (its place was deleted
+      // or the city changed underneath it) — then the keys belong to the page.
+      if (!this.state.lightbox || !this.lightboxShots().length) return
+      if (e.key === 'Escape') this.setState({ lightbox: null })
+      else if (e.key === 'ArrowLeft') this.stepLightbox(-1)
+      else if (e.key === 'ArrowRight') this.stepLightbox(1)
+      else return
+      e.preventDefault()
+    })
     loadData().then(
       (d) => this.setState({ data: d }),
       (e) => console.error('Tripline: could not load data', e),
@@ -148,6 +163,7 @@ export default class App extends React.Component {
 
   componentWillUnmount() {
     if (this.handleResize) window.removeEventListener('resize', this.handleResize)
+    if (this.handleKey) window.removeEventListener('keydown', this.handleKey)
     if (this.copiedTimer) clearTimeout(this.copiedTimer)
   }
 
@@ -338,7 +354,7 @@ export default class App extends React.Component {
             ? 'cursor:not-allowed; border:1px solid var(--chip-off-edge); background:var(--chip-off-bg); color:var(--ink-fainter); opacity:0.6'
             : 'cursor:pointer; border:1px solid var(--chip-off-edge); background:var(--chip-off-bg); color:var(--chip-off-ink)'),
       onToggleRoute: () => this.toggleRoute(lm.id),
-      onPreview: () => lm.image && this.setState({ lightbox: { src: lm.image, alt: lm.name } }),
+      onPreview: () => lm.image && this.setState({ lightbox: { id: lm.id } }),
       onEdit: () => this.setState({ dialog: { kind: 'edit-landmark', id: lm.id, title: lm.name, name: lm.name, image: lm.image || '', description: lm.description || '', descriptionEn: lm.descriptionEn || '', descriptionRu: lm.descriptionRu || '', coordsText: lm.coordsText || '' } }),
       onDelete: () => this.askDelete(lm.name, () => this.mutate((d) => {
         const ci = this.findCity(d); ci.landmarks = ci.landmarks.filter((x) => x.id !== lm.id)
@@ -435,6 +451,42 @@ export default class App extends React.Component {
 
   // Viewers reorder their own copy for Print/PDF only; it never touches the
   // persisted document order. Owners always see the document order as-is.
+  // The photos the lightbox pages through: every place in the open city that
+  // has an image, in the order the cards are shown. Recomputed on demand so an
+  // edit or a reorder behind the overlay is reflected immediately.
+  lightboxShots() {
+    const sel = this.city()
+    return sel ? this.orderedLandmarks(sel.city).filter((lm) => lm.image) : []
+  }
+
+  // Move the lightbox delta places along the gallery, wrapping at both ends so
+  // ← and → never dead-end.
+  stepLightbox(delta) {
+    const shots = this.lightboxShots()
+    if (shots.length < 2) return
+    const open = this.state.lightbox || {}
+    const at = Math.max(0, shots.findIndex((lm) => lm.id === open.id))
+    const next = shots[(at + delta + shots.length) % shots.length]
+    this.setState({ lightbox: { id: next.id } })
+  }
+
+  // A swipe across the photo pages the gallery the way the arrows do. Only a
+  // mostly-horizontal drag past the threshold counts, so a tap still closes.
+  onLightboxTouchStart(e) {
+    const t = e.touches[0]
+    this._swipe = { x: t.clientX, y: t.clientY }
+  }
+
+  onLightboxTouchEnd(e) {
+    const from = this._swipe
+    this._swipe = null
+    if (!from) return
+    const t = e.changedTouches[0]
+    const dx = t.clientX - from.x, dy = t.clientY - from.y
+    if (Math.abs(dx) < 45 || Math.abs(dx) < Math.abs(dy)) return
+    this.stepLightbox(dx < 0 ? 1 : -1)
+  }
+
   orderedLandmarks(city) {
     if (this.isOwner()) return city.landmarks
     const order = this.state.viewerOrder[city.id]
@@ -1019,6 +1071,12 @@ export default class App extends React.Component {
       landmarks = orderedList.map((lm, i) => this.buildCard(lm, i, listMode, orderedIds, sel.city.id))
     }
 
+    // Gallery behind the lightbox — the open city's photos in card order, and
+    // where the open one sits in it. An id that no longer resolves (the place
+    // was deleted while open) falls back to the first photo.
+    const shots = s.lightbox ? this.lightboxShots() : []
+    const shotAt = shots.length ? Math.max(0, shots.findIndex((lm) => lm.id === s.lightbox.id)) : -1
+
     const mapped = sel ? sel.city.landmarks.filter((lm) => lm.coords || COORDS[lm.id]).length : 0
     const missing = sel ? sel.city.landmarks.length - mapped : 0
     const routeCount = sel ? this.routePoints(sel.city).length : 0
@@ -1154,8 +1212,25 @@ export default class App extends React.Component {
       confirmMessage: s.confirm ? s.confirm.message : '',
       runConfirm: () => { s.confirm.run(); this.setState({ confirm: null }) },
       closeConfirm: () => this.setState({ confirm: null }),
-      lightboxOpen: !!s.lightbox,
-      lightbox: s.lightbox || { src: '', alt: '' },
+      // The photo overlay, as a gallery over every place in the city that has an
+      // image. position/count feed the "3 / 12" counter; hasSiblings hides the
+      // arrows and the counter when there is only the one photo to look at.
+      lightboxOpen: !!s.lightbox && !!shots[shotAt],
+      lightbox: shots[shotAt]
+        ? {
+          src: shots[shotAt].image,
+          alt: shots[shotAt].name,
+          position: shotAt + 1,
+          count: shots.length,
+          hasSiblings: shots.length > 1,
+          prevSrc: shots.length > 1 ? shots[(shotAt - 1 + shots.length) % shots.length].image : '',
+          nextSrc: shots.length > 1 ? shots[(shotAt + 1) % shots.length].image : '',
+        }
+        : { src: '', alt: '', position: 0, count: 0, hasSiblings: false, prevSrc: '', nextSrc: '' },
+      prevShot: () => this.stepLightbox(-1),
+      nextShot: () => this.stepLightbox(1),
+      onLightboxTouchStart: (e) => this.onLightboxTouchStart(e),
+      onLightboxTouchEnd: (e) => this.onLightboxTouchEnd(e),
       closeLightbox: () => this.setState({ lightbox: null }),
       stop: (e) => e.stopPropagation(),
     }
@@ -1468,10 +1543,33 @@ export default class App extends React.Component {
           </div>
         )}
 
+        {/* Photo viewer. Clicking the backdrop closes it; the photo itself is
+            now a gallery over the whole city, paged with the side arrows, the
+            ← / → keys or a horizontal swipe, so it no longer closes on click.
+            The neighbouring photos are preloaded off-screen so paging doesn't
+            flash an empty frame. */}
         {V.lightboxOpen && (
-          <div onClick={V.closeLightbox} style={css('position:fixed; inset:0; background:rgba(18,20,14,0.92); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:36px; z-index:70; cursor:zoom-out')}>
-            <img src={V.lightbox.src} alt={V.lightbox.alt} style={css('max-width:88vw; max-height:80vh; object-fit:contain; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,0.6)')} />
-            <p style={css("margin:0; color:#ffffff; font-family:var(--sans); font-weight:600; font-size:20px")}>{V.lightbox.alt}</p>
+          <div onClick={V.closeLightbox} onTouchStart={V.onLightboxTouchStart} onTouchEnd={V.onLightboxTouchEnd} style={css('position:fixed; inset:0; background:rgba(18,20,14,0.92); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:36px; z-index:70; cursor:zoom-out')}>
+            <El as="button" type="button" onClick={(e) => { V.stop(e); V.closeLightbox() }} aria-label="Close" base="position:absolute; top:18px; right:18px; width:40px; height:40px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,0.25); background:rgba(255,255,255,0.08); color:#ffffff; border-radius:999px; font-size:17px; line-height:1; cursor:pointer; transition:background .14s ease" hover="background:rgba(255,255,255,0.2)">✕</El>
+
+            {V.lightbox.hasSiblings && (
+              <El as="button" type="button" onClick={(e) => { V.stop(e); V.prevShot() }} aria-label="Previous photo" base="position:absolute; left:14px; top:50%; transform:translateY(-50%); width:46px; height:46px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,0.25); background:rgba(255,255,255,0.08); color:#ffffff; border-radius:999px; font-size:20px; line-height:1; cursor:pointer; transition:background .14s ease" hover="background:rgba(255,255,255,0.2)">‹</El>
+            )}
+            {V.lightbox.hasSiblings && (
+              <El as="button" type="button" onClick={(e) => { V.stop(e); V.nextShot() }} aria-label="Next photo" base="position:absolute; right:14px; top:50%; transform:translateY(-50%); width:46px; height:46px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,0.25); background:rgba(255,255,255,0.08); color:#ffffff; border-radius:999px; font-size:20px; line-height:1; cursor:pointer; transition:background .14s ease" hover="background:rgba(255,255,255,0.2)">›</El>
+            )}
+
+            <img src={V.lightbox.src} alt={V.lightbox.alt} onClick={V.stop} style={css('max-width:88vw; max-height:78vh; object-fit:contain; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,0.6); cursor:default; -webkit-user-select:none; user-select:none')} />
+            <p onClick={V.stop} style={css("margin:0; color:#ffffff; font-family:var(--sans); font-weight:600; font-size:20px; text-align:center; cursor:default")}>{V.lightbox.alt}</p>
+            {V.lightbox.hasSiblings && (
+              <p onClick={V.stop} style={css("margin:-6px 0 0; color:rgba(255,255,255,0.62); font-family:var(--sans); font-size:13px; letter-spacing:0.06em; cursor:default")}>{V.lightbox.position} / {V.lightbox.count}</p>
+            )}
+            {V.lightbox.hasSiblings && (
+              <div aria-hidden="true" style={css('position:absolute; width:1px; height:1px; overflow:hidden; opacity:0; pointer-events:none')}>
+                <img src={V.lightbox.prevSrc} alt="" />
+                <img src={V.lightbox.nextSrc} alt="" />
+              </div>
+            )}
           </div>
         )}
 
