@@ -80,8 +80,8 @@ class El extends React.Component {
 export default class App extends React.Component {
   state = {
     data: null,
-    lang: 'en',
-    theme: 'auto',
+    lang: 'hy',
+    theme: 'dark',
     countryId: null, cityId: null, openCountry: null,
     view: 'grid',
     // Mobile nav drawer (retained but unused now the sidebar is gone) and the
