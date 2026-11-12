@@ -4777,6 +4777,23 @@
           ]
         }
       ]
+    },
+    {
+      "id": "slovakia",
+      "name": "Slovakia",
+      "nameHy": "Սլովակիա",
+      "nameRu": "Словакия",
+      "flag": "https://images.openai.com/static-rsc-4/qW0hsX7gYXXdd58WzCP6mHvMOKQXWJtZqBH6Ve_3es27gDmKe7jcXDiGfl5P5uiRWaoiLhW20uHISfO4QxTv20ImISBGUNkbkp7SIoyckST8xgWg0HuNcupguKIUUoCyrcMLuXIWzkVXhUrduQN5X-f7lVhKo7NwB2dWC4L8x5IvmYFK80S0fZ_cZXNNcTww?purpose=fullsize",
+      "cities": [
+        {
+          "id": "bratislava",
+          "name": "Bratislava",
+          "nameHy": "Բրատիսլավա",
+          "nameRu": "Братислава",
+          "image": "https://images.openai.com/static-rsc-4/XIZZSLtS88IKGODMLWq0y4r4qt6tIY9eJPHcpfINTJ0m-KpD8tRF97Zf8ET-7fZgeplIF-Ym9AL3uZtI5czAeUQZ9M8lO46F92OgvuihzeWOBbVSZs0qkmV6H7FBy8KNWyp8f-Svib-JlfImOniHUcRWe3Fob8ibogFvfA0BTYr7_zWMjzJOkG4-rcecYte2?purpose=fullsize",
+          "landmarks": []
+        }
+      ]
     }
   ]
 }
