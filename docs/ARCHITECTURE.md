@@ -149,6 +149,9 @@ Photos in the print/PDF path go through the `wsrv.nl` proxy (`printImageSrc`) �
 them (a 27-place city was ~50 MB otherwise) and, crucially, serves CORS headers a canvas can
 read. Every proxied `<img>` keeps the original URL in `data-fallback`, and `awaitSheetImages()`
 retries with it when the proxy misses, so an outage costs file size, never the photo.
+Saved photos (`photos/…`, see `docs/DATA.md`) are made absolute first so wsrv.nl can fetch
+them from GitHub Pages; on localhost it can't, so they go in unproxied — same-origin, so the
+canvas can still read them, at the cost of a heavier PDF.
 
 ## PWA updates
 

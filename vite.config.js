@@ -3,14 +3,25 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { fileURLToPath } from 'node:url'
 import fs from 'node:fs/promises'
+import { savePhotos, prunePhotos, writeData } from './scripts/photos.js'
 
 const DATA_FILE = fileURLToPath(new URL('./src/data.json', import.meta.url))
 
 // Dev-only API that reads and writes src/data.json, so all countries/cities/
 // landmarks live in that single JSON file instead of the browser.
 //   GET  /api/data  -> current JSON
-//   PUT  /api/data  -> overwrite with the request body (validated JSON)
+//   PUT  /api/data  -> save the request body (validated JSON), with any newly
+//                      pasted image links downloaded into public/photos/ (see
+//                      scripts/photos.js); answers with the data as written,
+//                      so the page can pick up the rewritten photo paths
 function dataApi() {
+  // url -> saved path, so a pasted link is downloaded once however many saves
+  // carry it before the page swaps in the rewritten data.
+  const photoCache = new Map()
+  // Saves now wait on downloads, so a second PUT can arrive mid-way through the
+  // first. Run them in order, or the older body could land on disk last — and
+  // its prune would delete the photos the newer one just saved.
+  let queue = Promise.resolve()
   return {
     name: 'trips-data-api',
     configureServer(server) {
@@ -27,9 +38,16 @@ function dataApi() {
             for await (const chunk of req) chunks.push(chunk)
             const body = Buffer.concat(chunks).toString('utf-8')
             const parsed = JSON.parse(body) // throws on invalid JSON
-            await fs.writeFile(DATA_FILE, JSON.stringify(parsed, null, 2) + '\n')
-            res.statusCode = 204
-            res.end()
+            const log = (msg) => server.config.logger.info('[photos] ' + msg, { timestamp: true })
+            const run = queue.then(async () => {
+              await savePhotos(parsed, { cache: photoCache, log })
+              await writeData(parsed)
+              await prunePhotos(parsed, { log })
+            })
+            queue = run.catch(() => {})
+            await run
+            res.setHeader('Content-Type', 'application/json')
+            res.end(JSON.stringify(parsed))
             return
           }
           res.statusCode = 405
@@ -87,6 +105,14 @@ export default defineConfig({
         // storage.js) rather than inlined into the JS, so it has to be
         // precached explicitly or the app would have no data offline.
         globPatterns: ['**/*.{js,css,html,svg,png,woff,woff2,json}'],
+        // The saved photos (public/photos/) are hundreds of MB; precaching them
+        // would make installing the app download every one. They load on
+        // demand like any page image instead.
+        globIgnores: ['photos/**'],
+        // data.json is past workbox's 2 MiB default and only grows; over the
+        // limit the build fails outright (that's what blocked the deploy of
+        // #74), so leave it plenty of room.
+        maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
         navigateFallback: 'index.html',
         cleanupOutdatedCaches: true,
         clientsClaim: true,

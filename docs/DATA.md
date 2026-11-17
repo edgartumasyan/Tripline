@@ -14,19 +14,19 @@ the dev API write the file, then committing the diff.
       "name": "Czech Republic",     // base (English) name
       "nameHy": "Չեխիա",            // optional
       "nameRu": "Чехия",            // optional
-      "flag": "https://…",          // image URL, shown as the flag chip
+      "flag": "photos/…",           // saved flag image, shown as the flag chip
       "cities": [
         {
           "id": "prague",           // slug, unique within the country
           "name": "Prague",
           "nameHy": "Պրահա",        // optional
           "nameRu": "Прага",        // optional
-          "image": "https://…",     // hero photo URL
+          "image": "photos/…",      // saved hero photo
           "landmarks": [
             {
               "id": "hradcanske-namesti-hradcany-square",  // slug, unique within the city
               "name": "Hradčanské náměstí (Hradčany Square)",
-              "image": "https://…",
+              "image": "photos/…",
               "description": "…",        // Armenian original — the base text
               "descriptionEn": "…",      // optional translation
               "descriptionRu": "…",      // optional translation
@@ -91,12 +91,27 @@ unlocated, and the place can't be added to a route.
 
 ## Images
 
-Every image is a remote URL — no files are stored in the repo. Consequences worth knowing:
+Every image is a file in the repo under `public/photos/`, and `flag` / `image` hold its
+relative path (`photos/<country>/<city>/<place>-<hash>.jpg`, `…/<city>/cover-<hash>.jpg`,
+`photos/<country>/flag-<hash>.png`). The path resolves against the page, so the same value
+works in dev and on GitHub Pages. Links went dead often enough to lose photos for good — an
+`images.openai.com` link 404'd within weeks — so nothing is hotlinked any more.
 
-- Hosts do go dead; a broken photo is a data problem, not a code problem.
-- The print/PDF path routes images through the `wsrv.nl` proxy for size and CORS
-  (see `docs/ARCHITECTURE.md`), with the original URL kept as a fallback.
-- Country `flag` and city `image` are plain URLs too, not codes or local assets.
+- **You still paste a link.** On save, the `/api/data` middleware (`scripts/photos.js`)
+  downloads it, writes the bytes as-is (no resizing or re-encoding — originals, by choice),
+  rewrites the field to the saved path, and deletes any file under `public/photos/` that
+  `data.json` no longer references (a replaced photo, a deleted place). Commit the photo
+  files together with the `data.json` diff.
+- **A link that can't be downloaded keeps the link** and the save goes through; the dialog
+  then flags it "Not saved — link only". Paste a different link to retry. Wikimedia needs an
+  honest User-Agent and gets one; most other refusals are hotlink protection.
+- **`npm run photos`** does the same for the whole file in one pass and lists anything that
+  failed — for after a hand-edit of `data.json`.
+- `public/photos/` is excluded from the PWA precache (`globIgnores`), so installing the app
+  doesn't download every photo.
+- The print/PDF path makes saved paths absolute and routes them through the `wsrv.nl` proxy
+  for size (see `docs/ARCHITECTURE.md`); on localhost wsrv.nl can't reach the file, so the
+  original goes in and the PDF is heavier.
 
 ## Adding content
 
