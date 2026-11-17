@@ -199,8 +199,23 @@ export default class App extends React.Component {
     clearTimeout(this._saveTimer)
     this._saveTimer = setTimeout(() => {
       this._saveTimer = null
-      this._saving = saveData(this._pendingData)
+      this.flushSave()
     }, 400)
+  }
+
+  // The server answers a save with the data as written, where a freshly pasted
+  // image link has become its saved photos/… path. Take that copy only if no
+  // edit has been made since this one was sent — a newer edit would be lost
+  // otherwise. Skipping is harmless: the newer save carries the same link, the
+  // server maps it to the file it already saved, and its own answer lands here.
+  flushSave() {
+    const sent = this._pendingData
+    this._saving = saveData(sent).then((saved) => {
+      if (saved && this._pendingData === sent && !this._saveTimer) {
+        this._pendingData = saved
+        this.setState({ data: saved })
+      }
+    })
   }
 
   // The logo (and the city breadcrumb) return to the country grid and pull a
@@ -216,7 +231,7 @@ export default class App extends React.Component {
     if (this._saveTimer) {
       clearTimeout(this._saveTimer)
       this._saveTimer = null
-      this._saving = saveData(this._pendingData)
+      this.flushSave()
     }
     await this._saving
     try {
@@ -598,7 +613,10 @@ export default class App extends React.Component {
   submit() {
     const d0 = this.state.dialog
     if (!d0 || !d0.name || !d0.name.trim()) return
-    const name = d0.name.trim(), image = (d0.image || '').trim(), description = (d0.description || '').trim()
+    // Replace opens an empty field over a saved photo; leaving it empty keeps
+    // that photo rather than deleting it.
+    const image = (d0.image || '').trim() || (d0.replacing ? d0.replacedImage : '')
+    const name = d0.name.trim(), description = (d0.description || '').trim()
     // Optional Armenian/Russian names for countries and cities. Blank means
     // "fall back to the English name" rather than an empty label.
     const nameHy = (d0.nameHy || '').trim(), nameRu = (d0.nameRu || '').trim()
@@ -644,8 +662,13 @@ export default class App extends React.Component {
   // Every proxied <img> carries the original URL in data-fallback, and
   // printCity() re-points it there if the proxy misses, so a wsrv.nl outage or a
   // host that rate-limits it costs file size, never the photo.
+  //
+  // Saved photos (photos/…) arrive here made absolute by printSheetBody: on
+  // GitHub Pages that's a public URL wsrv.nl can fetch. On localhost it can't
+  // reach us, so there the original file goes in as is — same-origin, so the
+  // mobile canvas can read it, just a heavier PDF.
   printImageSrc(url) {
-    if (!/^https?:\/\//i.test(url)) return url
+    if (!/^https?:\/\//i.test(url) || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(new URL(url).hostname)) return url
     return 'https://wsrv.nl/?url=' + encodeURIComponent(url) + '&w=640&h=450&fit=cover&we&output=jpg&q=78'
   }
 
@@ -710,10 +733,12 @@ export default class App extends React.Component {
       const pt = this.pointFor(lm)
       const mapUrl = pt ? 'https://www.google.com/maps/search/?api=1&query=' + pt[0] + ',' + pt[1] : ''
       const desc = this.pickDescription(lm)
-      const src = lm.image ? this.printImageSrc(lm.image) : ''
+      // Absolute, so a saved photos/… path still resolves inside the print frame.
+      const original = !lm.image || /^(https?:|data:)/i.test(lm.image) ? lm.image : new URL(lm.image, document.baseURI).href
+      const src = original ? this.printImageSrc(original) : ''
       return '<article class="row">' +
-        (lm.image ? '<img class="shot" src="' + esc(src) + '" alt=""' +
-          (src === lm.image ? '' : ' data-fallback="' + esc(lm.image) + '"') + '/>' : '') +
+        (original ? '<img class="shot" src="' + esc(src) + '" alt=""' +
+          (src === original ? '' : ' data-fallback="' + esc(original) + '"') + '/>' : '') +
         '<div class="body">' +
           '<div class="hd">' +
             '<span class="num">' + String(i + 1).padStart(2, '0') + '</span>' +
@@ -1190,18 +1215,27 @@ export default class App extends React.Component {
         namePlaceholderHy: s.dialog.kind.indexOf('country') > -1 ? 'Ֆրանսիա' : 'Մադրիդ',
         namePlaceholderRu: s.dialog.kind.indexOf('country') > -1 ? 'Франция' : 'Мадрид',
         imageLabel: s.dialog.kind.indexOf('country') > -1 ? l.flagUrl : l.imageUrl,
+        // A photo already downloaded to public/photos/ shows as "saved" with a
+        // Replace button instead of its file path. A link the dev server
+        // couldn't download is still a bare URL on reopen, so it's flagged:
+        // that photo lives only as long as its host does.
+        photoSaved: /^photos\//.test(s.dialog.image) && !s.dialog.replacing,
+        photoLinkOnly: s.dialog.kind.indexOf('edit') === 0 && !s.dialog.imageTouched && /^https?:/.test(s.dialog.image),
+        replacing: !!s.dialog.replacing,
         withDescription: s.dialog.kind.indexOf('landmark') > -1,
         // Countries and cities carry their own Armenian/Russian names; places
         // translate their description instead.
         withNames: s.dialog.kind.indexOf('landmark') === -1,
-        hasPreview: !!(s.dialog.image && /^https?:|^data:/.test(s.dialog.image)),
+        hasPreview: !!(s.dialog.image && /^https?:|^data:|^photos\//.test(s.dialog.image)),
         submitLabel: s.dialog.kind.indexOf('edit') === 0 ? l.save : l.addBtn,
-      } : { title: '', name: '', nameHy: '', nameRu: '', image: '', description: '', descriptionEn: '', descriptionRu: '', coords: '', coordsError: false, nameLabel: '', namePlaceholder: '', namePlaceholderHy: '', namePlaceholderRu: '', imageLabel: '', withDescription: false, withNames: false, hasPreview: false, submitLabel: '' },
+      } : { title: '', name: '', nameHy: '', nameRu: '', image: '', description: '', descriptionEn: '', descriptionRu: '', coords: '', coordsError: false, nameLabel: '', namePlaceholder: '', namePlaceholderHy: '', namePlaceholderRu: '', imageLabel: '', photoSaved: false, photoLinkOnly: false, replacing: false, withDescription: false, withNames: false, hasPreview: false, submitLabel: '' },
       onDialogName: (e) => this.setState({ dialog: { ...s.dialog, name: e.target.value } }),
       onDialogNameHy: (e) => this.setState({ dialog: { ...s.dialog, nameHy: e.target.value } }),
       onDialogNameRu: (e) => this.setState({ dialog: { ...s.dialog, nameRu: e.target.value } }),
       // Image is a plain URL typed/pasted by the user — stored as a string, no upload.
-      onDialogImage: (e) => this.setState({ dialog: { ...s.dialog, image: e.target.value } }),
+      onDialogImage: (e) => this.setState({ dialog: { ...s.dialog, image: e.target.value, imageTouched: true } }),
+      onDialogReplaceImage: () => this.setState({ dialog: { ...s.dialog, replacing: true, replacedImage: s.dialog.image, image: '' } }),
+      onDialogKeepImage: () => this.setState({ dialog: { ...s.dialog, replacing: false, image: s.dialog.replacedImage } }),
       onDialogDescription: (e) => this.setState({ dialog: { ...s.dialog, description: e.target.value } }),
       onDialogDescriptionEn: (e) => this.setState({ dialog: { ...s.dialog, descriptionEn: e.target.value } }),
       onDialogDescriptionRu: (e) => this.setState({ dialog: { ...s.dialog, descriptionRu: e.target.value } }),
@@ -1491,10 +1525,23 @@ export default class App extends React.Component {
                   </label>
                 </>
               )}
-              <label style={css('display:block; margin-bottom:14px')}>
+              <div style={css('display:block; margin-bottom:14px')}>
                 <span style={css('display:block; margin-bottom:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-faint)')}>{V.dialog.imageLabel}</span>
-                <El as="input" type="url" value={V.dialog.image} onChange={V.onDialogImage} placeholder="https://…" base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid var(--border-soft); border-radius:11px; background:var(--field); color:var(--ink); font-size:14px; outline:none" focus="border-color:var(--accent)" />
-              </label>
+                {V.dialog.photoSaved ? (
+                  <div style={css('display:flex; align-items:center; justify-content:space-between; gap:10px; padding:6px 6px 6px 12px; border:1px solid var(--border-soft); border-radius:11px; background:var(--field)')}>
+                    <span style={css('font-size:14px; color:var(--accent)')}>✓ {V.L.photoSaved}</span>
+                    <El as="button" type="button" onClick={V.onDialogReplaceImage} base="border:1px solid var(--border-soft); border-radius:8px; padding:6px 12px; background:none; color:var(--ink); font-size:13px; cursor:pointer" hover="border-color:var(--accent); color:var(--accent)">{V.L.replacePhoto}</El>
+                  </div>
+                ) : (
+                  <El as="input" type="url" value={V.dialog.image} onChange={V.onDialogImage} placeholder="https://…" base="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid var(--border-soft); border-radius:11px; background:var(--field); color:var(--ink); font-size:14px; outline:none" focus="border-color:var(--accent)" />
+                )}
+                {V.dialog.replacing && (
+                  <El as="button" type="button" onClick={V.onDialogKeepImage} base="display:block; margin-top:5px; padding:0; border:none; background:none; font-size:12px; color:var(--ink-faint); cursor:pointer" hover="color:var(--accent)">{V.L.keepPhoto}</El>
+                )}
+                {V.dialog.photoLinkOnly && (
+                  <span style={css('display:block; margin-top:5px; font-size:12px; color:#b3543e')}>{V.L.photoLinkOnly}</span>
+                )}
+              </div>
               {V.dialog.withDescription && (
                 <>
                   <label style={css('display:block; margin-bottom:14px')}>

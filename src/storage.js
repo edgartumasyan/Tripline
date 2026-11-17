@@ -45,15 +45,20 @@ export async function loadData() {
   return await res.json()
 }
 
-// Persist the full dataset back to src/data.json via the dev API.
+// Persist the full dataset back to src/data.json via the dev API. Resolves to
+// the data as the server wrote it — which differs from what was sent once a
+// pasted image link has been downloaded to public/photos/ — or null if nothing
+// was saved.
 export async function saveData(data) {
   try {
-    await fetch(API, {
+    const res = await fetch(API, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     })
+    return res.ok ? await res.json() : null
   } catch {
     // dev API unavailable (e.g. production preview); change stays in memory only
+    return null
   }
 }

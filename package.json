@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "photos": "node scripts/photos.js"
   },
   "dependencies": {
     "html2canvas": "^1.4.1",

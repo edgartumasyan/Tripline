@@ -21,6 +21,7 @@ browse but nothing persists. **Adding a place is therefore a commit, not a datab
 npm run dev      # Vite dev server + the writable /api/data middleware — the only mode that can save
 npm run build    # production build to dist/ (also what CI runs)
 npm run preview  # serve dist/ — read-only, mirrors the deployed site
+npm run photos   # download any image links left in data.json into public/photos/
 ```
 
 The site's base path is `/Tripline/`, so dev and preview live at
@@ -64,6 +65,10 @@ Read `docs/ARCHITECTURE.md` for the detail. The shape in brief:
 - **Persistence is debounced and file-shaped.** `mutate()` deep-clones state, `persist()`
   PUTs to `/api/data` 400ms later. `goHome()` flushes the pending save, then re-fetches, so
   an external edit to `src/data.json` (a git pull, another tab) shows up without a reload.
+- **Photos are files, not links.** Pasted image URLs are downloaded on save into
+  `public/photos/` and the field rewritten to that relative path (`scripts/photos.js`, wired
+  into the `/api/data` PUT, which answers with the rewritten data). Unreferenced photo files
+  are deleted on every save. `npm run photos` converts the whole file. See `docs/DATA.md`.
 - **Lazy/heavy paths:** Leaflet map (`src/components/CityMap.jsx`) is `React.lazy`; jsPDF and
   html2canvas load only on the mobile print path.
 
